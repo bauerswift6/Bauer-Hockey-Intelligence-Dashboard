@@ -1,0 +1,2670 @@
+{
+  "n_sims": 250,
+  "alphas_swept": [
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8
+  ],
+  "best_alpha": 0.45,
+  "best_mae": 15.6565,
+  "best_rmse": 19.86918876049045,
+  "results": [
+    {
+      "alpha": 0.2,
+      "mae_team_gf": 17.6475,
+      "rmse_team_gf": 21.85004780315137,
+      "max_team_gf": 284.228,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 263.8,
+          "actual_gf": 268.0,
+          "delta": -4.2
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 270.7,
+          "actual_gf": 283.0,
+          "delta": -12.3
+        },
+        {
+          "team": "DET",
+          "sim_gf": 257.5,
+          "actual_gf": 239.0,
+          "delta": 18.5
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 263.2,
+          "actual_gf": 246.0,
+          "delta": 17.2
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 263.4,
+          "actual_gf": 279.0,
+          "delta": -15.6
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 265.4,
+          "actual_gf": 275.0,
+          "delta": -9.6
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 283.1,
+          "actual_gf": 286.0,
+          "delta": -2.9
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 254.4,
+          "actual_gf": 252.0,
+          "delta": 2.4
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 277.7,
+          "actual_gf": 291.0,
+          "delta": -13.3
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 270.6,
+          "actual_gf": 246.0,
+          "delta": 24.6
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 261.8,
+          "actual_gf": 226.0,
+          "delta": 35.8
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 264.3,
+          "actual_gf": 229.0,
+          "delta": 35.3
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 263.4,
+          "actual_gf": 235.0,
+          "delta": 28.4
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 254.8,
+          "actual_gf": 240.0,
+          "delta": 14.8
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 262.7,
+          "actual_gf": 290.0,
+          "delta": -27.3
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 270.5,
+          "actual_gf": 261.0,
+          "delta": 9.5
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 249.4,
+          "actual_gf": 210.0,
+          "delta": 39.4
+        },
+        {
+          "team": "COL",
+          "sim_gf": 284.2,
+          "actual_gf": 298.0,
+          "delta": -13.8
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 277.0,
+          "actual_gf": 273.0,
+          "delta": 4.0
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 272.3,
+          "actual_gf": 268.0,
+          "delta": 4.3
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 254.0,
+          "actual_gf": 242.0,
+          "delta": 12.0
+        },
+        {
+          "team": "STL",
+          "sim_gf": 253.0,
+          "actual_gf": 230.0,
+          "delta": 23.0
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 267.3,
+          "actual_gf": 268.0,
+          "delta": -0.7
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 266.5,
+          "actual_gf": 229.0,
+          "delta": 37.5
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 262.9,
+          "actual_gf": 265.0,
+          "delta": -2.1
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 252.3,
+          "actual_gf": 208.0,
+          "delta": 44.3
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 270.7,
+          "actual_gf": 282.0,
+          "delta": -11.3
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 257.7,
+          "actual_gf": 220.0,
+          "delta": 37.7
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 250.0,
+          "actual_gf": 224.0,
+          "delta": 26.0
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 245.3,
+          "actual_gf": 249.0,
+          "delta": -3.7
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 239.4,
+          "actual_gf": 210.0,
+          "delta": 29.4
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 267.5,
+          "actual_gf": 264.0,
+          "delta": 3.5
+        }
+      ]
+    },
+    {
+      "alpha": 0.25,
+      "mae_team_gf": 16.902375,
+      "rmse_team_gf": 20.899282990093223,
+      "max_team_gf": 289.36,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 263.2,
+          "actual_gf": 268.0,
+          "delta": -4.8
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 272.1,
+          "actual_gf": 283.0,
+          "delta": -10.9
+        },
+        {
+          "team": "DET",
+          "sim_gf": 256.7,
+          "actual_gf": 239.0,
+          "delta": 17.7
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 264.5,
+          "actual_gf": 246.0,
+          "delta": 18.5
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 265.4,
+          "actual_gf": 279.0,
+          "delta": -13.6
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 265.6,
+          "actual_gf": 275.0,
+          "delta": -9.4
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 285.8,
+          "actual_gf": 286.0,
+          "delta": -0.2
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 253.2,
+          "actual_gf": 252.0,
+          "delta": 1.2
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 280.8,
+          "actual_gf": 291.0,
+          "delta": -10.2
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 270.3,
+          "actual_gf": 246.0,
+          "delta": 24.3
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 264.3,
+          "actual_gf": 226.0,
+          "delta": 38.3
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 263.5,
+          "actual_gf": 229.0,
+          "delta": 34.5
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 262.8,
+          "actual_gf": 235.0,
+          "delta": 27.8
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 254.3,
+          "actual_gf": 240.0,
+          "delta": 14.3
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 263.2,
+          "actual_gf": 290.0,
+          "delta": -26.8
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 270.8,
+          "actual_gf": 261.0,
+          "delta": 9.8
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 246.2,
+          "actual_gf": 210.0,
+          "delta": 36.2
+        },
+        {
+          "team": "COL",
+          "sim_gf": 289.4,
+          "actual_gf": 298.0,
+          "delta": -8.6
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 280.4,
+          "actual_gf": 273.0,
+          "delta": 7.4
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 273.8,
+          "actual_gf": 268.0,
+          "delta": 5.8
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 251.9,
+          "actual_gf": 242.0,
+          "delta": 9.9
+        },
+        {
+          "team": "STL",
+          "sim_gf": 249.8,
+          "actual_gf": 230.0,
+          "delta": 19.8
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 269.1,
+          "actual_gf": 268.0,
+          "delta": 1.1
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 265.5,
+          "actual_gf": 229.0,
+          "delta": 36.5
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 262.5,
+          "actual_gf": 265.0,
+          "delta": -2.5
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 250.6,
+          "actual_gf": 208.0,
+          "delta": 42.6
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 272.8,
+          "actual_gf": 282.0,
+          "delta": -9.2
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 255.1,
+          "actual_gf": 220.0,
+          "delta": 35.1
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 245.4,
+          "actual_gf": 224.0,
+          "delta": 21.4
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 239.6,
+          "actual_gf": 249.0,
+          "delta": -9.4
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 237.4,
+          "actual_gf": 210.0,
+          "delta": 27.4
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 269.8,
+          "actual_gf": 264.0,
+          "delta": 5.8
+        }
+      ]
+    },
+    {
+      "alpha": 0.3,
+      "mae_team_gf": 16.62125,
+      "rmse_team_gf": 20.33648150492115,
+      "max_team_gf": 294.384,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 263.9,
+          "actual_gf": 268.0,
+          "delta": -4.1
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 273.0,
+          "actual_gf": 283.0,
+          "delta": -10.0
+        },
+        {
+          "team": "DET",
+          "sim_gf": 253.2,
+          "actual_gf": 239.0,
+          "delta": 14.2
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 264.4,
+          "actual_gf": 246.0,
+          "delta": 18.4
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 261.8,
+          "actual_gf": 279.0,
+          "delta": -17.2
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 267.3,
+          "actual_gf": 275.0,
+          "delta": -7.7
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 291.7,
+          "actual_gf": 286.0,
+          "delta": 5.7
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 252.7,
+          "actual_gf": 252.0,
+          "delta": 0.7
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 283.3,
+          "actual_gf": 291.0,
+          "delta": -7.7
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 271.1,
+          "actual_gf": 246.0,
+          "delta": 25.1
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 264.0,
+          "actual_gf": 226.0,
+          "delta": 38.0
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 263.6,
+          "actual_gf": 229.0,
+          "delta": 34.6
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 264.4,
+          "actual_gf": 235.0,
+          "delta": 29.4
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 253.5,
+          "actual_gf": 240.0,
+          "delta": 13.5
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 263.8,
+          "actual_gf": 290.0,
+          "delta": -26.2
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 272.8,
+          "actual_gf": 261.0,
+          "delta": 11.8
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 242.8,
+          "actual_gf": 210.0,
+          "delta": 32.8
+        },
+        {
+          "team": "COL",
+          "sim_gf": 294.4,
+          "actual_gf": 298.0,
+          "delta": -3.6
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 285.5,
+          "actual_gf": 273.0,
+          "delta": 12.5
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 276.0,
+          "actual_gf": 268.0,
+          "delta": 8.0
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 250.3,
+          "actual_gf": 242.0,
+          "delta": 8.3
+        },
+        {
+          "team": "STL",
+          "sim_gf": 245.8,
+          "actual_gf": 230.0,
+          "delta": 15.8
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 271.4,
+          "actual_gf": 268.0,
+          "delta": 3.4
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 266.9,
+          "actual_gf": 229.0,
+          "delta": 37.9
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 262.9,
+          "actual_gf": 265.0,
+          "delta": -2.1
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 248.0,
+          "actual_gf": 208.0,
+          "delta": 40.0
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 273.1,
+          "actual_gf": 282.0,
+          "delta": -8.9
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 254.8,
+          "actual_gf": 220.0,
+          "delta": 34.8
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 241.2,
+          "actual_gf": 224.0,
+          "delta": 17.2
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 234.7,
+          "actual_gf": 249.0,
+          "delta": -14.3
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 231.9,
+          "actual_gf": 210.0,
+          "delta": 21.9
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 270.2,
+          "actual_gf": 264.0,
+          "delta": 6.2
+        }
+      ]
+    },
+    {
+      "alpha": 0.35,
+      "mae_team_gf": 16.189,
+      "rmse_team_gf": 20.03252617619655,
+      "max_team_gf": 298.672,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 264.5,
+          "actual_gf": 268.0,
+          "delta": -3.5
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 277.0,
+          "actual_gf": 283.0,
+          "delta": -6.0
+        },
+        {
+          "team": "DET",
+          "sim_gf": 252.6,
+          "actual_gf": 239.0,
+          "delta": 13.6
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 266.7,
+          "actual_gf": 246.0,
+          "delta": 20.7
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 263.7,
+          "actual_gf": 279.0,
+          "delta": -15.3
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 263.9,
+          "actual_gf": 275.0,
+          "delta": -11.1
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 293.2,
+          "actual_gf": 286.0,
+          "delta": 7.2
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 250.2,
+          "actual_gf": 252.0,
+          "delta": -1.8
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 286.3,
+          "actual_gf": 291.0,
+          "delta": -4.7
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 272.1,
+          "actual_gf": 246.0,
+          "delta": 26.1
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 264.7,
+          "actual_gf": 226.0,
+          "delta": 38.7
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 266.2,
+          "actual_gf": 229.0,
+          "delta": 37.2
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 264.3,
+          "actual_gf": 235.0,
+          "delta": 29.3
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 248.7,
+          "actual_gf": 240.0,
+          "delta": 8.7
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 264.7,
+          "actual_gf": 290.0,
+          "delta": -25.3
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 276.7,
+          "actual_gf": 261.0,
+          "delta": 15.7
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 239.5,
+          "actual_gf": 210.0,
+          "delta": 29.5
+        },
+        {
+          "team": "COL",
+          "sim_gf": 298.7,
+          "actual_gf": 298.0,
+          "delta": 0.7
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 287.3,
+          "actual_gf": 273.0,
+          "delta": 14.3
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 276.9,
+          "actual_gf": 268.0,
+          "delta": 8.9
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 247.7,
+          "actual_gf": 242.0,
+          "delta": 5.7
+        },
+        {
+          "team": "STL",
+          "sim_gf": 243.9,
+          "actual_gf": 230.0,
+          "delta": 13.9
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 269.4,
+          "actual_gf": 268.0,
+          "delta": 1.4
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 268.4,
+          "actual_gf": 229.0,
+          "delta": 39.4
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 261.9,
+          "actual_gf": 265.0,
+          "delta": -3.1
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 246.8,
+          "actual_gf": 208.0,
+          "delta": 38.8
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 273.9,
+          "actual_gf": 282.0,
+          "delta": -8.1
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 251.0,
+          "actual_gf": 220.0,
+          "delta": 31.0
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 238.2,
+          "actual_gf": 224.0,
+          "delta": 14.2
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 230.5,
+          "actual_gf": 249.0,
+          "delta": -18.5
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 225.9,
+          "actual_gf": 210.0,
+          "delta": 15.9
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 273.9,
+          "actual_gf": 264.0,
+          "delta": 9.9
+        }
+      ]
+    },
+    {
+      "alpha": 0.4,
+      "mae_team_gf": 16.05225,
+      "rmse_team_gf": 19.954266586371947,
+      "max_team_gf": 302.696,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 264.1,
+          "actual_gf": 268.0,
+          "delta": -3.9
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 279.3,
+          "actual_gf": 283.0,
+          "delta": -3.7
+        },
+        {
+          "team": "DET",
+          "sim_gf": 251.7,
+          "actual_gf": 239.0,
+          "delta": 12.7
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 266.8,
+          "actual_gf": 246.0,
+          "delta": 20.8
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 263.2,
+          "actual_gf": 279.0,
+          "delta": -15.8
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 267.4,
+          "actual_gf": 275.0,
+          "delta": -7.6
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 298.6,
+          "actual_gf": 286.0,
+          "delta": 12.6
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 246.6,
+          "actual_gf": 252.0,
+          "delta": -5.4
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 288.4,
+          "actual_gf": 291.0,
+          "delta": -2.6
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 275.2,
+          "actual_gf": 246.0,
+          "delta": 29.2
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 264.0,
+          "actual_gf": 226.0,
+          "delta": 38.0
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 265.0,
+          "actual_gf": 229.0,
+          "delta": 36.0
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 264.3,
+          "actual_gf": 235.0,
+          "delta": 29.3
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 248.0,
+          "actual_gf": 240.0,
+          "delta": 8.0
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 263.8,
+          "actual_gf": 290.0,
+          "delta": -26.2
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 279.3,
+          "actual_gf": 261.0,
+          "delta": 18.3
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 236.0,
+          "actual_gf": 210.0,
+          "delta": 26.0
+        },
+        {
+          "team": "COL",
+          "sim_gf": 302.7,
+          "actual_gf": 298.0,
+          "delta": 4.7
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 290.7,
+          "actual_gf": 273.0,
+          "delta": 17.7
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 278.7,
+          "actual_gf": 268.0,
+          "delta": 10.7
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 245.2,
+          "actual_gf": 242.0,
+          "delta": 3.2
+        },
+        {
+          "team": "STL",
+          "sim_gf": 240.8,
+          "actual_gf": 230.0,
+          "delta": 10.8
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 270.3,
+          "actual_gf": 268.0,
+          "delta": 2.3
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 269.2,
+          "actual_gf": 229.0,
+          "delta": 40.2
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 263.7,
+          "actual_gf": 265.0,
+          "delta": -1.3
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 246.2,
+          "actual_gf": 208.0,
+          "delta": 38.2
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 276.4,
+          "actual_gf": 282.0,
+          "delta": -5.6
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 249.6,
+          "actual_gf": 220.0,
+          "delta": 29.6
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 234.0,
+          "actual_gf": 224.0,
+          "delta": 10.0
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 226.1,
+          "actual_gf": 249.0,
+          "delta": -22.9
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 221.2,
+          "actual_gf": 210.0,
+          "delta": 11.2
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 273.2,
+          "actual_gf": 264.0,
+          "delta": 9.2
+        }
+      ]
+    },
+    {
+      "alpha": 0.45,
+      "mae_team_gf": 15.6565,
+      "rmse_team_gf": 19.86918876049045,
+      "max_team_gf": 307.508,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 267.4,
+          "actual_gf": 268.0,
+          "delta": -0.6
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 280.9,
+          "actual_gf": 283.0,
+          "delta": -2.1
+        },
+        {
+          "team": "DET",
+          "sim_gf": 252.0,
+          "actual_gf": 239.0,
+          "delta": 13.0
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 264.2,
+          "actual_gf": 246.0,
+          "delta": 18.2
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 264.9,
+          "actual_gf": 279.0,
+          "delta": -14.1
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 267.6,
+          "actual_gf": 275.0,
+          "delta": -7.4
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 303.0,
+          "actual_gf": 286.0,
+          "delta": 17.0
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 246.8,
+          "actual_gf": 252.0,
+          "delta": -5.2
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 290.6,
+          "actual_gf": 291.0,
+          "delta": -0.4
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 274.4,
+          "actual_gf": 246.0,
+          "delta": 28.4
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 265.9,
+          "actual_gf": 226.0,
+          "delta": 39.9
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 264.2,
+          "actual_gf": 229.0,
+          "delta": 35.2
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 264.1,
+          "actual_gf": 235.0,
+          "delta": 29.1
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 245.2,
+          "actual_gf": 240.0,
+          "delta": 5.2
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 261.7,
+          "actual_gf": 290.0,
+          "delta": -28.3
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 278.2,
+          "actual_gf": 261.0,
+          "delta": 17.2
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 232.3,
+          "actual_gf": 210.0,
+          "delta": 22.3
+        },
+        {
+          "team": "COL",
+          "sim_gf": 307.5,
+          "actual_gf": 298.0,
+          "delta": 9.5
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 295.7,
+          "actual_gf": 273.0,
+          "delta": 22.7
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 281.9,
+          "actual_gf": 268.0,
+          "delta": 13.9
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 244.5,
+          "actual_gf": 242.0,
+          "delta": 2.5
+        },
+        {
+          "team": "STL",
+          "sim_gf": 237.0,
+          "actual_gf": 230.0,
+          "delta": 7.0
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 271.4,
+          "actual_gf": 268.0,
+          "delta": 3.4
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 270.6,
+          "actual_gf": 229.0,
+          "delta": 41.6
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 266.3,
+          "actual_gf": 265.0,
+          "delta": 1.3
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 241.3,
+          "actual_gf": 208.0,
+          "delta": 33.3
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 278.7,
+          "actual_gf": 282.0,
+          "delta": -3.3
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 249.0,
+          "actual_gf": 220.0,
+          "delta": 29.0
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 232.4,
+          "actual_gf": 224.0,
+          "delta": 8.4
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 222.4,
+          "actual_gf": 249.0,
+          "delta": -26.6
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 215.1,
+          "actual_gf": 210.0,
+          "delta": 5.1
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 274.0,
+          "actual_gf": 264.0,
+          "delta": 10.0
+        }
+      ]
+    },
+    {
+      "alpha": 0.5,
+      "mae_team_gf": 16.432500000000005,
+      "rmse_team_gf": 20.690326821971663,
+      "max_team_gf": 312.72,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 265.6,
+          "actual_gf": 268.0,
+          "delta": -2.4
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 279.8,
+          "actual_gf": 283.0,
+          "delta": -3.2
+        },
+        {
+          "team": "DET",
+          "sim_gf": 249.7,
+          "actual_gf": 239.0,
+          "delta": 10.7
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 268.0,
+          "actual_gf": 246.0,
+          "delta": 22.0
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 264.1,
+          "actual_gf": 279.0,
+          "delta": -14.9
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 264.4,
+          "actual_gf": 275.0,
+          "delta": -10.6
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 308.6,
+          "actual_gf": 286.0,
+          "delta": 22.6
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 242.9,
+          "actual_gf": 252.0,
+          "delta": -9.1
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 295.8,
+          "actual_gf": 291.0,
+          "delta": 4.8
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 277.7,
+          "actual_gf": 246.0,
+          "delta": 31.7
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 263.2,
+          "actual_gf": 226.0,
+          "delta": 37.2
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 264.6,
+          "actual_gf": 229.0,
+          "delta": 35.6
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 266.8,
+          "actual_gf": 235.0,
+          "delta": 31.8
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 244.3,
+          "actual_gf": 240.0,
+          "delta": 4.3
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 263.2,
+          "actual_gf": 290.0,
+          "delta": -26.8
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 280.3,
+          "actual_gf": 261.0,
+          "delta": 19.3
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 230.2,
+          "actual_gf": 210.0,
+          "delta": 20.2
+        },
+        {
+          "team": "COL",
+          "sim_gf": 312.7,
+          "actual_gf": 298.0,
+          "delta": 14.7
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 300.0,
+          "actual_gf": 273.0,
+          "delta": 27.0
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 283.9,
+          "actual_gf": 268.0,
+          "delta": 15.9
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 242.4,
+          "actual_gf": 242.0,
+          "delta": 0.4
+        },
+        {
+          "team": "STL",
+          "sim_gf": 236.1,
+          "actual_gf": 230.0,
+          "delta": 6.1
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 270.5,
+          "actual_gf": 268.0,
+          "delta": 2.5
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 270.5,
+          "actual_gf": 229.0,
+          "delta": 41.5
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 265.9,
+          "actual_gf": 265.0,
+          "delta": 0.9
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 240.3,
+          "actual_gf": 208.0,
+          "delta": 32.3
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 279.4,
+          "actual_gf": 282.0,
+          "delta": -2.6
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 248.7,
+          "actual_gf": 220.0,
+          "delta": 28.7
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 227.1,
+          "actual_gf": 224.0,
+          "delta": 3.1
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 218.0,
+          "actual_gf": 249.0,
+          "delta": -31.0
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 209.7,
+          "actual_gf": 210.0,
+          "delta": -0.3
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 275.7,
+          "actual_gf": 264.0,
+          "delta": 11.7
+        }
+      ]
+    },
+    {
+      "alpha": 0.55,
+      "mae_team_gf": 16.897375000000004,
+      "rmse_team_gf": 21.087925775191835,
+      "max_team_gf": 316.936,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 265.9,
+          "actual_gf": 268.0,
+          "delta": -2.1
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 282.4,
+          "actual_gf": 283.0,
+          "delta": -0.6
+        },
+        {
+          "team": "DET",
+          "sim_gf": 248.0,
+          "actual_gf": 239.0,
+          "delta": 9.0
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 266.7,
+          "actual_gf": 246.0,
+          "delta": 20.7
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 265.4,
+          "actual_gf": 279.0,
+          "delta": -13.6
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 265.0,
+          "actual_gf": 275.0,
+          "delta": -10.0
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 313.0,
+          "actual_gf": 286.0,
+          "delta": 27.0
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 242.2,
+          "actual_gf": 252.0,
+          "delta": -9.8
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 299.6,
+          "actual_gf": 291.0,
+          "delta": 8.6
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 278.8,
+          "actual_gf": 246.0,
+          "delta": 32.8
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 262.8,
+          "actual_gf": 226.0,
+          "delta": 36.8
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 266.7,
+          "actual_gf": 229.0,
+          "delta": 37.7
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 265.4,
+          "actual_gf": 235.0,
+          "delta": 30.4
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 242.9,
+          "actual_gf": 240.0,
+          "delta": 2.9
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 266.5,
+          "actual_gf": 290.0,
+          "delta": -23.5
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 281.1,
+          "actual_gf": 261.0,
+          "delta": 20.1
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 226.8,
+          "actual_gf": 210.0,
+          "delta": 16.8
+        },
+        {
+          "team": "COL",
+          "sim_gf": 316.9,
+          "actual_gf": 298.0,
+          "delta": 18.9
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 301.6,
+          "actual_gf": 273.0,
+          "delta": 28.6
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 286.0,
+          "actual_gf": 268.0,
+          "delta": 18.0
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 237.9,
+          "actual_gf": 242.0,
+          "delta": -4.1
+        },
+        {
+          "team": "STL",
+          "sim_gf": 232.5,
+          "actual_gf": 230.0,
+          "delta": 2.5
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 275.5,
+          "actual_gf": 268.0,
+          "delta": 7.5
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 272.4,
+          "actual_gf": 229.0,
+          "delta": 43.4
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 262.8,
+          "actual_gf": 265.0,
+          "delta": -2.2
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 236.6,
+          "actual_gf": 208.0,
+          "delta": 28.6
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 283.5,
+          "actual_gf": 282.0,
+          "delta": 1.5
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 247.5,
+          "actual_gf": 220.0,
+          "delta": 27.5
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 222.4,
+          "actual_gf": 224.0,
+          "delta": -1.6
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 213.4,
+          "actual_gf": 249.0,
+          "delta": -35.6
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 204.4,
+          "actual_gf": 210.0,
+          "delta": -5.6
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 276.8,
+          "actual_gf": 264.0,
+          "delta": 12.8
+        }
+      ]
+    },
+    {
+      "alpha": 0.6,
+      "mae_team_gf": 17.645,
+      "rmse_team_gf": 21.942435097317706,
+      "max_team_gf": 323.296,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 264.4,
+          "actual_gf": 268.0,
+          "delta": -3.6
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 285.0,
+          "actual_gf": 283.0,
+          "delta": 2.0
+        },
+        {
+          "team": "DET",
+          "sim_gf": 246.6,
+          "actual_gf": 239.0,
+          "delta": 7.6
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 268.0,
+          "actual_gf": 246.0,
+          "delta": 22.0
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 266.2,
+          "actual_gf": 279.0,
+          "delta": -12.8
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 266.4,
+          "actual_gf": 275.0,
+          "delta": -8.6
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 316.0,
+          "actual_gf": 286.0,
+          "delta": 30.0
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 239.7,
+          "actual_gf": 252.0,
+          "delta": -12.3
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 300.5,
+          "actual_gf": 291.0,
+          "delta": 9.5
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 280.4,
+          "actual_gf": 246.0,
+          "delta": 34.4
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 264.6,
+          "actual_gf": 226.0,
+          "delta": 38.6
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 265.0,
+          "actual_gf": 229.0,
+          "delta": 36.0
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 264.6,
+          "actual_gf": 235.0,
+          "delta": 29.6
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 240.2,
+          "actual_gf": 240.0,
+          "delta": 0.2
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 265.4,
+          "actual_gf": 290.0,
+          "delta": -24.6
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 283.0,
+          "actual_gf": 261.0,
+          "delta": 22.0
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 221.8,
+          "actual_gf": 210.0,
+          "delta": 11.8
+        },
+        {
+          "team": "COL",
+          "sim_gf": 323.3,
+          "actual_gf": 298.0,
+          "delta": 25.3
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 307.7,
+          "actual_gf": 273.0,
+          "delta": 34.7
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 287.9,
+          "actual_gf": 268.0,
+          "delta": 19.9
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 236.7,
+          "actual_gf": 242.0,
+          "delta": -5.3
+        },
+        {
+          "team": "STL",
+          "sim_gf": 231.2,
+          "actual_gf": 230.0,
+          "delta": 1.2
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 275.0,
+          "actual_gf": 268.0,
+          "delta": 7.0
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 272.9,
+          "actual_gf": 229.0,
+          "delta": 43.9
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 264.6,
+          "actual_gf": 265.0,
+          "delta": -0.4
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 235.5,
+          "actual_gf": 208.0,
+          "delta": 27.5
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 283.7,
+          "actual_gf": 282.0,
+          "delta": 1.7
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 244.6,
+          "actual_gf": 220.0,
+          "delta": 24.6
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 219.7,
+          "actual_gf": 224.0,
+          "delta": -4.3
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 210.9,
+          "actual_gf": 249.0,
+          "delta": -38.1
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 198.7,
+          "actual_gf": 210.0,
+          "delta": -11.3
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 278.1,
+          "actual_gf": 264.0,
+          "delta": 14.1
+        }
+      ]
+    },
+    {
+      "alpha": 0.65,
+      "mae_team_gf": 18.768499999999996,
+      "rmse_team_gf": 23.180088632272305,
+      "max_team_gf": 328.124,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 265.9,
+          "actual_gf": 268.0,
+          "delta": -2.1
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 286.9,
+          "actual_gf": 283.0,
+          "delta": 3.9
+        },
+        {
+          "team": "DET",
+          "sim_gf": 244.3,
+          "actual_gf": 239.0,
+          "delta": 5.3
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 268.7,
+          "actual_gf": 246.0,
+          "delta": 22.7
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 264.4,
+          "actual_gf": 279.0,
+          "delta": -14.6
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 265.9,
+          "actual_gf": 275.0,
+          "delta": -9.1
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 319.9,
+          "actual_gf": 286.0,
+          "delta": 33.9
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 239.9,
+          "actual_gf": 252.0,
+          "delta": -12.1
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 305.2,
+          "actual_gf": 291.0,
+          "delta": 14.2
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 280.4,
+          "actual_gf": 246.0,
+          "delta": 34.4
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 265.9,
+          "actual_gf": 226.0,
+          "delta": 39.9
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 266.9,
+          "actual_gf": 229.0,
+          "delta": 37.9
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 264.9,
+          "actual_gf": 235.0,
+          "delta": 29.9
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 239.1,
+          "actual_gf": 240.0,
+          "delta": -0.9
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 263.8,
+          "actual_gf": 290.0,
+          "delta": -26.2
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 285.9,
+          "actual_gf": 261.0,
+          "delta": 24.9
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 217.9,
+          "actual_gf": 210.0,
+          "delta": 7.9
+        },
+        {
+          "team": "COL",
+          "sim_gf": 328.1,
+          "actual_gf": 298.0,
+          "delta": 30.1
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 307.8,
+          "actual_gf": 273.0,
+          "delta": 34.8
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 287.1,
+          "actual_gf": 268.0,
+          "delta": 19.1
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 235.5,
+          "actual_gf": 242.0,
+          "delta": -6.5
+        },
+        {
+          "team": "STL",
+          "sim_gf": 229.7,
+          "actual_gf": 230.0,
+          "delta": -0.3
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 276.8,
+          "actual_gf": 268.0,
+          "delta": 8.8
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 274.2,
+          "actual_gf": 229.0,
+          "delta": 45.2
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 264.6,
+          "actual_gf": 265.0,
+          "delta": -0.4
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 231.3,
+          "actual_gf": 208.0,
+          "delta": 23.3
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 285.2,
+          "actual_gf": 282.0,
+          "delta": 3.2
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 242.9,
+          "actual_gf": 220.0,
+          "delta": 22.9
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 214.6,
+          "actual_gf": 224.0,
+          "delta": -9.4
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 203.6,
+          "actual_gf": 249.0,
+          "delta": -45.4
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 193.8,
+          "actual_gf": 210.0,
+          "delta": -16.2
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 279.3,
+          "actual_gf": 264.0,
+          "delta": 15.3
+        }
+      ]
+    },
+    {
+      "alpha": 0.7,
+      "mae_team_gf": 20.375374999999995,
+      "rmse_team_gf": 24.572164648235606,
+      "max_team_gf": 333.256,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 266.2,
+          "actual_gf": 268.0,
+          "delta": -1.8
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 289.2,
+          "actual_gf": 283.0,
+          "delta": 6.2
+        },
+        {
+          "team": "DET",
+          "sim_gf": 246.2,
+          "actual_gf": 239.0,
+          "delta": 7.2
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 269.3,
+          "actual_gf": 246.0,
+          "delta": 23.3
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 263.7,
+          "actual_gf": 279.0,
+          "delta": -15.3
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 266.8,
+          "actual_gf": 275.0,
+          "delta": -8.2
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 325.9,
+          "actual_gf": 286.0,
+          "delta": 39.9
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 236.3,
+          "actual_gf": 252.0,
+          "delta": -15.7
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 308.0,
+          "actual_gf": 291.0,
+          "delta": 17.0
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 281.5,
+          "actual_gf": 246.0,
+          "delta": 35.5
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 264.6,
+          "actual_gf": 226.0,
+          "delta": 38.6
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 266.5,
+          "actual_gf": 229.0,
+          "delta": 37.5
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 262.8,
+          "actual_gf": 235.0,
+          "delta": 27.8
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 236.1,
+          "actual_gf": 240.0,
+          "delta": -3.9
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 266.6,
+          "actual_gf": 290.0,
+          "delta": -23.4
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 284.9,
+          "actual_gf": 261.0,
+          "delta": 23.9
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 216.5,
+          "actual_gf": 210.0,
+          "delta": 6.5
+        },
+        {
+          "team": "COL",
+          "sim_gf": 333.3,
+          "actual_gf": 298.0,
+          "delta": 35.3
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 313.7,
+          "actual_gf": 273.0,
+          "delta": 40.7
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 290.8,
+          "actual_gf": 268.0,
+          "delta": 22.8
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 232.2,
+          "actual_gf": 242.0,
+          "delta": -9.8
+        },
+        {
+          "team": "STL",
+          "sim_gf": 225.9,
+          "actual_gf": 230.0,
+          "delta": -4.1
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 275.9,
+          "actual_gf": 268.0,
+          "delta": 7.9
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 274.9,
+          "actual_gf": 229.0,
+          "delta": 45.9
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 264.4,
+          "actual_gf": 265.0,
+          "delta": -0.6
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 232.2,
+          "actual_gf": 208.0,
+          "delta": 24.2
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 286.8,
+          "actual_gf": 282.0,
+          "delta": 4.8
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 242.1,
+          "actual_gf": 220.0,
+          "delta": 22.1
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 209.8,
+          "actual_gf": 224.0,
+          "delta": -14.2
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 200.3,
+          "actual_gf": 249.0,
+          "delta": -48.7
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 188.7,
+          "actual_gf": 210.0,
+          "delta": -21.3
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 282.1,
+          "actual_gf": 264.0,
+          "delta": 18.1
+        }
+      ]
+    },
+    {
+      "alpha": 0.75,
+      "mae_team_gf": 21.634375,
+      "rmse_team_gf": 26.126795584227317,
+      "max_team_gf": 335.84,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 265.3,
+          "actual_gf": 268.0,
+          "delta": -2.7
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 291.5,
+          "actual_gf": 283.0,
+          "delta": 8.5
+        },
+        {
+          "team": "DET",
+          "sim_gf": 243.1,
+          "actual_gf": 239.0,
+          "delta": 4.1
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 266.9,
+          "actual_gf": 246.0,
+          "delta": 20.9
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 265.3,
+          "actual_gf": 279.0,
+          "delta": -13.7
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 268.0,
+          "actual_gf": 275.0,
+          "delta": -7.0
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 329.5,
+          "actual_gf": 286.0,
+          "delta": 43.5
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 235.6,
+          "actual_gf": 252.0,
+          "delta": -16.4
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 310.3,
+          "actual_gf": 291.0,
+          "delta": 19.3
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 283.3,
+          "actual_gf": 246.0,
+          "delta": 37.3
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 265.9,
+          "actual_gf": 226.0,
+          "delta": 39.9
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 269.0,
+          "actual_gf": 229.0,
+          "delta": 40.0
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 267.4,
+          "actual_gf": 235.0,
+          "delta": 32.4
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 233.0,
+          "actual_gf": 240.0,
+          "delta": -7.0
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 265.3,
+          "actual_gf": 290.0,
+          "delta": -24.7
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 288.2,
+          "actual_gf": 261.0,
+          "delta": 27.2
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 211.9,
+          "actual_gf": 210.0,
+          "delta": 1.9
+        },
+        {
+          "team": "COL",
+          "sim_gf": 335.8,
+          "actual_gf": 298.0,
+          "delta": 37.8
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 314.7,
+          "actual_gf": 273.0,
+          "delta": 41.7
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 293.7,
+          "actual_gf": 268.0,
+          "delta": 25.7
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 228.7,
+          "actual_gf": 242.0,
+          "delta": -13.3
+        },
+        {
+          "team": "STL",
+          "sim_gf": 221.9,
+          "actual_gf": 230.0,
+          "delta": -8.1
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 278.4,
+          "actual_gf": 268.0,
+          "delta": 10.4
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 274.3,
+          "actual_gf": 229.0,
+          "delta": 45.3
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 264.1,
+          "actual_gf": 265.0,
+          "delta": -0.9
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 228.4,
+          "actual_gf": 208.0,
+          "delta": 20.4
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 290.3,
+          "actual_gf": 282.0,
+          "delta": 8.3
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 241.2,
+          "actual_gf": 220.0,
+          "delta": 21.2
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 210.2,
+          "actual_gf": 224.0,
+          "delta": -13.8
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 192.5,
+          "actual_gf": 249.0,
+          "delta": -56.5
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 184.0,
+          "actual_gf": 210.0,
+          "delta": -26.0
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 280.1,
+          "actual_gf": 264.0,
+          "delta": 16.1
+        }
+      ]
+    },
+    {
+      "alpha": 0.8,
+      "mae_team_gf": 23.023249999999997,
+      "rmse_team_gf": 27.63344569538877,
+      "max_team_gf": 341.74,
+      "max_team": "COL",
+      "per_team": [
+        {
+          "team": "BOS",
+          "sim_gf": 264.4,
+          "actual_gf": 268.0,
+          "delta": -3.6
+        },
+        {
+          "team": "BUF",
+          "sim_gf": 295.4,
+          "actual_gf": 283.0,
+          "delta": 12.4
+        },
+        {
+          "team": "DET",
+          "sim_gf": 241.0,
+          "actual_gf": 239.0,
+          "delta": 2.0
+        },
+        {
+          "team": "FLA",
+          "sim_gf": 268.5,
+          "actual_gf": 246.0,
+          "delta": 22.5
+        },
+        {
+          "team": "MTL",
+          "sim_gf": 263.9,
+          "actual_gf": 279.0,
+          "delta": -15.1
+        },
+        {
+          "team": "OTT",
+          "sim_gf": 267.0,
+          "actual_gf": 275.0,
+          "delta": -8.0
+        },
+        {
+          "team": "TBL",
+          "sim_gf": 332.5,
+          "actual_gf": 286.0,
+          "delta": 46.5
+        },
+        {
+          "team": "TOR",
+          "sim_gf": 235.4,
+          "actual_gf": 252.0,
+          "delta": -16.6
+        },
+        {
+          "team": "CAR",
+          "sim_gf": 314.4,
+          "actual_gf": 291.0,
+          "delta": 23.4
+        },
+        {
+          "team": "CBJ",
+          "sim_gf": 284.1,
+          "actual_gf": 246.0,
+          "delta": 38.1
+        },
+        {
+          "team": "NJD",
+          "sim_gf": 264.6,
+          "actual_gf": 226.0,
+          "delta": 38.6
+        },
+        {
+          "team": "NYI",
+          "sim_gf": 269.4,
+          "actual_gf": 229.0,
+          "delta": 40.4
+        },
+        {
+          "team": "NYR",
+          "sim_gf": 265.9,
+          "actual_gf": 235.0,
+          "delta": 30.9
+        },
+        {
+          "team": "PHI",
+          "sim_gf": 231.8,
+          "actual_gf": 240.0,
+          "delta": -8.2
+        },
+        {
+          "team": "PIT",
+          "sim_gf": 264.3,
+          "actual_gf": 290.0,
+          "delta": -25.7
+        },
+        {
+          "team": "WSH",
+          "sim_gf": 289.2,
+          "actual_gf": 261.0,
+          "delta": 28.2
+        },
+        {
+          "team": "CHI",
+          "sim_gf": 209.5,
+          "actual_gf": 210.0,
+          "delta": -0.5
+        },
+        {
+          "team": "COL",
+          "sim_gf": 341.7,
+          "actual_gf": 298.0,
+          "delta": 43.7
+        },
+        {
+          "team": "DAL",
+          "sim_gf": 321.1,
+          "actual_gf": 273.0,
+          "delta": 48.1
+        },
+        {
+          "team": "MIN",
+          "sim_gf": 293.8,
+          "actual_gf": 268.0,
+          "delta": 25.8
+        },
+        {
+          "team": "NSH",
+          "sim_gf": 228.1,
+          "actual_gf": 242.0,
+          "delta": -13.9
+        },
+        {
+          "team": "STL",
+          "sim_gf": 219.3,
+          "actual_gf": 230.0,
+          "delta": -10.7
+        },
+        {
+          "team": "UTA",
+          "sim_gf": 278.1,
+          "actual_gf": 268.0,
+          "delta": 10.1
+        },
+        {
+          "team": "WPG",
+          "sim_gf": 273.9,
+          "actual_gf": 229.0,
+          "delta": 44.9
+        },
+        {
+          "team": "ANA",
+          "sim_gf": 267.5,
+          "actual_gf": 265.0,
+          "delta": 2.5
+        },
+        {
+          "team": "CGY",
+          "sim_gf": 226.4,
+          "actual_gf": 208.0,
+          "delta": 18.4
+        },
+        {
+          "team": "EDM",
+          "sim_gf": 290.3,
+          "actual_gf": 282.0,
+          "delta": 8.3
+        },
+        {
+          "team": "LAK",
+          "sim_gf": 239.6,
+          "actual_gf": 220.0,
+          "delta": 19.6
+        },
+        {
+          "team": "SEA",
+          "sim_gf": 204.1,
+          "actual_gf": 224.0,
+          "delta": -19.9
+        },
+        {
+          "team": "SJS",
+          "sim_gf": 189.9,
+          "actual_gf": 249.0,
+          "delta": -59.1
+        },
+        {
+          "team": "VAN",
+          "sim_gf": 176.7,
+          "actual_gf": 210.0,
+          "delta": -33.3
+        },
+        {
+          "team": "VGK",
+          "sim_gf": 281.8,
+          "actual_gf": 264.0,
+          "delta": 17.8
+        }
+      ]
+    }
+  ],
+  "actual_team_gf": {
+    "NYR": 235.0,
+    "LAK": 220.0,
+    "NYI": 229.0,
+    "MTL": 279.0,
+    "NJD": 226.0,
+    "TOR": 252.0,
+    "OTT": 275.0,
+    "BOS": 268.0,
+    "EDM": 282.0,
+    "TBL": 286.0,
+    "UTA": 268.0,
+    "DET": 239.0,
+    "BUF": 283.0,
+    "VGK": 264.0,
+    "COL": 298.0,
+    "SEA": 224.0,
+    "WSH": 261.0,
+    "VAN": 210.0,
+    "PIT": 290.0,
+    "FLA": 246.0,
+    "WPG": 229.0,
+    "SJS": 249.0,
+    "NSH": 242.0,
+    "DAL": 273.0,
+    "STL": 230.0,
+    "CGY": 208.0,
+    "CAR": 291.0,
+    "MIN": 268.0,
+    "CHI": 210.0,
+    "PHI": 240.0,
+    "ANA": 265.0,
+    "CBJ": 246.0
+  }
+}

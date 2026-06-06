@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hockey Intelligence Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <h1 class="site-title">Hockey Intelligence Hub</h1>
+        <span id="brief-date" class="brief-date"></span>
+      </div>
+      <div class="header-right">
+        <span class="header-tag">Daily Hockey Intelligence</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== STICKY NAVIGATION (Country / League / Sub-page) ===== -->
+  <nav class="hub-nav" aria-label="Site navigation">
+
+    <!-- Country tabs -->
+    <div class="nav-row nav-countries" role="tablist" aria-label="Countries">
+      <div class="nav-inner">
+        <button class="nav-tab country-tab active" data-country="usa" role="tab" aria-selected="true">USA</button>
+        <button class="nav-tab country-tab" data-country="canada" role="tab" aria-selected="false">Canada</button>
+        <button class="nav-tab country-tab" data-country="international" role="tab" aria-selected="false">International</button>
+      </div>
+    </div>
+
+    <!-- League tabs (one row per country, only the active country's row shows) -->
+    <div class="nav-row nav-leagues" role="tablist" aria-label="Leagues">
+      <div class="nav-inner league-group" data-country="usa">
+        <button class="nav-tab league-tab active" data-league="nhl" aria-selected="true">NHL</button>
+        <button class="nav-tab league-tab" data-league="ahl" aria-selected="false">AHL</button>
+        <button class="nav-tab league-tab" data-league="echl" aria-selected="false">ECHL</button>
+        <button class="nav-tab league-tab" data-league="ushl" aria-selected="false">USHL</button>
+        <button class="nav-tab league-tab" data-league="ncaa" aria-selected="false">NCAA</button>
+      </div>
+      <div class="nav-inner league-group" data-country="canada" hidden>
+        <button class="nav-tab league-tab" data-league="ohl" aria-selected="false">OHL</button>
+        <button class="nav-tab league-tab" data-league="whl" aria-selected="false">WHL</button>
+        <button class="nav-tab league-tab" data-league="qmjhl" aria-selected="false">QMJHL</button>
+        <button class="nav-tab league-tab" data-league="bchl" aria-selected="false">BCHL</button>
+      </div>
+      <div class="nav-inner league-group" data-country="international" hidden>
+        <button class="nav-tab league-tab" data-league="khl" aria-selected="false">KHL</button>
+        <button class="nav-tab league-tab" data-league="shl" aria-selected="false">SHL</button>
+        <button class="nav-tab league-tab" data-league="liiga" aria-selected="false">Liiga</button>
+        <button class="nav-tab league-tab" data-league="del" aria-selected="false">DEL</button>
+        <button class="nav-tab league-tab" data-league="nl" aria-selected="false">NL</button>
+      </div>
+    </div>
+
+    <!-- Sub-page tabs (NHL has the full set; other leagues show a single Coming Soon) -->
+    <div class="nav-row nav-subpages" role="tablist" aria-label="Sub-pages">
+      <div class="nav-inner subpage-group" data-league="nhl">
+        <button class="nav-tab subpage-tab active" data-subpage="morning-brief" aria-selected="true">Morning Brief</button>
+        <button class="nav-tab subpage-tab" data-subpage="players" aria-selected="false">Players</button>
+        <button class="nav-tab subpage-tab" data-subpage="teams" aria-selected="false">Teams</button>
+        <button class="nav-tab subpage-tab" data-subpage="goalies" aria-selected="false">Goalies</button>
+        <button class="nav-tab subpage-tab" data-subpage="playoffs" aria-selected="false">Playoffs</button>
+        <button class="nav-tab subpage-tab" data-subpage="simulator" aria-selected="false">Simulator</button>
+        <button class="nav-tab subpage-tab" data-subpage="glossary" aria-selected="false">Glossary</button>
+      </div>
+      <div class="nav-inner subpage-group subpage-placeholder" hidden>
+        <span class="nav-tab subpage-tab coming-soon-tab" aria-disabled="true">Coming Soon</span>
+      </div>
+    </div>
+
+  </nav>
+
+  <main class="main-content">
+
+    <!-- =====================================================
+         NHL — MORNING BRIEF (3-zone newspaper layout)
+         ===================================================== -->
+    <section class="page-view" data-view="nhl/morning-brief">
+
+      <header class="mb-page-header">
+        <div class="mb-page-header-left">
+          <h2 class="mb-page-title">Morning Brief</h2>
+          <span id="mb-page-date" class="mb-page-date"></span>
+        </div>
+        <div class="mb-page-header-right">
+          <span class="mb-last-updated-label">Last updated</span>
+          <span id="mb-last-updated" class="mb-last-updated">—</span>
+        </div>
+      </header>
+
+      <!-- =========================
+           ZONE 1 — Recent Games (date carousel + selected-date games)
+           ========================= -->
+      <section class="section mb-zone zone-games" id="games-section">
+        <header class="zone-section-head games-section-head">
+          <h2 class="section-title" id="games-title">Recent Games</h2>
+        </header>
+        <div class="games-carousel" id="games-carousel">
+          <button type="button" class="games-carousel-arrow games-carousel-prev" id="games-carousel-prev" aria-label="Scroll dates left">‹</button>
+          <div class="games-carousel-rail" id="games-carousel-rail" role="tablist" aria-label="Date selector"></div>
+          <button type="button" class="games-carousel-arrow games-carousel-next" id="games-carousel-next" aria-label="Scroll dates right">›</button>
+        </div>
+        <div class="section-body">
+          <div class="spinner" id="games-spinner"></div>
+          <div id="games-content" hidden></div>
+          <div id="games-empty" class="empty-card games-empty" hidden>No games on this date</div>
+          <div id="games-error" class="error-msg" hidden>Failed to load games.</div>
+        </div>
+      </section>
+
+      <!-- =========================
+           ZONE 2 — Two-column: Playoff Form (60%) + News (40%)
+           ========================= -->
+      <div class="mb-zone zone-twocol">
+
+        <!-- Left 60% — Playoff Form Table -->
+        <section class="section zone-left" id="form-section">
+          <header class="zone-section-head">
+            <h2 class="section-title">Playoff Form — Last 10 Games</h2>
+            <div class="form-legend">
+              <span class="legend-item"><span class="form-dot form-dot-win"></span>Win</span>
+              <span class="legend-item"><span class="form-dot form-dot-loss"></span>Loss</span>
+              <span class="legend-item"><span class="form-dot form-dot-otl"></span>OT/SO Loss</span>
+            </div>
+          </header>
+          <div class="section-body">
+            <div class="spinner" id="form-spinner"></div>
+            <div id="form-content" hidden>
+              <div class="table-wrap">
+                <table class="data-table form-table">
+                  <thead>
+                    <tr>
+                      <th>Team</th>
+                      <th>Series</th>
+                      <th class="form-col">Last 10</th>
+                      <th>Streak</th>
+                      <th title="Goals for / goals against, last 10 games">GF / GA (L10)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="form-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div id="form-empty" class="empty-card" hidden>Playoffs not yet started — no qualifying teams.</div>
+            <div id="form-error" class="error-msg" hidden>Failed to load playoff form.</div>
+          </div>
+        </section>
+
+        <!-- Right 40% — League Headlines -->
+        <aside class="section zone-right" id="news-section">
+          <header class="zone-section-head">
+            <h2 class="section-title">League Headlines</h2>
+          </header>
+          <div class="section-body">
+            <div class="spinner" id="news-spinner"></div>
+            <ul id="news-list" class="news-list" hidden></ul>
+            <div id="news-empty" class="empty-card" hidden>No matching headlines.</div>
+            <div id="news-error" class="news-error" hidden>
+              News temporarily unavailable.
+              <a href="https://www.nhl.com/news" target="_blank" rel="noopener">Open NHL.com/news →</a>
+            </div>
+            <p id="news-source" class="news-source" hidden></p>
+          </div>
+        </aside>
+
+      </div>
+
+      <!-- =========================
+           Recent Transactions
+           ========================= -->
+      <section class="section mb-zone zone-transactions" id="transactions-section">
+        <header class="zone-section-head">
+          <h2 class="section-title">Recent Transactions</h2>
+        </header>
+        <div class="section-body">
+          <div class="spinner" id="transactions-spinner"></div>
+          <ul id="transactions-list" class="txn-list" hidden></ul>
+          <div id="transactions-empty" class="empty-card" hidden>No recent transactions.</div>
+          <div id="transactions-error" class="news-error" hidden>
+            Transactions temporarily unavailable.
+          </div>
+          <p id="transactions-source" class="news-source" hidden></p>
+        </div>
+      </section>
+
+      <!-- =========================
+           ZONE 3 — Playoff Bracket
+           ========================= -->
+      <section class="section mb-zone zone-bracket" id="bracket-section">
+        <h2 class="section-title">{{ season_label }} Stanley Cup Playoffs</h2>
+        <div class="section-body">
+          <div class="spinner" id="bracket-spinner"></div>
+          <div id="bracket-content" class="bracket" hidden></div>
+          <div id="bracket-empty" class="empty-card" hidden>Playoffs not yet started.</div>
+          <div id="bracket-error" class="error-msg" hidden>Failed to load playoff bracket.</div>
+
+          <h3 class="next-games-title">Next Games</h3>
+          <div id="next-games-content" class="next-games-row">
+            <span class="next-games-placeholder">—</span>
+          </div>
+        </div>
+      </section>
+
+    </section>
+
+    <!-- =====================================================
+         NHL — Other sub-pages
+         ===================================================== -->
+    <section class="page-view" data-view="nhl/players" hidden>
+
+      <!-- Page-level position filter (applies to all leaderboards on this page) -->
+      <div class="player-pos-filter" id="player-pos-filter">
+        <span class="filter-label">Position</span>
+        <div class="seg-control">
+          <button class="seg-btn pos-btn active" data-pos="all" aria-selected="true">All</button>
+          <button class="seg-btn pos-btn" data-pos="F" aria-selected="false">Forwards</button>
+          <button class="seg-btn pos-btn" data-pos="D" aria-selected="false">Defense</button>
+          <button class="seg-btn pos-btn" data-pos="G" aria-selected="false">Goalies</button>
+        </div>
+      </div>
+
+      <!-- Players in-page tab bar -->
+      <div class="players-tabbar" role="tablist" aria-label="Players sub-pages">
+        <button class="players-tab active" data-ptab="overview" role="tab" aria-selected="true">Overview</button>
+        <button class="players-tab" data-ptab="leaderboards" role="tab" aria-selected="false">Leaderboards</button>
+        <button class="players-tab" data-ptab="player-search" role="tab" aria-selected="false">Player Search</button>
+        <button class="players-tab" data-ptab="compare" role="tab" aria-selected="false">Compare</button>
+        <button class="players-tab" data-ptab="contract-value" role="tab" aria-selected="false">Contract Value</button>
+      </div>
+
+      <!-- ===== Overview tab — preview cards grid ===== -->
+      <div class="players-tab-panel" data-ptab="overview">
+        <header class="cv-header">
+          <h2 class="cv-title">Players Overview</h2>
+          <p class="cv-subtitle">Snapshot of league leaders across every major stat. Click any card to dive deeper.</p>
+        </header>
+        <div class="spinner" id="overview-spinner"></div>
+        <div class="overview-grid" id="overview-grid" hidden></div>
+        <div class="error-msg" id="overview-error" hidden>Failed to load player data.</div>
+      </div>
+
+      <!-- ===== Leaderboards tab — pill selector + sortable table ===== -->
+      <div class="players-tab-panel" data-ptab="leaderboards" hidden>
+        <header class="cv-header">
+          <h2 class="cv-title">Leaderboards</h2>
+          <p class="cv-subtitle">Pick any stat to rank every NHL player. Filter, sort, and search.</p>
+        </header>
+
+        <!-- Pill selector groups -->
+        <div class="lb-pill-groups" id="lb-pill-groups">
+          <!-- Rendered by players_leaderboards.js -->
+        </div>
+
+        <!-- Filter row -->
+        <div class="lb-filters">
+          <div class="lb-filter">
+            <label class="cv-filter-label">Position</label>
+            <div class="seg-control" data-lb-filter="position">
+              <button class="seg-btn active" data-value="all">All</button>
+              <button class="seg-btn" data-value="C">C</button>
+              <button class="seg-btn" data-value="L">LW</button>
+              <button class="seg-btn" data-value="R">RW</button>
+              <button class="seg-btn" data-value="D">D</button>
+              <button class="seg-btn" data-value="G">G</button>
+            </div>
+          </div>
+          <div class="lb-filter">
+            <label class="cv-filter-label" for="lb-team-filter">Team</label>
+            <select id="lb-team-filter" class="cv-select">
+              <option value="all">All teams</option>
+            </select>
+          </div>
+          <div class="lb-filter lb-filter-toi">
+            <label class="cv-filter-label" for="lb-min-toi">
+              Min TOI <span class="lb-min-toi-readout" id="lb-min-toi-readout">200 min</span>
+            </label>
+            <input type="range" id="lb-min-toi" min="0" max="1500" step="50" value="200" class="lb-slider" />
+          </div>
+          <div class="lb-filter lb-filter-search">
+            <label class="cv-filter-label" for="lb-search">Search</label>
+            <input type="search" id="lb-search" class="cv-select" placeholder="Filter by name…" autocomplete="off" />
+          </div>
+        </div>
+
+        <p class="source-label" id="lb-source-label"></p>
+
+        <!-- Spinner + table -->
+        <div class="spinner" id="lb-spinner"></div>
+        <div id="lb-blocked" class="blocked-card" hidden></div>
+        <div class="table-wrap" id="lb-table-wrap" hidden>
+          <table class="data-table lb-table" id="lb-table">
+            <thead><tr id="lb-thead-row"></tr></thead>
+            <tbody id="lb-tbody"></tbody>
+          </table>
+          <p class="lb-footer" id="lb-footer"></p>
+        </div>
+        <div class="error-msg" id="lb-error" hidden>Failed to load leaderboard data.</div>
+      </div>
+
+      <!-- ===== Contract Value tab ===== -->
+      <div class="players-tab-panel" data-ptab="contract-value" hidden>
+
+        <header class="cv-header">
+          <h2 class="cv-title">Contract Value Analysis</h2>
+          <p class="cv-subtitle">Multi-dimensional contract model: Surplus Value, Off/Def split, Sustainability, age curve.</p>
+          <p id="cv-source-label" class="source-label" hidden></p>
+          <p class="cv-elc-note">
+            <strong>Note:</strong> Entry Level Contracts are excluded by default. ELC salaries are set by the
+            NHL CBA and are not negotiated at market rate — including them would artificially inflate value
+            rankings for young players. Use the filter below to include them.
+          </p>
+        </header>
+
+        <!-- Contract type filter row -->
+        <div class="cv-type-filter">
+          <span class="cv-filter-label">Contract type</span>
+          <div class="seg-control" data-cv-filter="type">
+            <button class="seg-btn" data-value="all">All Contracts</button>
+            <button class="seg-btn active" data-value="exclude-elc">Exclude ELCs</button>
+            <button class="seg-btn" data-value="market">Market Rate Only</button>
+            <button class="seg-btn" data-value="elc">ELCs Only</button>
+            <button class="seg-btn" data-value="bridge">Bridge Only</button>
+            <button class="seg-btn" data-value="veteran">Veteran Only</button>
+          </div>
+        </div>
+
+        <!-- View toggle (5 views) -->
+        <div class="view-toggle" role="tablist" aria-label="Contract value views">
+          <button class="view-toggle-btn active" data-cv-view="best" role="tab" aria-selected="true">Best Overall Value</button>
+          <button class="view-toggle-btn" data-cv-view="def" role="tab" aria-selected="false">Best Defensive Value</button>
+          <button class="view-toggle-btn" data-cv-view="off" role="tab" aria-selected="false">Best Offensive Value</button>
+          <button class="view-toggle-btn" data-cv-view="sustain" role="tab" aria-selected="false">Sustainability Risk</button>
+          <button class="view-toggle-btn" data-cv-view="aging" role="tab" aria-selected="false">Aging Contracts</button>
+          <button class="view-toggle-btn" data-cv-view="scatter" role="tab" aria-selected="false">Scatter Plot</button>
+        </div>
+
+        <!-- Filters -->
+        <div class="cv-filters">
+          <div class="cv-filter">
+            <label class="cv-filter-label">Position</label>
+            <div class="seg-control" data-cv-filter="position">
+              <button class="seg-btn active" data-value="all">All</button>
+              <button class="seg-btn" data-value="F">Forwards</button>
+              <button class="seg-btn" data-value="D">Defensemen</button>
+              <button class="seg-btn" data-value="G">Goalies</button>
+            </div>
+          </div>
+          <div class="cv-filter">
+            <label class="cv-filter-label" for="cv-team-filter">Team</label>
+            <select id="cv-team-filter" class="cv-select">
+              <option value="all">All teams</option>
+            </select>
+          </div>
+          <div class="cv-filter">
+            <label class="cv-filter-label" for="cv-expiry-filter">Contract expiry</label>
+            <select id="cv-expiry-filter" class="cv-select">
+              <option value="all">Any</option>
+              <option value="this-year">This year</option>
+              <option value="next-year">Next year</option>
+              <option value="2plus">2+ years remaining</option>
+            </select>
+          </div>
+          <div class="cv-filter cv-filter-search">
+            <label class="cv-filter-label" for="cv-search">Search</label>
+            <input type="search" id="cv-search" class="cv-select" placeholder="Filter by name…" autocomplete="off" />
+          </div>
+        </div>
+
+        <!-- Spinner / error -->
+        <div class="spinner" id="cv-spinner"></div>
+        <div id="cv-error" class="error-msg" hidden>Failed to load contract data.</div>
+        <div id="cv-blocked" class="blocked-card" hidden></div>
+
+        <!-- View-specific note bar -->
+        <p id="cv-view-note" class="cv-view-note" hidden></p>
+
+        <!-- Universal table for the four list views (best, def, off, sustain) -->
+        <div class="cv-view" data-cv-view-list="1" hidden>
+          <div class="table-wrap">
+            <table class="data-table cv-table cv-upgraded-table" id="cv-list-table">
+              <thead><tr id="cv-list-thead"></tr></thead>
+              <tbody id="cv-list-tbody"></tbody>
+            </table>
+            <p class="cv-footer" id="cv-list-footer"></p>
+          </div>
+        </div>
+
+        <!-- Aging Contracts view (extra column for projected y3) -->
+        <div class="cv-view" data-cv-view="aging" hidden>
+          <div class="table-wrap">
+            <table class="data-table cv-table cv-upgraded-table" id="cv-aging-table">
+              <thead><tr id="cv-aging-thead"></tr></thead>
+              <tbody id="cv-aging-tbody"></tbody>
+            </table>
+            <p class="cv-footer" id="cv-aging-footer"></p>
+          </div>
+        </div>
+
+        <!-- Scatter view -->
+        <div class="cv-view" data-cv-view="scatter" hidden>
+          <!-- Scatter plot variant selector -->
+          <div class="scatter-variant-row">
+            <span class="cv-filter-label">Plot</span>
+            <div class="seg-control" data-cv-scatter-variant>
+              <button class="seg-btn active" data-value="cap-vs-gar">Cap Hit vs GAR</button>
+              <button class="seg-btn" data-value="off-vs-def">Off GAR vs Def GAR</button>
+              <button class="seg-btn" data-value="age-vs-surplus">Age vs Surplus Value</button>
+            </div>
+          </div>
+
+          <div class="cv-scatter-legend">
+            <span class="legend-item"><span class="legend-shape shape-circle"></span>Market Rate</span>
+            <span class="legend-item"><span class="legend-shape shape-triangle"></span>Bridge</span>
+            <span class="legend-item"><span class="legend-shape shape-diamond"></span>ELC</span>
+            <span class="legend-item"><span class="legend-shape shape-square"></span>Veteran</span>
+            <span class="legend-item"><span class="legend-dot" style="background: var(--green);"></span>Surplus +</span>
+            <span class="legend-item"><span class="legend-dot" style="background: var(--red);"></span>Surplus −</span>
+            <span class="legend-item"><span class="legend-dot" style="background: var(--gold);"></span>ELC</span>
+          </div>
+          <div class="cv-scatter-wrap">
+            <canvas id="cv-scatter"></canvas>
+          </div>
+          <p class="cv-scatter-note" id="cv-scatter-note"></p>
+        </div>
+
+        <!-- ELC Watch section -->
+        <section class="cv-section cv-elc-watch">
+          <header class="cv-section-head">
+            <h2 class="cv-section-title">ELC Watch — Future Cap Commitments</h2>
+            <p class="cv-section-subtitle">
+              These players are on CBA-mandated salaries. This section projects their market value at first
+              contract extension to support future cap planning.
+            </p>
+          </header>
+          <div class="table-wrap">
+            <table class="data-table cv-table cv-elc-watch-table">
+              <thead><tr id="cv-elc-thead"></tr></thead>
+              <tbody id="cv-elc-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Team Cap Efficiency section -->
+        <section class="cv-section cv-team-eff">
+          <header class="cv-section-head">
+            <h2 class="cv-section-title">Team Cap Efficiency</h2>
+            <p class="cv-section-subtitle">
+              Total Surplus Value rolled up across each team's matched contracts. Teams with high total
+              Surplus Value have more cap flexibility to make trades and sign additional players.
+              <em>Aggregated only over contracts in the curated dataset (~70 highest cap hits + bargains).</em>
+            </p>
+          </header>
+          <div class="table-wrap">
+            <table class="data-table cv-table cv-team-eff-table">
+              <thead>
+                <tr>
+                  <th class="rank-col">#</th>
+                  <th>Team</th>
+                  <th class="num-th">Players Counted</th>
+                  <th class="num-th">Total Cap</th>
+                  <th class="num-th">Total GAR</th>
+                  <th class="num-th">Avg GAR/$1M</th>
+                  <th class="num-th">Total Surplus</th>
+                </tr>
+              </thead>
+              <tbody id="cv-team-eff-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- How to use this -->
+        <section class="how-to-use">
+          <h3 class="how-to-use-title">How to use this</h3>
+          <p>
+            <strong>Surplus Value</strong> is the headline metric here: it's what a player produces in goals,
+            translated to dollars at the open-market rate of $1.85M per GAR, minus their actual cap hit. Positive
+            means team-friendly, negative means overpaid. <strong>Sustainability Score</strong> (GAR − xGAR) flags
+            players running hot or cold versus their underlying play. The <strong>contract type badges</strong>
+            keep apples-to-apples comparisons honest — ELC players are structurally underpaid, not 'best-value
+            signings'. For stat definitions, see the <a href="#" data-jump-to="glossary">Glossary</a> page.
+          </p>
+        </section>
+
+      </div>
+
+      <!-- Side panel (slides in from right when a player row is clicked) -->
+      <div class="cv-side-panel" id="cv-side-panel" hidden>
+        <button class="cv-side-close" id="cv-side-close" aria-label="Close panel">×</button>
+        <div class="cv-side-content" id="cv-side-content"></div>
+      </div>
+      <div class="cv-side-backdrop" id="cv-side-backdrop" hidden></div>
+
+      <!-- ===== Player Search tab ===== -->
+      <div class="players-tab-panel" data-ptab="player-search" hidden>
+        <header class="cv-header">
+          <h2 class="cv-title">Player Search</h2>
+          <p class="cv-subtitle">Search any NHL player to see their full statistical profile, advanced metrics, career history, and shot map.</p>
+        </header>
+
+        <div class="player-search-wrap">
+          <div class="player-search-box">
+            <input
+              type="search"
+              id="player-lookup-search"
+              class="player-search-input"
+              placeholder="Search any NHL player..."
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <div class="player-search-dropdown" id="player-lookup-dropdown" hidden></div>
+          </div>
+          <div class="player-search-hint">Type 2+ characters &middot; results pulled live from the NHL API</div>
+        </div>
+
+        <div id="player-lookup-loading" class="spinner" hidden></div>
+        <div id="player-lookup-error" class="error-msg" hidden></div>
+
+        <div id="player-lookup-empty" class="player-empty">
+          <p>Search above to load a player profile.</p>
+          <p class="player-empty-hint">Try "McDavid", "Hellebuyck", "Hutson"…</p>
+        </div>
+
+        <div id="player-lookup-profile" class="player-profile" hidden></div>
+      </div>
+
+      <!-- ===== Compare tab ===== -->
+      <div class="players-tab-panel" data-ptab="compare" hidden>
+        <header class="cv-header">
+          <h2 class="cv-title">Compare Players</h2>
+          <p class="cv-subtitle">Side-by-side player comparisons across traditional stats, advanced metrics, shot location, and contract value.</p>
+        </header>
+
+        <!-- Compare templates -->
+        <div class="compare-templates-row">
+          <label class="cv-filter-label" for="compare-template">Template</label>
+          <select id="compare-template" class="cv-select">
+            <option value="all">All metrics (default)</option>
+            <option value="contract">Compare by Contract Value</option>
+            <option value="defense">Compare by Defensive Impact</option>
+            <option value="offense">Compare by Offensive Production</option>
+            <option value="playoff">Compare by Playoff Performance</option>
+          </select>
+
+          <button id="compare-swap" class="btn-eh" type="button">Swap Players</button>
+          <button id="compare-share" class="btn-eh" type="button">Share Link</button>
+          <button id="compare-print" class="btn-eh" type="button">Print / Export PDF</button>
+        </div>
+
+        <!-- Search boxes -->
+        <div class="compare-search-row">
+          <div class="player-search-wrap compare-search-slot" data-slot="1">
+            <label class="cv-filter-label">Player 1</label>
+            <div class="player-search-box">
+              <input type="search" class="player-search-input compare-search-input" data-slot="1" placeholder="Search Player 1..." autocomplete="off" spellcheck="false" />
+              <div class="player-search-dropdown" data-slot="1" hidden></div>
+            </div>
+          </div>
+
+          <div class="player-search-wrap compare-search-slot" data-slot="2">
+            <label class="cv-filter-label">Player 2</label>
+            <div class="player-search-box">
+              <input type="search" class="player-search-input compare-search-input" data-slot="2" placeholder="Search Player 2..." autocomplete="off" spellcheck="false" />
+              <div class="player-search-dropdown" data-slot="2" hidden></div>
+            </div>
+          </div>
+
+          <div class="player-search-wrap compare-search-slot compare-third-slot" data-slot="3" hidden>
+            <label class="cv-filter-label">Player 3</label>
+            <div class="player-search-box">
+              <input type="search" class="player-search-input compare-search-input" data-slot="3" placeholder="Search Player 3..." autocomplete="off" spellcheck="false" />
+              <div class="player-search-dropdown" data-slot="3" hidden></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="compare-add-third">
+          <button id="compare-toggle-third" class="add-third-btn" type="button">+ Add Player 3</button>
+        </div>
+
+        <div id="compare-loading" class="spinner" hidden></div>
+        <div id="compare-error" class="error-msg" hidden></div>
+        <div id="compare-empty" class="player-empty">
+          <p>Select two players above to start comparing.</p>
+        </div>
+
+        <div id="compare-results" class="compare-results" hidden></div>
+      </div>
+
+    </section>
+
+    <!-- ===== NHL → Teams ===== -->
+    <section class="page-view" data-view="nhl/teams" hidden>
+
+      <!-- Standings -->
+      <section class="section" id="standings-section">
+        <h2 class="section-title">Regular-Season Standings</h2>
+        <div class="section-body">
+          <div class="spinner" id="standings-spinner"></div>
+          <div id="standings-content" class="standings-grid" hidden></div>
+          <div id="standings-error" class="error-msg" hidden>Failed to load standings.</div>
+        </div>
+      </section>
+
+      <!-- Existing Team Analytics section (moved from Morning Brief) -->
+      <section class="section" id="team-analytics-section">
+        <h2 class="section-title">Team Analytics — 5v5</h2>
+        <p class="leaderboard-subtitle" style="padding: 0 1.5rem">All 32 teams ranked by 5v5 possession-quality. xGF% is computed by my own xG model applied to every 25-26 shot; CF% rewards volume, HDCF% rewards inner-slot chances.</p>
+        <div class="section-body">
+          <div class="spinner" id="team-spinner"></div>
+          <div id="team-content" hidden>
+            <p id="team-source-label" class="source-label"></p>
+            <div class="table-wrap">
+              <table class="data-table" id="team-table">
+                <thead>
+                  <tr>
+                    <th class="rank-col">#</th>
+                    <th>Team</th>
+                    <th class="sortable active-sort" data-col="xgf_pct" title="Expected Goals For % at 5v5">xGF%</th>
+                    <th class="sortable" data-col="cf_pct" title="Corsi For % at 5v5">CF%</th>
+                    <th class="sortable" data-col="hdcf_pct" title="High-Danger Corsi For % at 5v5">HDCF%</th>
+                    <th>GP</th>
+                  </tr>
+                </thead>
+                <tbody id="team-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="team-blocked" class="blocked-card" hidden></div>
+          <div id="team-error" class="error-msg" hidden>Failed to load team analytics.</div>
+        </div>
+      </section>
+
+      <!-- New sections rendered by teams_page.js -->
+      <div id="pp-leaders-container"></div>
+      <div id="pk-leaders-container"></div>
+      <div id="team-style-container"></div>
+
+      <!-- Head-to-Head -->
+      <section class="section" id="h2h-section">
+        <h2 class="section-title">Head-to-Head Comparison</h2>
+        <p class="leaderboard-subtitle" style="padding: 0 1.5rem">Compare any two teams side by side using current-season stats. Pick two teams to see their league rank, record, and 5v5 underlying numbers.</p>
+        <div class="section-body">
+          <div class="h2h-controls">
+            <label class="cv-filter-label" for="h2h-team1">Team 1</label>
+            <select id="h2h-team1" class="cv-select"></select>
+            <span class="h2h-vs">vs</span>
+            <label class="cv-filter-label" for="h2h-team2">Team 2</label>
+            <select id="h2h-team2" class="cv-select"></select>
+            <button id="h2h-compare" class="btn-eh">Compare</button>
+          </div>
+          <div id="h2h-result" class="h2h-result"></div>
+        </div>
+      </section>
+
+    </section>
+
+    <!-- ===== NHL → Goalies ===== -->
+    <section class="page-view" data-view="nhl/goalies" hidden>
+
+      <!-- Existing GSAX leaderboard section (moved from Morning Brief) -->
+      <section class="section" id="goalie-section">
+        <h2 class="section-title">GSAX Leaderboard</h2>
+        <p class="leaderboard-subtitle" style="padding: 0 1.5rem">Goals Saved Above Expected — saves a goalie has produced beyond what my xG model expected on the same shots. Computed by intersecting my per-shot xG predictions with the goalie's shifts.</p>
+        <div class="section-body">
+          <div class="spinner" id="goalie-spinner"></div>
+          <div id="goalie-content" hidden>
+            <p id="goalie-source-label" class="source-label"></p>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="rank-col">#</th>
+                    <th>Goalie</th>
+                    <th>Team</th>
+                    <th title="Goals Saved Above Expected">GSAX</th>
+                    <th>GP</th>
+                    <th>TOI</th>
+                  </tr>
+                </thead>
+                <tbody id="goalie-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="goalie-blocked" class="blocked-card" hidden></div>
+          <div id="goalie-error" class="error-msg" hidden>Failed to load goalie analytics.</div>
+        </div>
+      </section>
+
+      <!-- New extended goalie leaderboard rendered by goalies_page.js -->
+      <div id="goalies-extended-container"></div>
+
+    </section>
+
+    <!-- ===== NHL → Playoffs ===== -->
+    <section class="page-view" data-view="nhl/playoffs" hidden>
+
+      <!-- Full-page playoff bracket -->
+      <section class="section" id="playoffs-bracket-section">
+        <h2 class="section-title">{{ season_label }} Stanley Cup Playoffs</h2>
+        <p class="leaderboard-subtitle" style="padding: 0 1.5rem">Full bracket flow — Eastern Conference on the left, Western on the right, Stanley Cup Final in the middle.</p>
+        <div class="section-body">
+          <div class="spinner" id="po-bracket-spinner"></div>
+          <div id="po-bracket-content" class="bracket" hidden></div>
+          <div id="po-bracket-empty" class="empty-card" hidden>Playoffs not yet started.</div>
+          <div id="po-bracket-error" class="error-msg" hidden>Failed to load playoff bracket.</div>
+        </div>
+      </section>
+
+      <!-- Playoff stat leaders -->
+      <section class="section" id="playoff-leaders-section">
+        <h2 class="section-title">Playoff Stat Leaders</h2>
+        <p class="leaderboard-subtitle" style="padding: 0 1.5rem">Top performers in the current {{ season_label }} playoffs across points, goals, assists, plus/minus, and goalie wins.</p>
+        <div class="section-body">
+          <div class="spinner" id="po-leaders-spinner"></div>
+          <div id="po-leaders-content" class="leaders-grid" hidden></div>
+          <div id="po-leaders-error" class="error-msg" hidden>Failed to load playoff leaders.</div>
+        </div>
+      </section>
+
+      <!-- Playoff team analytics -->
+      <div id="playoff-team-analytics-container"></div>
+
+      <!-- Series history (current-season head-to-head proxy for matchups in current round) -->
+      <section class="section" id="series-history-section">
+        <h2 class="section-title">Series History — Current Matchups</h2>
+        <p class="leaderboard-subtitle" style="padding: 0 1.5rem">Head-to-head records this season for each ongoing playoff series. Note: all-time playoff series history would require an external data source; what's shown here is the current-season regular + playoff record between the two teams.</p>
+        <div class="section-body">
+          <div class="spinner" id="series-history-spinner"></div>
+          <div id="series-history-content" class="series-history-grid" hidden></div>
+          <div id="series-history-error" class="error-msg" hidden>Failed to load series history.</div>
+        </div>
+      </section>
+
+    </section>
+
+    <section class="page-view" data-view="nhl/simulator" hidden>
+
+      <!-- Simulator in-page tab bar (parallels Players sub-tab pattern) -->
+      <div class="players-tabbar sim-tabbar" role="tablist" aria-label="Simulator sub-pages">
+        <button class="players-tab sim-tab active" data-stab="team-strength" role="tab" aria-selected="true">Team Strength</button>
+        <button class="players-tab sim-tab" data-stab="lineup-editor" role="tab" aria-selected="false">Season Simulator</button>
+        <button class="players-tab sim-tab" data-stab="game-simulator" role="tab" aria-selected="false">Game Simulator</button>
+        <button class="players-tab sim-tab" data-stab="projections" role="tab" aria-selected="false">Projections</button>
+      </div>
+
+      <!-- Sub-tab 1: TEAM STRENGTH -->
+      <div class="players-tab-panel sim-tab-panel" data-stab="team-strength">
+        <div class="section sim-page-header">
+          <h2 class="section-title">Team Strength Rankings</h2>
+          <p class="leaderboard-subtitle" style="padding: 0 1.5rem">
+            All 32 NHL teams ranked by simulation-model team strength. Built from
+            <code>composite_ratings_sim.csv</code> + current 25-26 rosters from the NHL API
+            + 25-26 goalie GSAA from MoneyPuck. Click any team row to load it in the
+            Season Simulator.
+          </p>
+        </div>
+        <div id="sim-team-strength-container"></div>
+        <p class="source-label" style="padding: 0 1.5rem">
+          team_strength = z-normalized blend of top-6 F (0.27), bottom-6 F (0.16),
+          top-pair D (0.20), bottom-pair D (0.07), goalies (0.30). Centered at 0.0 across the league.
+          <span id="sim-ts-last-updated" class="muted" style="margin-left: 1rem"></span>
+        </p>
+      </div>
+
+      <!-- Sub-tab 2: LINEUP EDITOR -->
+      <div class="players-tab-panel sim-tab-panel" data-stab="lineup-editor" hidden>
+        <div class="section">
+          <h2 class="section-title">Lineup Editor</h2>
+          <p class="leaderboard-subtitle" style="padding: 0 1.5rem">
+            Select a team, swap players in or out, and watch team strength recalculate
+            in real time. Swaps draw from every qualified skater in the simulation
+            composite (905 players).
+          </p>
+          <div class="section-body">
+            <div class="sim-team-selector">
+              <label for="sim-le-team-select" class="filter-label">Team</label>
+              <select id="sim-le-team-select" class="team-select"></select>
+              <button id="sim-le-reset-btn" class="btn-eh">Reset to default</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strength comparison panel (live-updating) -->
+        <section class="section sim-strength-panel" id="sim-strength-panel" hidden>
+          <h3 class="section-title">Team Strength Comparison</h3>
+          <div class="sim-strength-row">
+            <div class="sim-strength-cell">
+              <div class="sim-strength-label">Default</div>
+              <div class="sim-strength-value muted" id="sim-le-default-val">—</div>
+            </div>
+            <div class="sim-strength-cell">
+              <div class="sim-strength-label">Custom</div>
+              <div class="sim-strength-value gold" id="sim-le-custom-val">—</div>
+            </div>
+            <div class="sim-strength-cell">
+              <div class="sim-strength-label">Change</div>
+              <div class="sim-strength-value" id="sim-le-delta-val">—</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Roster display -->
+        <div id="sim-le-roster"></div>
+
+        <!-- Season Simulation (Phase 5.1) ============================== -->
+        <section class="section sim-season-section">
+          <h2 class="section-title">Season Simulation</h2>
+          <p class="leaderboard-subtitle" style="padding: 0 1.5rem">
+            Run the full 82-game schedule with this custom lineup applied to the
+            selected team while every other team uses its default roster. Each
+            simulated season produces aggregated team standings, per-player
+            projected stats, and a playoff bracket outcome — all via the
+            four-layer distribution model
+            (historical&nbsp;shares&nbsp;·&nbsp;ice-time&nbsp;scaling&nbsp;·&nbsp;linemate&nbsp;multiplier&nbsp;·&nbsp;thin-sample&nbsp;rescue).
+          </p>
+
+          <div class="section-body sim-season-controls">
+            <div class="sim-season-control-row">
+              <label for="sim-season-nsims" class="filter-label">
+                Simulations: <span id="sim-season-nsims-val" class="mono">250</span>
+              </label>
+              <input type="range" id="sim-season-nsims" min="50" max="1000" step="50" value="250" />
+            </div>
+            <div class="sim-season-control-row">
+              <label class="sim-season-toggle">
+                <input type="checkbox" id="sim-season-compare" />
+                Compare to default lineup
+                <span class="muted small">(doubles run time)</span>
+              </label>
+              <button id="sim-season-run-btn" class="btn-eh-primary">Simulate Season</button>
+            </div>
+            <p class="muted small" style="padding: 0.4rem 1.5rem 0;">
+              Default 250 sims runs in ~30–60 seconds. More sims = more precision.
+              Up to 1,000 sims supported.
+            </p>
+          </div>
+
+          <!-- Loading state -->
+          <div id="sim-season-loading" class="sim-season-loading" hidden>
+            <div class="sim-season-spinner"></div>
+            <div class="sim-season-loading-text">
+              <strong>Running <span id="sim-season-loading-n"></span>-sim season Monte Carlo</strong><br/>
+              <span class="muted">This typically takes 30–90 seconds. Don't close this tab.</span>
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div id="sim-season-results" hidden>
+            <!-- Regular Season block -->
+            <section class="section sim-season-block">
+              <h3 class="section-title">Regular Season Outcome</h3>
+              <div class="section-body sim-season-rs-grid">
+                <div class="sim-season-stat-cell">
+                  <div class="sim-season-stat-label">Average Record</div>
+                  <div class="sim-season-stat-value mono" id="sim-season-rs-record">—</div>
+                </div>
+                <div class="sim-season-stat-cell">
+                  <div class="sim-season-stat-label">Average Points</div>
+                  <div class="sim-season-stat-value mono" id="sim-season-rs-points">—</div>
+                  <div class="sim-season-stat-delta" id="sim-season-rs-points-delta"></div>
+                </div>
+                <div class="sim-season-stat-cell">
+                  <div class="sim-season-stat-label">Avg GF / GA</div>
+                  <div class="sim-season-stat-value mono" id="sim-season-rs-gf-ga">—</div>
+                </div>
+                <div class="sim-season-stat-cell">
+                  <div class="sim-season-stat-label">Playoff Probability</div>
+                  <div class="sim-season-stat-value mono" id="sim-season-rs-playoff">—</div>
+                  <div class="sim-season-stat-delta" id="sim-season-rs-playoff-delta"></div>
+                </div>
+              </div>
+              <div class="section-body">
+                <h4 class="sim-season-sub-title">Division Finish Distribution</h4>
+                <div id="sim-season-division" class="sim-season-division-bars"></div>
+              </div>
+            </section>
+
+            <!-- Player Stats block -->
+            <section class="section sim-season-block">
+              <h3 class="section-title">Player Statistics</h3>
+              <div class="section-body">
+                <div class="table-wrap">
+                  <table class="data-table leaderboard-table sim-season-player-table">
+                    <thead>
+                      <tr>
+                        <th class="rank-col">#</th>
+                        <th>Player</th>
+                        <th>Pos</th>
+                        <th>Line/Pair</th>
+                        <th class="num-th">GP</th>
+                        <th class="num-th">G</th>
+                        <th class="num-th">A</th>
+                        <th class="num-th">P</th>
+                        <th class="num-th">TOI</th>
+                      </tr>
+                    </thead>
+                    <tbody id="sim-season-player-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            <!-- Playoff Outcome block -->
+            <section class="section sim-season-block">
+              <h3 class="section-title">Playoff Outcome Distribution</h3>
+              <div class="section-body">
+                <div id="sim-season-playoff-bars" class="sim-season-playoff-bars"></div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+
+      <!-- Sub-tab 3: GAME SIMULATOR -->
+      <div class="players-tab-panel sim-tab-panel" data-stab="game-simulator" hidden>
+        <div class="section">
+          <h2 class="section-title">Game Simulator</h2>
+          <p class="leaderboard-subtitle" style="padding: 0 1.5rem">
+            Monte-Carlo any matchup using the Phase 4 Poisson model
+            (LEAGUE_GPG 3.13, ALPHA 0.50, HOME_ICE 0.15). Default 5,000 sims; up to 10,000.
+          </p>
+
+          <div class="section-body">
+            <!-- Two team selector cards side by side: AWAY (left), HOME (right) -->
+            <div class="sim-game-team-cards">
+              <div class="sim-game-team-card" id="sim-gs-away-card">
+                <div class="sim-game-team-label">AWAY</div>
+                <select id="sim-gs-away-select" class="team-select-big"></select>
+                <div class="sim-game-team-logo-wrap">
+                  <img id="sim-gs-away-logo" class="sim-game-team-logo" alt="" />
+                </div>
+                <div class="sim-game-team-strength muted" id="sim-gs-away-strength">team_strength: —</div>
+              </div>
+              <div class="sim-game-vs">VS</div>
+              <div class="sim-game-team-card" id="sim-gs-home-card">
+                <div class="sim-game-team-label">HOME</div>
+                <select id="sim-gs-home-select" class="team-select-big"></select>
+                <div class="sim-game-team-logo-wrap">
+                  <img id="sim-gs-home-logo" class="sim-game-team-logo" alt="" />
+                </div>
+                <div class="sim-game-team-strength muted" id="sim-gs-home-strength">team_strength: —</div>
+              </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="sim-game-controls">
+              <label for="sim-gs-nsims" class="filter-label">
+                Simulations: <span id="sim-gs-nsims-val">5000</span>
+              </label>
+              <input type="range" id="sim-gs-nsims" min="500" max="10000" step="500" value="5000" />
+              <button id="sim-gs-simulate-btn" class="btn-eh btn-eh-primary">Simulate</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div id="sim-gs-results" hidden>
+          <!-- Sample final score -->
+          <section class="section sim-score-display">
+            <div class="sim-final-score-line">
+              <div class="sim-final-score-side" id="sim-gs-final-away"></div>
+              <div class="sim-final-score-divider">—</div>
+              <div class="sim-final-score-side" id="sim-gs-final-home"></div>
+            </div>
+            <div class="sim-final-score-caption muted" id="sim-gs-final-caption">Sample simulated result</div>
+          </section>
+
+          <!-- Win probability bars -->
+          <section class="section">
+            <h3 class="section-title">Win Probability</h3>
+            <div class="section-body">
+              <div class="sim-winprob-row">
+                <div class="sim-winprob-label" id="sim-gs-wp-away-label"></div>
+                <div class="sim-winprob-bar-wrap">
+                  <div class="sim-winprob-bar away" id="sim-gs-wp-away-bar"></div>
+                  <div class="sim-winprob-bar home" id="sim-gs-wp-home-bar"></div>
+                </div>
+                <div class="sim-winprob-label" id="sim-gs-wp-home-label"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Expected goals + finish type breakdown -->
+          <section class="section">
+            <h3 class="section-title">Expected Outcomes</h3>
+            <div class="section-body">
+              <div class="sim-outcome-grid">
+                <div class="sim-outcome-cell">
+                  <div class="sim-outcome-label">Expected goals (away)</div>
+                  <div class="sim-outcome-value" id="sim-gs-xg-away">—</div>
+                </div>
+                <div class="sim-outcome-cell">
+                  <div class="sim-outcome-label">Expected goals (home)</div>
+                  <div class="sim-outcome-value" id="sim-gs-xg-home">—</div>
+                </div>
+                <div class="sim-outcome-cell">
+                  <div class="sim-outcome-label">Decided in regulation</div>
+                  <div class="sim-outcome-value" id="sim-gs-reg">—</div>
+                </div>
+                <div class="sim-outcome-cell">
+                  <div class="sim-outcome-label">Goes to OT</div>
+                  <div class="sim-outcome-value" id="sim-gs-ot">—</div>
+                </div>
+                <div class="sim-outcome-cell">
+                  <div class="sim-outcome-label">Reaches shootout</div>
+                  <div class="sim-outcome-value" id="sim-gs-so">—</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Goal distribution histogram -->
+          <section class="section">
+            <h3 class="section-title">Goal Distribution</h3>
+            <p class="leaderboard-subtitle" style="padding: 0 1.5rem">
+              Frequency of each team's final-goal total across the simulated games.
+              Bars labeled 0 through 9 plus a 10+ overflow bucket.
+            </p>
+            <div class="section-body">
+              <div class="sim-histogram-wrap">
+                <canvas id="sim-gs-histogram" height="220"></canvas>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Sub-tab 4: PROJECTIONS -->
+      <div class="players-tab-panel sim-tab-panel" data-stab="projections" hidden>
+        <div class="section">
+          <div class="sim-proj-title-row">
+            <h2 class="section-title">Current Playoff Projection</h2>
+            <button id="sim-proj-rerun-btn" class="btn-eh sim-proj-rerun-btn">
+              Re-run Simulation
+            </button>
+          </div>
+          <p class="leaderboard-subtitle" style="padding: 0 1.5rem">
+            Live state of the 2025-26 playoffs. Round 1 and Round 2 are locked;
+            only the conference finals + Stanley Cup Final remain. Probabilities
+            from a 10,000-iteration Monte Carlo with a randomized seed — re-runs
+            vary slightly within statistical noise.
+            <span id="sim-proj-last-updated" class="muted" style="margin-left: 1rem"></span>
+          </p>
+          <div class="section-body">
+            <div id="sim-proj-bracket"></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="page-view" data-view="nhl/glossary" hidden>
+      <div class="glossary">
+
+        <header class="glossary-header">
+          <h2 class="glossary-title">Advanced Stats Glossary</h2>
+          <p class="glossary-subtitle">Front-office reference covering every advanced metric used in modern NHL analytics.</p>
+          <div class="glossary-search-wrap">
+            <input
+              type="search"
+              id="glossary-search"
+              class="glossary-search"
+              placeholder="Search stats — try 'corsi', 'gsax', 'cap', 'rebound'…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <span id="glossary-result-count" class="glossary-result-count"></span>
+          </div>
+
+          <!-- Section filter buttons -->
+          <div class="glossary-filter-buttons" role="tablist" aria-label="Filter by section">
+            <button class="glossary-filter-btn active" data-filter="all" role="tab" aria-selected="true">All</button>
+            <button class="glossary-filter-btn" data-filter="possession" role="tab">Possession</button>
+            <button class="glossary-filter-btn" data-filter="value" role="tab">Player Value</button>
+            <button class="glossary-filter-btn" data-filter="goalie" role="tab">Goalies</button>
+            <button class="glossary-filter-btn" data-filter="special-teams" role="tab">Special Teams</button>
+            <button class="glossary-filter-btn" data-filter="contract" role="tab">Contract / Value</button>
+            <button class="glossary-filter-btn" data-filter="usage" role="tab">Usage / Context</button>
+            <button class="glossary-filter-btn" data-filter="tracking" role="tab">Tracking</button>
+          </div>
+        </header>
+
+        <div id="glossary-no-results" class="glossary-no-results" hidden>
+          No stats match your search.
+        </div>
+
+        <!-- Glossary at a Glance — TOC populated by JS -->
+        <section class="glossary-toc" id="glossary-toc" aria-label="Glossary at a glance">
+          <h3 class="glossary-toc-title">Glossary at a Glance</h3>
+          <p class="glossary-toc-subtitle">Every stat in two-column layout — click any name to jump to its card.</p>
+          <div class="glossary-toc-grid" id="glossary-toc-grid"></div>
+        </section>
+
+        <!-- 7 section containers — cards rendered by glossary.js -->
+        <section class="glossary-section" data-section="possession" id="section-possession">
+          <h3 class="glossary-section-title"></h3>
+          <p class="glossary-section-intro"></p>
+          <div class="glossary-cards"></div>
+        </section>
+        <section class="glossary-section" data-section="value" id="section-value">
+          <h3 class="glossary-section-title"></h3>
+          <p class="glossary-section-intro"></p>
+          <div class="glossary-cards"></div>
+        </section>
+        <section class="glossary-section" data-section="goalie" id="section-goalie">
+          <h3 class="glossary-section-title"></h3>
+          <p class="glossary-section-intro"></p>
+          <div class="glossary-cards"></div>
+        </section>
+        <section class="glossary-section" data-section="special-teams" id="section-special-teams">
+          <h3 class="glossary-section-title"></h3>
+          <p class="glossary-section-intro"></p>
+          <div class="glossary-cards"></div>
+        </section>
+        <section class="glossary-section" data-section="contract" id="section-contract">
+          <h3 class="glossary-section-title"></h3>
+          <p class="glossary-section-intro"></p>
+          <div class="glossary-cards"></div>
+        </section>
+        <section class="glossary-section" data-section="usage" id="section-usage">
+          <h3 class="glossary-section-title"></h3>
+          <p class="glossary-section-intro"></p>
+          <div class="glossary-cards"></div>
+        </section>
+        <section class="glossary-section" data-section="tracking" id="section-tracking">
+          <h3 class="glossary-section-title"></h3>
+          <p class="glossary-section-intro"></p>
+          <div class="glossary-cards"></div>
+        </section>
+
+      </div>
+    </section>
+
+    <!-- =====================================================
+         Coming Soon placeholders — all non-NHL leagues
+         ===================================================== -->
+
+    <!-- USA -->
+    <section class="page-view coming-soon-view" data-view="usa/ahl" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — AHL</h2>
+        <p class="coming-soon-desc">American Hockey League — top development circuit for NHL franchises.</p>
+      </div>
+    </section>
+    <section class="page-view coming-soon-view" data-view="usa/echl" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — ECHL</h2>
+        <p class="coming-soon-desc">ECHL — mid-tier North American professional league one step below the AHL.</p>
+      </div>
+    </section>
+    <section class="page-view coming-soon-view" data-view="usa/ushl" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — USHL</h2>
+        <p class="coming-soon-desc">United States Hockey League — premier American junior development circuit.</p>
+      </div>
+    </section>
+    <section class="page-view coming-soon-view" data-view="usa/ncaa" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — NCAA</h2>
+        <p class="coming-soon-desc">NCAA Men's Hockey — Division I college hockey across the United States.</p>
+      </div>
+    </section>
+
+    <!-- Canada -->
+    <section class="page-view coming-soon-view" data-view="canada/ohl" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — OHL</h2>
+        <p class="coming-soon-desc">Ontario Hockey League — major junior league across Ontario, Michigan, and Pennsylvania.</p>
+      </div>
+    </section>
+    <section class="page-view coming-soon-view" data-view="canada/whl" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — WHL</h2>
+        <p class="coming-soon-desc">Western Hockey League — major junior league spanning Western Canada and the US Northwest.</p>
+      </div>
+    </section>
+    <section class="page-view coming-soon-view" data-view="canada/qmjhl" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — QMJHL</h2>
+        <p class="coming-soon-desc">Quebec Maritimes Junior Hockey League — major junior league across Quebec and the Maritimes.</p>
+      </div>
+    </section>
+    <section class="page-view coming-soon-view" data-view="canada/bchl" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — BCHL</h2>
+        <p class="coming-soon-desc">BC Hockey League — top Junior A circuit in British Columbia.</p>
+      </div>
+    </section>
+
+    <!-- International -->
+    <section class="page-view coming-soon-view" data-view="international/khl" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — KHL</h2>
+        <p class="coming-soon-desc">Kontinental Hockey League — top professional league based in Russia.</p>
+      </div>
+    </section>
+    <section class="page-view coming-soon-view" data-view="international/shl" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — SHL</h2>
+        <p class="coming-soon-desc">Svenska hockeyligan — top professional league in Sweden.</p>
+      </div>
+    </section>
+    <section class="page-view coming-soon-view" data-view="international/liiga" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — Liiga</h2>
+        <p class="coming-soon-desc">Liiga — top professional league in Finland.</p>
+      </div>
+    </section>
+    <section class="page-view coming-soon-view" data-view="international/del" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — DEL</h2>
+        <p class="coming-soon-desc">Deutsche Eishockey Liga — top professional league in Germany.</p>
+      </div>
+    </section>
+    <section class="page-view coming-soon-view" data-view="international/nl" hidden>
+      <div class="coming-soon">
+        <h2 class="coming-soon-title">Coming Soon — NL</h2>
+        <p class="coming-soon-desc">National League — top professional league in Switzerland.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Hockey Intelligence Hub &mdash; Analytics: my own models &middot; Data: NHL Public API, <a href="https://moneypuck.com" target="_blank" rel="noopener">MoneyPuck</a></p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/util.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/glossary_data.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/glossary.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/contract_value.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/morning_brief.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/players_page.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/teams_page.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/goalies_page.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/playoffs_page.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/simulator_page.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/players_overview.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/players_leaderboards.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/player_lookup.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/player_compare.js') }}"></script>
+</body>
+</html>

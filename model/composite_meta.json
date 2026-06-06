@@ -1,0 +1,193 @@
+{
+  "built_at": "2026-05-19T23:26:33",
+  "version": "v4 (2025-refresh) \u2014 iGSAX in C2, points/60 sub-metric in C4, reweighted components, WAR-equivalent rescale, NHL-API current-team labels, 4-season window 2022-23\u21922025-26, 16-season RAPM",
+  "weights": {
+    "rapm": 0.2,
+    "individual": 0.33,
+    "relative_xgf": 0.17,
+    "playmaking": 0.18,
+    "power_play": 0.07,
+    "penalty_kill": 0.05
+  },
+  "min_ev_minutes": 200,
+  "min_repl_ev_minutes": 500,
+  "min_st_minutes": 60,
+  "rapm_window": "full 16-season model (2010-11 \u2192 2025-26), 2025-refresh",
+  "component_2to6_seasons": [
+    "2022",
+    "2023",
+    "2024",
+    "2025"
+  ],
+  "season_weights": {
+    "2025": 1.0,
+    "2024": 0.82,
+    "2023": 0.67,
+    "2022": 0.55
+  },
+  "n_players": 1330,
+  "n_qualified": 1033,
+  "n_pp_qualified": 555,
+  "n_pk_qualified": 555,
+  "components": {
+    "rapm": "16-season RAPM total (year-weighted, goalie-adjusted), global z, weight 0.20",
+    "individual": "ixG/60 (0.40) + iHDCF/60 (0.30) + iGSAX/60 (0.30), 4-season window, blended z (40 global / 60 pos-rel); weight 0.33; min 200 EV min",
+    "relative_xgf": "5v5 on-ice xGF% minus off-ice team xGF%, 4-season window, global z, weight 0.17; min 200 EV min",
+    "playmaking": "70% primary-assists/60 (40/60 blended z) + 30% points/60 global z, 4-season window, weight 0.18",
+    "power_play": "50/50 blend of PP on-ice xGF/60 (5on4) and individual PP goals above expected, 4-season window, blended z; weight 0.07; min 60 PP min",
+    "penalty_kill": "PK on-ice xGA/60 inverted (4on5), 4-season window, blended z, weight 0.05; min 60 PK min"
+  },
+  "fixes_applied": {
+    "fix1": "Components 2-6 aggregate only 2021-22 \u2192 2024-25 (year-weighted)",
+    "fix2": "Component 5 = 50/50 blend of on-ice PP xGF/60 + individual PP goals above expected",
+    "fix3": "min 200 EV min for C2/C3, min 60 PP/PK min for C5/C6 (z=0 below)",
+    "v4_improvement1": "C2 replaces SH%-above-expected with iGSAX/60 (total goals above expected per 60), captures finishing volume + skill",
+    "v4_improvement2": "Reweighted: RAPM 0.20, Individual 0.33, RelxG% 0.17, Playmaking 0.18 (with points/60 sub-metric), PP 0.07, PK 0.05",
+    "v4_improvement3": "WAR-equivalent rescale: composite_war = (raw \u2212 20th-pct of \u2265500-EV-min pool) / std(adjusted) \u00d7 0.5 wins"
+  },
+  "blend": {
+    "global": 0.4,
+    "position_relative": 0.6
+  },
+  "component2_subweights": {
+    "ixg_60": 0.4,
+    "ihdcf_60": 0.3,
+    "igsax_60": 0.3
+  },
+  "component4_subweights": {
+    "primary_assists_60": 0.7,
+    "points_60": 0.3
+  },
+  "soft_cap": {
+    "applies_to": [
+      "individual",
+      "playmaking",
+      "power_play",
+      "penalty_kill"
+    ],
+    "cap": 3.0
+  },
+  "position_group_stats": {
+    "ixg_60_GLOBAL": {
+      "mean": 0.5985,
+      "std": 0.3546,
+      "n": 1033
+    },
+    "ixg_60_F": {
+      "mean": 0.8167,
+      "std": 0.2338,
+      "n": 669
+    },
+    "ixg_60_D": {
+      "mean": 0.1976,
+      "std": 0.0909,
+      "n": 364
+    },
+    "ihdcf_60_GLOBAL": {
+      "mean": 0.6683,
+      "std": 0.5052,
+      "n": 1033
+    },
+    "ihdcf_60_F": {
+      "mean": 0.9694,
+      "std": 0.3615,
+      "n": 669
+    },
+    "ihdcf_60_D": {
+      "mean": 0.1148,
+      "std": 0.1052,
+      "n": 364
+    },
+    "igsax_60_GLOBAL": {
+      "mean": -0.0376,
+      "std": 0.1774,
+      "n": 1033
+    },
+    "igsax_60_F": {
+      "mean": -0.0584,
+      "std": 0.2069,
+      "n": 669
+    },
+    "igsax_60_D": {
+      "mean": 0.0008,
+      "std": 0.0914,
+      "n": 364
+    },
+    "primary_assists_60_GLOBAL": {
+      "mean": 0.4945,
+      "std": 0.2885,
+      "n": 1033
+    },
+    "primary_assists_60_F": {
+      "mean": 0.582,
+      "std": 0.2937,
+      "n": 669
+    },
+    "primary_assists_60_D": {
+      "mean": 0.3335,
+      "std": 0.1939,
+      "n": 364
+    },
+    "points_60_GLOBAL": {
+      "mean": 1.0453,
+      "std": 0.6052,
+      "n": 1033
+    },
+    "pp_xgf_60_GLOBAL": {
+      "mean": 6.7053,
+      "std": 1.4316,
+      "n": 555
+    },
+    "pp_xgf_60_F": {
+      "mean": 6.7879,
+      "std": 1.4387,
+      "n": 410
+    },
+    "pp_xgf_60_D": {
+      "mean": 6.4719,
+      "std": 1.385,
+      "n": 145
+    },
+    "pp_goals_above_exp_GLOBAL": {
+      "mean": 1.1798,
+      "std": 3.4379,
+      "n": 555
+    },
+    "pp_goals_above_exp_F": {
+      "mean": 1.2924,
+      "std": 3.8336,
+      "n": 410
+    },
+    "pp_goals_above_exp_D": {
+      "mean": 0.8614,
+      "std": 1.8832,
+      "n": 145
+    },
+    "pk_xga_60_GLOBAL": {
+      "mean": 7.14,
+      "std": 1.1315,
+      "n": 555
+    },
+    "pk_xga_60_F": {
+      "mean": 7.1451,
+      "std": 1.1705,
+      "n": 312
+    },
+    "pk_xga_60_D": {
+      "mean": 7.1334,
+      "std": 1.0793,
+      "n": 243
+    }
+  },
+  "war_rescale": {
+    "replacement_level_raw": -0.5403,
+    "war_std_raw": 0.7026,
+    "n_repl_pool": 903,
+    "min_repl_ev_minutes": 500,
+    "war_unit_wins": 0.5
+  },
+  "composite_mean_qualified": -0.002,
+  "composite_std_qualified": 0.7012,
+  "composite_war_mean_qualified": 0.3831,
+  "composite_war_std_qualified": 0.499
+}

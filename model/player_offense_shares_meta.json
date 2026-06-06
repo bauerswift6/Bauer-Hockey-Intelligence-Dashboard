@@ -1,0 +1,58 @@
+{
+  "seasons": [
+    "2023",
+    "2024",
+    "2025"
+  ],
+  "season_weights": {
+    "2025": 1.0,
+    "2024": 0.35,
+    "2023": 0.1
+  },
+  "thin_sample_min_ev": 1500.0,
+  "n_players": 1196,
+  "n_thin_sample": 618,
+  "league_avg_shares_by_position": {
+    "C": {
+      "goal_share": 0.06203721513808693,
+      "p_assist_share": 0.05707652658212237,
+      "s_assist_share": 0.05100987452649607
+    },
+    "D": {
+      "goal_share": 0.020574307580631206,
+      "p_assist_share": 0.03701399612795931,
+      "s_assist_share": 0.05007391327519174
+    },
+    "L": {
+      "goal_share": 0.06815243698164068,
+      "p_assist_share": 0.05457360323888504,
+      "s_assist_share": 0.046922011198616984
+    },
+    "R": {
+      "goal_share": 0.07179707408746386,
+      "p_assist_share": 0.061842022574342244,
+      "s_assist_share": 0.0518020323689275
+    }
+  },
+  "share_regressions": {
+    "goal_share": {
+      "slope": 0.031765656312148026,
+      "intercept": 0.04167808477274496,
+      "n": 578,
+      "r2": 0.6592
+    },
+    "p_assist_share": {
+      "slope": 0.030891991555390033,
+      "intercept": 0.042112733426156214,
+      "n": 578,
+      "r2": 0.8091
+    }
+  },
+  "min_gp_for_rescale": 30.0,
+  "notes": [
+    "Shares combine 5on5 + 5on4 only (no SH, no empty-net).",
+    "Year-weighted using shares weights: 2025-26=1.00, 2024-25=0.35, 2023-24=0.10.",
+    "Regressions fit on non-thin-sample players only.",
+    "GP-dilution fix (2026-06-04): players who missed full seasons (gp_raw_present >= 30) have their share numerators rescaled by FULL_WINDOW_W / seasons_present_w so per-season-equivalent shares match the team denominator's 3-season scale."
+  ]
+}

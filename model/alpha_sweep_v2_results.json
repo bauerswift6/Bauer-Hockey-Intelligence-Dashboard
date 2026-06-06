@@ -1,0 +1,166 @@
+{
+  "n_sims": 250,
+  "alphas_swept": [
+    0.4,
+    0.425,
+    0.45,
+    0.475,
+    0.5,
+    0.525,
+    0.55,
+    0.575,
+    0.6,
+    0.625,
+    0.65
+  ],
+  "winner": {
+    "alpha": 0.425,
+    "gf_mae": 15.871875000000003,
+    "gf_rmse": 19.861528453268647,
+    "max_team_gf": 305.7,
+    "max_team": "COL",
+    "league_mean_delta_ppg": -0.019622349510736836,
+    "top10_mean_delta_ppg": -0.03740552442377133,
+    "bot10_mean_delta_ppg": -0.0033110518381391676,
+    "top_bot_spread": 0.03409447258563217,
+    "elapsed_s": 42.34758400917053
+  },
+  "constraints": {
+    "max_top_bot_spread_ppg": 0.015,
+    "max_abs_league_mean_ppg": 0.015
+  },
+  "results": [
+    {
+      "alpha": 0.4,
+      "gf_mae": 16.125000000000004,
+      "gf_rmse": 19.884117405607924,
+      "max_team_gf": 304.6,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.019620144244561214,
+      "top10_mean_delta_ppg": -0.038728385110005314,
+      "bot10_mean_delta_ppg": -0.0010107743443462664,
+      "top_bot_spread": 0.03771761076565905,
+      "elapsed_s": 40.94196605682373
+    },
+    {
+      "alpha": 0.425,
+      "gf_mae": 15.871875000000003,
+      "gf_rmse": 19.861528453268647,
+      "max_team_gf": 305.7,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.019622349510736836,
+      "top10_mean_delta_ppg": -0.03740552442377133,
+      "bot10_mean_delta_ppg": -0.0033110518381391676,
+      "top_bot_spread": 0.03409447258563217,
+      "elapsed_s": 42.34758400917053
+    },
+    {
+      "alpha": 0.45,
+      "gf_mae": 16.162499999999998,
+      "gf_rmse": 20.230963274149847,
+      "max_team_gf": 309.9,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.020237618773736886,
+      "top10_mean_delta_ppg": -0.03549702228790252,
+      "bot10_mean_delta_ppg": -0.006604465011791861,
+      "top_bot_spread": 0.028892557276110654,
+      "elapsed_s": 42.25571012496948
+    },
+    {
+      "alpha": 0.475,
+      "gf_mae": 16.137499999999996,
+      "gf_rmse": 20.192247893684346,
+      "max_team_gf": 310.7,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.01956721785634615,
+      "top10_mean_delta_ppg": -0.0320038432883159,
+      "bot10_mean_delta_ppg": -0.008999674592630187,
+      "top_bot_spread": 0.023004168695685716,
+      "elapsed_s": 41.333128929138184
+    },
+    {
+      "alpha": 0.5,
+      "gf_mae": 16.287500000000005,
+      "gf_rmse": 20.63398289230657,
+      "max_team_gf": 312.5,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.019648812704844365,
+      "top10_mean_delta_ppg": -0.030412276525190646,
+      "bot10_mean_delta_ppg": -0.011380279236999975,
+      "top_bot_spread": 0.01903199728819067,
+      "elapsed_s": 41.33319592475891
+    },
+    {
+      "alpha": 0.525,
+      "gf_mae": 16.362500000000004,
+      "gf_rmse": 20.779587339502196,
+      "max_team_gf": 314.2,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.0197237917548157,
+      "top10_mean_delta_ppg": -0.027063785413160887,
+      "bot10_mean_delta_ppg": -0.01574715524108937,
+      "top_bot_spread": 0.011316630172071518,
+      "elapsed_s": 41.968437910079956
+    },
+    {
+      "alpha": 0.55,
+      "gf_mae": 16.971874999999997,
+      "gf_rmse": 21.275447997633325,
+      "max_team_gf": 316.3,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.02047578752070464,
+      "top10_mean_delta_ppg": -0.025768484324556775,
+      "bot10_mean_delta_ppg": -0.01882879683594843,
+      "top_bot_spread": 0.006939687488608345,
+      "elapsed_s": 40.52562165260315
+    },
+    {
+      "alpha": 0.575,
+      "gf_mae": 16.956250000000004,
+      "gf_rmse": 21.18094662662649,
+      "max_team_gf": 320.0,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.020156023925238672,
+      "top10_mean_delta_ppg": -0.024232036756691278,
+      "bot10_mean_delta_ppg": -0.018901821518291062,
+      "top_bot_spread": 0.0053302152384002155,
+      "elapsed_s": 42.1421480178833
+    },
+    {
+      "alpha": 0.6,
+      "gf_mae": 17.65625,
+      "gf_rmse": 21.99239925519724,
+      "max_team_gf": 322.4,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.020579435030959128,
+      "top10_mean_delta_ppg": -0.021903250756966856,
+      "bot10_mean_delta_ppg": -0.024327555416348602,
+      "top_bot_spread": 0.0024243046593817458,
+      "elapsed_s": 40.49910497665405
+    },
+    {
+      "alpha": 0.625,
+      "gf_mae": 18.528125000000003,
+      "gf_rmse": 22.915531032467918,
+      "max_team_gf": 323.8,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.01990462358121715,
+      "top10_mean_delta_ppg": -0.01811380608285911,
+      "bot10_mean_delta_ppg": -0.02598521570552634,
+      "top_bot_spread": 0.00787140962266723,
+      "elapsed_s": 41.01030611991882
+    },
+    {
+      "alpha": 0.65,
+      "gf_mae": 19.0,
+      "gf_rmse": 23.205212237771065,
+      "max_team_gf": 327.6,
+      "max_team": "COL",
+      "league_mean_delta_ppg": -0.020676466742686733,
+      "top10_mean_delta_ppg": -0.016976972680626784,
+      "bot10_mean_delta_ppg": -0.02981170906028026,
+      "top_bot_spread": 0.012834736379653475,
+      "elapsed_s": 40.01520395278931
+    }
+  ]
+}

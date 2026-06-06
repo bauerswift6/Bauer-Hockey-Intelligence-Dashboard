@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\" \"https://api-web.nhle.com/v1/goalie-stats-leaders/20252026/2?categories=wins&limit=5\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(pip install *)",
+      "Bash(pip3 install *)",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\" \"https://api-web.nhle.com/v1/standings/now\")",
+      "Bash(grep -v \"^$\")",
+      "Bash(python3 app.py)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" http://localhost:5000/)",
+      "Bash(PORT=5001 python3 -c ' *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\" http://localhost:5001/)",
+      "Bash(curl -s http://localhost:5001/api/games)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('Games date:', d['date'], '| finished:', len\\([g for g in d['games'] if g['state']=='OFF']\\)\\)\")",
+      "Bash(kill %1)",
+      "Bash(curl -s -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\" \"https://api-web.nhle.com/v1/gamecenter/2025030213/landing\")",
+      "Bash(curl -s -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\" \"https://api-web.nhle.com/v1/gamecenter/2025030213/boxscore\")",
+      "Bash(python3 app.py --port 5001)",
+      "Bash(curl -s -o /dev/null -w \" / : HTTP %{http_code}\\\\n\" http://localhost:5001/)",
+      "Bash(curl -s -o /dev/null -w \" /api/games : HTTP %{http_code}\\\\n\" http://localhost:5001/api/games)",
+      "Bash(curl -s -o /dev/null -w \" /api/game-details/2025030213 : HTTP %{http_code}\\\\n\" http://localhost:5001/api/game-details/2025030213)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

@@ -1,0 +1,887 @@
+{
+  "n_sims": 250,
+  "weights": {
+    "2025": 1.0,
+    "2024": 0.35,
+    "2023": 0.1
+  },
+  "min_gp_filter": 41,
+  "aggregates": {
+    "n_qualified": 553,
+    "league": {
+      "mean_delta_goals": 1.6229294755877035,
+      "median_delta_goals": 0.6199999999999992,
+      "mean_delta_a1": 1.542260397830018,
+      "median_delta_a1": 1.2000000000000002,
+      "mean_delta_a2": 1.2276853526220617,
+      "median_delta_a2": 1.0600000000000005,
+      "mean_delta_points": 4.3907594936708865,
+      "median_delta_points": 3.6299999999999955,
+      "std_delta_points": 6.351406280577945,
+      "pct_higher_sim": 0.7486437613019892,
+      "pct_lower_sim": 0.2513562386980108,
+      "total_sim_team_goals_per_season": 8401.5,
+      "total_sim_player_goals_per_season": 8254.1,
+      "total_actual_player_goals_per_season": 7356.620000000001,
+      "sim_minus_actual_total_goals": 897.4799999999996,
+      "sim_team_goals_avg_per_team": 262.546875
+    },
+    "by_tier": {
+      "elite (top 30)": {
+        "n": 30,
+        "mean_delta_goals": 5.022333333333334,
+        "median_delta_goals": 4.360000000000001,
+        "mean_delta_points": 4.836000000000001,
+        "median_delta_points": 6.875,
+        "mean_pct_delta_points": 0.060301953452957475
+      },
+      "top-6 (31-100)": {
+        "n": 70,
+        "mean_delta_goals": 4.585428571428571,
+        "median_delta_goals": 4.494999999999997,
+        "mean_delta_points": 7.889714285714287,
+        "median_delta_points": 6.965,
+        "mean_pct_delta_points": 0.12121022150622056
+      },
+      "middle (101-300)": {
+        "n": 200,
+        "mean_delta_goals": 1.8353,
+        "median_delta_goals": 1.3749999999999991,
+        "mean_delta_points": 5.339700000000001,
+        "median_delta_points": 5.340000000000002,
+        "mean_pct_delta_points": 0.1311626198813995
+      },
+      "bottom (301+)": {
+        "n": 253,
+        "mean_delta_goals": 0.23229249011857706,
+        "median_delta_goals": -0.019999999999999574,
+        "mean_delta_points": 2.6197233201581023,
+        "median_delta_points": 1.92,
+        "mean_pct_delta_points": 0.17244978854333481
+      }
+    },
+    "by_position": {
+      "F": {
+        "n": 369,
+        "mean_delta_goals": 2.2153658536585366,
+        "mean_delta_points": 5.1679945799458,
+        "median_delta_points": 4.840000000000003,
+        "mean_pct_delta_points": 0.14148012225603532
+      },
+      "D": {
+        "n": 184,
+        "mean_delta_goals": 0.4348369565217391,
+        "mean_delta_points": 2.8320652173913037,
+        "median_delta_points": 2.12,
+        "mean_pct_delta_points": 0.1508087795123584
+      },
+      "F_centers": {
+        "n": 188,
+        "mean_delta_points": 4.800053191489361,
+        "median_delta_points": 4.095000000000001
+      },
+      "F_left_wings": {
+        "n": 92,
+        "mean_delta_points": 5.78967391304348,
+        "median_delta_points": 5.395000000000001
+      },
+      "F_right_wings": {
+        "n": 89,
+        "mean_delta_points": 5.302584269662922,
+        "median_delta_points": 6.040000000000006
+      }
+    },
+    "by_team_strength": {
+      "top 10 strongest": {
+        "n_teams": 10,
+        "n_players": 177,
+        "mean_delta_points": 3.9240677966101694,
+        "median_delta_points": 2.799999999999997,
+        "mean_pct_delta_points": 0.11091212833408966
+      },
+      "middle 12": {
+        "n_teams": 12,
+        "n_players": 209,
+        "mean_delta_points": 3.965693779904306,
+        "median_delta_points": 2.25,
+        "mean_pct_delta_points": 0.12936598299682298
+      },
+      "bottom 10 weakest": {
+        "n_teams": 10,
+        "n_players": 167,
+        "mean_delta_points": 5.4173652694610785,
+        "median_delta_points": 5.34,
+        "mean_pct_delta_points": 0.20004030180537288
+      }
+    },
+    "by_archetype": {
+      "heavy shooters (top 30 by goal_share)": {
+        "n": 29,
+        "mean_delta_goals": 8.097586206896553,
+        "mean_delta_a1": 1.8355172413793104,
+        "mean_delta_a2": -1.0758620689655174,
+        "mean_delta_points": 8.87241379310345,
+        "median_delta_points": 11.260000000000005
+      },
+      "pure playmakers (top 30 by A1/G ratio)": {
+        "n": 18,
+        "mean_delta_goals": -0.7044444444444444,
+        "mean_delta_a1": 4.628888888888889,
+        "mean_delta_a2": 1.732222222222222,
+        "mean_delta_points": 5.657222222222223,
+        "median_delta_points": 5.32
+      },
+      "offensive defensemen (top 30)": {
+        "n": 30,
+        "mean_delta_goals": 0.11733333333333308,
+        "mean_delta_a1": 0.8859999999999999,
+        "mean_delta_a2": 0.24900000000000014,
+        "mean_delta_points": 1.2476666666666674,
+        "median_delta_points": 0.17000000000000526
+      }
+    }
+  },
+  "outliers": {
+    "most_under": [
+      {
+        "player_name": "Macklin Celebrini",
+        "team": "SJS",
+        "position": "C",
+        "actual_points": 101.52,
+        "sim_points": 89.0,
+        "delta_points": -12.519999999999996,
+        "pct_delta_points": -0.12332545311268713,
+        "actual_gp_total": 152.0,
+        "slot_kind": "F",
+        "slot_idx": 0,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Nathan MacKinnon",
+        "team": "COL",
+        "position": "C",
+        "actual_points": 125.24,
+        "sim_points": 114.5,
+        "delta_points": -10.739999999999995,
+        "pct_delta_points": -0.0857553497285212,
+        "actual_gp_total": 241.0,
+        "slot_kind": "F",
+        "slot_idx": 0,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Connor McDavid",
+        "team": "EDM",
+        "position": "C",
+        "actual_points": 128.41,
+        "sim_points": 119.2,
+        "delta_points": -9.209999999999994,
+        "pct_delta_points": -0.07172338602912541,
+        "actual_gp_total": 225.0,
+        "slot_kind": "F",
+        "slot_idx": 0,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Reilly Smith",
+        "team": "VGK",
+        "position": "R",
+        "actual_points": 30.34,
+        "sim_points": 21.2,
+        "delta_points": -9.14,
+        "pct_delta_points": -0.3012524719841793,
+        "actual_gp_total": 224.0,
+        "slot_kind": "F",
+        "slot_idx": 9,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Josh Anderson",
+        "team": "MTL",
+        "position": "R",
+        "actual_points": 23.76,
+        "sim_points": 15.1,
+        "delta_points": -8.660000000000002,
+        "pct_delta_points": -0.3644781144781145,
+        "actual_gp_total": 231.0,
+        "slot_kind": "F",
+        "slot_idx": 9,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Connor Dewar",
+        "team": "PIT",
+        "position": "C",
+        "actual_points": 24.41,
+        "sim_points": 15.9,
+        "delta_points": -8.51,
+        "pct_delta_points": -0.348627611634576,
+        "actual_gp_total": 200.0,
+        "slot_kind": "F",
+        "slot_idx": 10,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Peyton Krebs",
+        "team": "BUF",
+        "position": "C",
+        "actual_points": 34.83,
+        "sim_points": 26.5,
+        "delta_points": -8.329999999999998,
+        "pct_delta_points": -0.23916164226241743,
+        "actual_gp_total": 243.0,
+        "slot_kind": "F",
+        "slot_idx": 11,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Joel Armia",
+        "team": "LAK",
+        "position": "R",
+        "actual_points": 25.97,
+        "sim_points": 17.7,
+        "delta_points": -8.27,
+        "pct_delta_points": -0.3184443588756257,
+        "actual_gp_total": 214.0,
+        "slot_kind": "F",
+        "slot_idx": 9,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Fabian Zetterlund",
+        "team": "OTT",
+        "position": "L",
+        "actual_points": 35.69,
+        "sim_points": 27.8,
+        "delta_points": -7.889999999999997,
+        "pct_delta_points": -0.22107032782291952,
+        "actual_gp_total": 248.0,
+        "slot_kind": "F",
+        "slot_idx": 9,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Jamie Benn",
+        "team": "DAL",
+        "position": "L",
+        "actual_points": 40.79,
+        "sim_points": 33.2,
+        "delta_points": -7.589999999999996,
+        "pct_delta_points": -0.18607501838685944,
+        "actual_gp_total": 222.0,
+        "slot_kind": "F",
+        "slot_idx": 9,
+        "thin_sample": false
+      },
+      {
+        "player_name": "John Tavares",
+        "team": "TOR",
+        "position": "C",
+        "actual_points": 71.31,
+        "sim_points": 64.1,
+        "delta_points": -7.210000000000008,
+        "pct_delta_points": -0.1011078390127613,
+        "actual_gp_total": 237.0,
+        "slot_kind": "F",
+        "slot_idx": 3,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Anthony Cirelli",
+        "team": "TBL",
+        "position": "C",
+        "actual_points": 53.21,
+        "sim_points": 46.5,
+        "delta_points": -6.710000000000001,
+        "pct_delta_points": -0.12610411576771285,
+        "actual_gp_total": 230.0,
+        "slot_kind": "F",
+        "slot_idx": 4,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Tyler Toffoli",
+        "team": "SJS",
+        "position": "C",
+        "actual_points": 50.62,
+        "sim_points": 44.0,
+        "delta_points": -6.619999999999997,
+        "pct_delta_points": -0.13077834847886208,
+        "actual_gp_total": 236.0,
+        "slot_kind": "F",
+        "slot_idx": 6,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Corey Perry",
+        "team": "TBL",
+        "position": "R",
+        "actual_points": 34.28,
+        "sim_points": 27.7,
+        "delta_points": -6.580000000000002,
+        "pct_delta_points": -0.191948658109685,
+        "actual_gp_total": 207.0,
+        "slot_kind": "F",
+        "slot_idx": 9,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Mathieu Olivier",
+        "team": "CBJ",
+        "position": "R",
+        "actual_points": 26.48,
+        "sim_points": 20.4,
+        "delta_points": -6.080000000000002,
+        "pct_delta_points": -0.22960725075528707,
+        "actual_gp_total": 197.0,
+        "slot_kind": "F",
+        "slot_idx": 10,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Jake Sanderson",
+        "team": "OTT",
+        "position": "D",
+        "actual_points": 53.62,
+        "sim_points": 47.6,
+        "delta_points": -6.019999999999996,
+        "pct_delta_points": -0.11227154046997383,
+        "actual_gp_total": 226.0,
+        "slot_kind": "D",
+        "slot_idx": 0,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Blake Lizotte",
+        "team": "PIT",
+        "position": "C",
+        "actual_points": 18.97,
+        "sim_points": 13.1,
+        "delta_points": -5.869999999999999,
+        "pct_delta_points": -0.30943595150237213,
+        "actual_gp_total": 176.0,
+        "slot_kind": "F",
+        "slot_idx": 9,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Noah Dobson",
+        "team": "MTL",
+        "position": "D",
+        "actual_points": 46.66,
+        "sim_points": 41.0,
+        "delta_points": -5.659999999999997,
+        "pct_delta_points": -0.12130304329189878,
+        "actual_gp_total": 230.0,
+        "slot_kind": "D",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Ridly Greig",
+        "team": "OTT",
+        "position": "C",
+        "actual_points": 34.14,
+        "sim_points": 28.5,
+        "delta_points": -5.640000000000001,
+        "pct_delta_points": -0.16520210896309315,
+        "actual_gp_total": 227.0,
+        "slot_kind": "F",
+        "slot_idx": 6,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Erik Karlsson",
+        "team": "PIT",
+        "position": "D",
+        "actual_points": 62.17,
+        "sim_points": 56.8,
+        "delta_points": -5.3700000000000045,
+        "pct_delta_points": -0.08637606562650803,
+        "actual_gp_total": 239.0,
+        "slot_kind": "D",
+        "slot_idx": 1,
+        "thin_sample": false
+      }
+    ],
+    "most_over": [
+      {
+        "player_name": "Gabriel Vilardi",
+        "team": "WPG",
+        "position": "C",
+        "actual_points": 64.79,
+        "sim_points": 96.1,
+        "delta_points": 31.309999999999988,
+        "pct_delta_points": 0.48325358851674616,
+        "actual_gp_total": 200.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Gabe Perreault",
+        "team": "NYR",
+        "position": "R",
+        "actual_points": 20.0,
+        "sim_points": 48.4,
+        "delta_points": 28.4,
+        "pct_delta_points": 1.42,
+        "actual_gp_total": 54.0,
+        "slot_kind": "F",
+        "slot_idx": 5,
+        "thin_sample": true
+      },
+      {
+        "player_name": "Andrei Svechnikov",
+        "team": "CAR",
+        "position": "R",
+        "actual_points": 63.45,
+        "sim_points": 87.2,
+        "delta_points": 23.75,
+        "pct_delta_points": 0.3743104806934594,
+        "actual_gp_total": 210.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Blake Coleman",
+        "team": "CGY",
+        "position": "L",
+        "actual_points": 37.28,
+        "sim_points": 59.6,
+        "delta_points": 22.32,
+        "pct_delta_points": 0.5987124463519313,
+        "actual_gp_total": 229.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Charlie Coyle",
+        "team": "CBJ",
+        "position": "C",
+        "actual_points": 52.59,
+        "sim_points": 74.0,
+        "delta_points": 21.409999999999997,
+        "pct_delta_points": 0.40711161817836083,
+        "actual_gp_total": 247.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Mikael Backlund",
+        "team": "CGY",
+        "position": "C",
+        "actual_points": 40.07,
+        "sim_points": 61.4,
+        "delta_points": 21.33,
+        "pct_delta_points": 0.5323184427252308,
+        "actual_gp_total": 240.0,
+        "slot_kind": "F",
+        "slot_idx": 1,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Jesper Bratt",
+        "team": "NJD",
+        "position": "L",
+        "actual_points": 75.93,
+        "sim_points": 96.1,
+        "delta_points": 20.169999999999987,
+        "pct_delta_points": 0.26563940471486874,
+        "actual_gp_total": 245.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Cole Caufield",
+        "team": "MTL",
+        "position": "R",
+        "actual_points": 82.07,
+        "sim_points": 101.9,
+        "delta_points": 19.830000000000013,
+        "pct_delta_points": 0.24162300475204113,
+        "actual_gp_total": 245.0,
+        "slot_kind": "F",
+        "slot_idx": 1,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Juraj Slafkovsk\u00fd",
+        "team": "MTL",
+        "position": "L",
+        "actual_points": 66.1,
+        "sim_points": 85.6,
+        "delta_points": 19.5,
+        "pct_delta_points": 0.2950075642965205,
+        "actual_gp_total": 243.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Drake Batherson",
+        "team": "OTT",
+        "position": "R",
+        "actual_points": 69.93,
+        "sim_points": 89.4,
+        "delta_points": 19.47,
+        "pct_delta_points": 0.2784212784212784,
+        "actual_gp_total": 243.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Ben Kindel",
+        "team": "PIT",
+        "position": "C",
+        "actual_points": 35.0,
+        "sim_points": 54.2,
+        "delta_points": 19.200000000000003,
+        "pct_delta_points": 0.5485714285714286,
+        "actual_gp_total": 77.0,
+        "slot_kind": "F",
+        "slot_idx": 4,
+        "thin_sample": true
+      },
+      {
+        "player_name": "Jonathan Huberdeau",
+        "team": "CGY",
+        "position": "L",
+        "actual_points": 35.79,
+        "sim_points": 54.3,
+        "delta_points": 18.509999999999998,
+        "pct_delta_points": 0.5171835708298407,
+        "actual_gp_total": 212.0,
+        "slot_kind": "F",
+        "slot_idx": 0,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Dylan Strome",
+        "team": "WSH",
+        "position": "C",
+        "actual_points": 64.41,
+        "sim_points": 82.8,
+        "delta_points": 18.39,
+        "pct_delta_points": 0.28551467163483935,
+        "actual_gp_total": 244.0,
+        "slot_kind": "F",
+        "slot_idx": 1,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Trevor Zegras",
+        "team": "PHI",
+        "position": "C",
+        "actual_points": 54.97,
+        "sim_points": 73.2,
+        "delta_points": 18.230000000000004,
+        "pct_delta_points": 0.3316354375113699,
+        "actual_gp_total": 169.0,
+        "slot_kind": "F",
+        "slot_idx": 1,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Dylan Holloway",
+        "team": "STL",
+        "position": "L",
+        "actual_points": 51.0,
+        "sim_points": 69.1,
+        "delta_points": 18.099999999999994,
+        "pct_delta_points": 0.35490196078431363,
+        "actual_gp_total": 174.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Frank Nazar",
+        "team": "CHI",
+        "position": "C",
+        "actual_points": 33.93,
+        "sim_points": 51.6,
+        "delta_points": 17.67,
+        "pct_delta_points": 0.5207780725022105,
+        "actual_gp_total": 121.0,
+        "slot_kind": "F",
+        "slot_idx": 1,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Wyatt Johnston",
+        "team": "DAL",
+        "position": "C",
+        "actual_points": 80.93,
+        "sim_points": 98.6,
+        "delta_points": 17.669999999999987,
+        "pct_delta_points": 0.2183368343012478,
+        "actual_gp_total": 246.0,
+        "slot_kind": "F",
+        "slot_idx": 1,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Matthew Knies",
+        "team": "TOR",
+        "position": "L",
+        "actual_points": 61.93,
+        "sim_points": 79.4,
+        "delta_points": 17.470000000000006,
+        "pct_delta_points": 0.2820926852898435,
+        "actual_gp_total": 237.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Logan Cooley",
+        "team": "UTA",
+        "position": "C",
+        "actual_points": 48.38,
+        "sim_points": 65.8,
+        "delta_points": 17.419999999999995,
+        "pct_delta_points": 0.36006614303431156,
+        "actual_gp_total": 211.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      },
+      {
+        "player_name": "Pavel Zacha",
+        "team": "BOS",
+        "position": "C",
+        "actual_points": 60.24,
+        "sim_points": 77.5,
+        "delta_points": 17.259999999999998,
+        "pct_delta_points": 0.28652058432934924,
+        "actual_gp_total": 238.0,
+        "slot_kind": "F",
+        "slot_idx": 2,
+        "thin_sample": false
+      }
+    ]
+  },
+  "pipeline_traces": [
+    {
+      "player": "Connor McDavid",
+      "team": "EDM",
+      "actual": {
+        "G": 41.59,
+        "A1": 55.66,
+        "A2": 31.17,
+        "P": 128.41
+      },
+      "raw_shares": {
+        "hist_goal_share": 0.1361950941243582,
+        "hist_p_assist_share": 0.1787642471505699,
+        "hist_s_assist_share": 0.1482227922315867,
+        "hist_avg_TOI": 22.684,
+        "ev_minutes_3yr": 3851.4,
+        "thin_sample": false
+      },
+      "slot": {
+        "kind": "F",
+        "slot_idx": 0,
+        "slot_minutes": 22
+      },
+      "layer_3_linemate": {
+        "linemate_war": 1.822,
+        "linemate_mult": 1.2294
+      },
+      "normalized_shares": {
+        "G": 0.159,
+        "A1": 0.2109,
+        "A2": 0.1576
+      },
+      "team_sim_GF_per_season": 276.8,
+      "theoretical_under_perfect_conditions": {
+        "G": 44.0,
+        "A1": 44.2,
+        "A2": 23.8,
+        "P": 112.0
+      },
+      "simulator_actually_produces": {
+        "G": 43.8,
+        "A1": 50.0,
+        "A2": 25.4,
+        "P": 119.2
+      },
+      "gap": {
+        "sim_vs_actual": -9.2,
+        "theoretical_vs_actual": -16.4
+      }
+    },
+    {
+      "player": "Leon Draisaitl",
+      "team": "EDM",
+      "actual": {
+        "G": 39.52,
+        "A1": 37.45,
+        "A2": 22.83,
+        "P": 99.79
+      },
+      "raw_shares": {
+        "hist_goal_share": 0.137906446092413,
+        "hist_p_assist_share": 0.139622075584883,
+        "hist_s_assist_share": 0.09582264565775,
+        "hist_avg_TOI": 21.488,
+        "ev_minutes_3yr": 3554.5,
+        "thin_sample": false
+      },
+      "slot": {
+        "kind": "F",
+        "slot_idx": 1,
+        "slot_minutes": 22
+      },
+      "layer_3_linemate": {
+        "linemate_war": 1.914,
+        "linemate_mult": 1.2434
+      },
+      "normalized_shares": {
+        "G": 0.1719,
+        "A1": 0.1758,
+        "A2": 0.1075
+      },
+      "team_sim_GF_per_season": 276.8,
+      "theoretical_under_perfect_conditions": {
+        "G": 47.6,
+        "A1": 36.3,
+        "A2": 16.0,
+        "P": 99.9
+      },
+      "simulator_actually_produces": {
+        "G": 47.7,
+        "A1": 41.4,
+        "A2": 17.7,
+        "P": 106.7
+      },
+      "gap": {
+        "sim_vs_actual": 6.9,
+        "theoretical_vs_actual": 0.1
+      }
+    },
+    {
+      "player": "Nathan MacKinnon",
+      "team": "COL",
+      "actual": {
+        "G": 47.79,
+        "A1": 50.72,
+        "A2": 26.72,
+        "P": 125.24
+      },
+      "raw_shares": {
+        "hist_goal_share": 0.142001597018898,
+        "hist_p_assist_share": 0.160670482420278,
+        "hist_s_assist_share": 0.1060680006507239,
+        "hist_avg_TOI": 22.425,
+        "ev_minutes_3yr": 4149.8,
+        "thin_sample": false
+      },
+      "slot": {
+        "kind": "F",
+        "slot_idx": 0,
+        "slot_minutes": 22
+      },
+      "layer_3_linemate": {
+        "linemate_war": 1.01,
+        "linemate_mult": 1.1077
+      },
+      "normalized_shares": {
+        "G": 0.1523,
+        "A1": 0.1801,
+        "A2": 0.1181
+      },
+      "team_sim_GF_per_season": 304.8,
+      "theoretical_under_perfect_conditions": {
+        "G": 46.4,
+        "A1": 41.9,
+        "A2": 19.8,
+        "P": 108.1
+      },
+      "simulator_actually_produces": {
+        "G": 46.5,
+        "A1": 47.0,
+        "A2": 20.9,
+        "P": 114.5
+      },
+      "gap": {
+        "sim_vs_actual": -10.7,
+        "theoretical_vs_actual": -17.1
+      }
+    }
+  ],
+  "sim_team_gf": {
+    "ANA": 261.6,
+    "BOS": 257.0,
+    "BUF": 283.8,
+    "CAR": 292.5,
+    "CBJ": 280.5,
+    "CGY": 245.0,
+    "CHI": 239.3,
+    "COL": 304.8,
+    "DAL": 298.8,
+    "DET": 252.4,
+    "EDM": 276.8,
+    "FLA": 262.5,
+    "LAK": 249.8,
+    "MIN": 281.7,
+    "MTL": 269.7,
+    "NJD": 262.6,
+    "NSH": 243.3,
+    "NYI": 258.6,
+    "NYR": 266.2,
+    "OTT": 265.5,
+    "PHI": 247.1,
+    "PIT": 263.7,
+    "SEA": 230.1,
+    "SJS": 219.2,
+    "STL": 236.6,
+    "TBL": 300.2,
+    "TOR": 244.8,
+    "UTA": 273.8,
+    "VAN": 219.6,
+    "VGK": 270.6,
+    "WPG": 273.1,
+    "WSH": 270.3
+  },
+  "sim_team_wins": {
+    "ANA": 40.8,
+    "BOS": 39.7,
+    "BUF": 46.8,
+    "CAR": 49.8,
+    "CBJ": 46.0,
+    "CGY": 35.7,
+    "CHI": 34.0,
+    "COL": 52.6,
+    "DAL": 51.9,
+    "DET": 38.2,
+    "EDM": 45.3,
+    "FLA": 40.8,
+    "LAK": 37.4,
+    "MIN": 46.9,
+    "MTL": 43.0,
+    "NJD": 41.1,
+    "NSH": 35.4,
+    "NYI": 40.0,
+    "NYR": 41.8,
+    "OTT": 42.2,
+    "PHI": 36.8,
+    "PIT": 41.7,
+    "SEA": 32.0,
+    "SJS": 29.1,
+    "STL": 33.9,
+    "TBL": 51.4,
+    "TOR": 35.8,
+    "UTA": 44.4,
+    "VAN": 28.8,
+    "VGK": 43.1,
+    "WPG": 44.0,
+    "WSH": 43.0
+  }
+}

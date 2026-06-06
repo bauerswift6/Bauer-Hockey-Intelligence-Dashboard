@@ -1,0 +1,40 @@
+{
+  "trained_at": "2026-05-19T16:51:13",
+  "model": "experimental Bayesian (prior-informed) RAPM \u2014 parallel to ridge RAPM",
+  "method": "prior-informed ridge: minimise ||y-Xb||^2 + a||b-b0||^2 by centering the target with X@b0, fitting standard ridge, then b=b'+b0",
+  "n_segments": 1870097,
+  "n_players": 1717,
+  "alpha_selected": 10000.0,
+  "alphas_tested": [
+    0.001,
+    0.01,
+    0.1,
+    0.5,
+    1,
+    5,
+    10,
+    25,
+    50,
+    100,
+    250,
+    500,
+    1000,
+    2500,
+    5000,
+    10000,
+    20000,
+    50000,
+    100000
+  ],
+  "priors": {
+    "offensive": "year-weighted (player ixG/60 - league-average ixG/60)",
+    "defensive": "year-weighted -((player on-ice xGA/60) - league-average)",
+    "league_ixg60": 0.8272,
+    "league_xga60": 2.819,
+    "off_scale": 0.2019,
+    "def_scale": 0.2858,
+    "ridge_off_std": 0.1015,
+    "ridge_def_std": 0.0844
+  },
+  "note": "Experimental. Not wired into the composite rating. Does NOT replace model/rapm_results.csv (the live ridge RAPM)."
+}
