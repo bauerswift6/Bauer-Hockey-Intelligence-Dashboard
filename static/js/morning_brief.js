@@ -12,7 +12,6 @@
   const NEWS_REFRESH_MS = 10 * 60 * 1000; // 10 min
 
   const state = {
-    newsItems: [],
     newsTimer: null,
   };
 
@@ -50,72 +49,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Zone 2 — Playoff Form Table
-  // ---------------------------------------------------------------------------
-  function dotForResult(r) {
-    if (r === "W") return '<span class="form-dot form-dot-win" title="Win"></span>';
-    if (r === "OTL") return '<span class="form-dot form-dot-otl" title="OT/SO loss"></span>';
-    return '<span class="form-dot form-dot-loss" title="Loss"></span>';
-  }
-
-  function streakClass(s) {
-    if (!s || s === "—") return "";
-    return s.startsWith("W") ? "streak-win" : "streak-loss";
-  }
-
-  async function loadPlayoffForm() {
-    const spinner = $("#form-spinner");
-    const tbody = $("#form-tbody");
-    const content = $("#form-content");
-    const empty = $("#form-empty");
-    const err = $("#form-error");
-    if (!tbody) return;
-
-    [content, empty, err].forEach((el) => el && (el.hidden = true));
-    if (spinner) spinner.hidden = false;
-
-    try {
-      const r = await fetch("/api/playoff-form");
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const data = await r.json();
-      if (spinner) spinner.hidden = true;
-
-      if (!data.teams || data.teams.length === 0) {
-        if (empty) empty.hidden = false;
-        return;
-      }
-
-      tbody.innerHTML = data.teams.map((t) => {
-        const dots = (t.last10 || []).map((g) =>
-          `<span class="form-dot form-dot-${g.result === 'W' ? 'win' : g.result === 'OTL' ? 'otl' : 'loss'}" title="${g.result === 'W' ? 'W' : g.result === 'OTL' ? 'OT/SO L' : 'L'} vs ${escHtml(g.opp)} ${g.gf}-${g.ga}"></span>`
-        ).join("");
-        const confTag = t.conference === "Eastern" ? "E"
-                      : t.conference === "Western" ? "W" : "?";
-        return `
-          <tr>
-            <td class="team-cell">
-              <img class="form-team-logo" src="${escHtml(t.logo || '')}" alt="" loading="lazy" />
-              <span class="team-abbrev-text">${escHtml(t.abbrev)}</span>
-              <span class="conf-tag">${confTag}</span>
-            </td>
-            <td class="series-cell">${escHtml(t.series_situation)}</td>
-            <td class="dots-cell">${dots}</td>
-            <td class="streak-cell ${streakClass(t.streak)}">${escHtml(t.streak)}</td>
-            <td class="gfga-cell"><span class="gf">${t.gf}</span><span class="sep">/</span><span class="ga">${t.ga}</span></td>
-          </tr>
-        `;
-      }).join("");
-
-      if (content) content.hidden = false;
-    } catch (e) {
-      if (spinner) spinner.hidden = true;
-      if (err) err.hidden = false;
-      console.error("playoff-form fetch failed:", e);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Zone 2 — News feed
+  // Zone 2 — News feed (League Pulse / Ink Report / Trade Block)
   // ---------------------------------------------------------------------------
   function timeAgo(iso) {
     if (!iso) return "";
@@ -131,19 +65,20 @@
     return `${days}d ago`;
   }
 
-  function renderNews() {
-    const list = $("#news-list");
-    const empty = $("#news-empty");
+  // League Pulse — curated big-news headlines (full width)
+  function renderPulse(items) {
+    const list = $("#pulse-list");
+    const empty = $("#pulse-empty");
     if (!list) return;
 
-    if (state.newsItems.length === 0) {
+    if (!items || items.length === 0) {
       list.hidden = true;
       if (empty) empty.hidden = false;
       return;
     }
 
     if (empty) empty.hidden = true;
-    list.innerHTML = state.newsItems.map((it) => `
+    list.innerHTML = items.map((it) => `
       <li class="news-item">
         <a class="news-link" href="${escHtml(it.link)}" target="_blank" rel="noopener">${escHtml(it.title)}</a>
         <div class="news-meta">
@@ -155,56 +90,10 @@
     list.hidden = false;
   }
 
-  async function loadNews() {
-    const spinner = $("#news-spinner");
-    const list = $("#news-list");
-    const empty = $("#news-empty");
-    const err = $("#news-error");
-    const srcLabel = $("#news-source");
-
-    [list, empty, err, srcLabel].forEach((el) => el && (el.hidden = true));
-    if (spinner) spinner.hidden = false;
-
-    try {
-      const r = await fetch("/api/news");
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const data = await r.json();
-      if (spinner) spinner.hidden = true;
-
-      if (data.blocked || !data.items || data.items.length === 0) {
-        if (err) err.hidden = false;
-        return;
-      }
-
-      state.newsItems = data.items;
-      if (srcLabel) {
-        srcLabel.textContent = `Source: ${data.source}`;
-        srcLabel.hidden = false;
-      }
-      renderNews();
-    } catch (e) {
-      if (spinner) spinner.hidden = true;
-      if (err) err.hidden = false;
-      console.error("news fetch failed:", e);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Recent Transactions (standalone section)
-  // ---------------------------------------------------------------------------
-  const TXN_TYPE_LABELS = {
-    TRADE: "TRADE",
-    SIGNING: "SIGNING",
-    RECALL: "RECALL",
-    WAIVER: "WAIVER",
-    IR: "IR",
-    SUSPENSION: "SUSPENSION",
-    OTHER: "MOVE",
-  };
-
-  function renderTransactions(items) {
-    const list = $("#transactions-list");
-    const empty = $("#transactions-empty");
+  // Ink Report / Trade Block — type-pure move lists (no per-item badge needed)
+  function renderMoveList(listSel, emptySel, items) {
+    const list = $(listSel);
+    const empty = $(emptySel);
     if (!list) return;
 
     if (!items || items.length === 0) {
@@ -214,52 +103,48 @@
     }
 
     if (empty) empty.hidden = true;
-    list.innerHTML = items.map((it) => {
-      const type = it.type || "OTHER";
-      const label = TXN_TYPE_LABELS[type] || "MOVE";
-      const cls = `txn-badge txn-${type.toLowerCase()}`;
-      return `
-        <li class="txn-item">
-          <span class="${cls}">${escHtml(label)}</span>
-          <a class="txn-title" href="${escHtml(it.link)}" target="_blank" rel="noopener">${escHtml(it.title)}</a>
-          <span class="txn-ago">${escHtml(timeAgo(it.pub_date))}</span>
-        </li>
-      `;
-    }).join("");
+    list.innerHTML = items.map((it) => `
+      <li class="txn-item">
+        <a class="txn-title" href="${escHtml(it.link)}" target="_blank" rel="noopener">${escHtml(it.title)}</a>
+        <span class="txn-ago">${escHtml(timeAgo(it.pub_date))}</span>
+      </li>
+    `).join("");
     list.hidden = false;
   }
 
-  async function loadTransactions() {
-    const spinner = $("#transactions-spinner");
-    const list = $("#transactions-list");
-    const empty = $("#transactions-empty");
-    const err = $("#transactions-error");
-    const srcLabel = $("#transactions-source");
+  async function loadFeed() {
+    const spinners = ["#pulse-spinner", "#ink-spinner", "#trade-spinner"].map((s) => $(s));
+    const lists = ["#pulse-list", "#ink-list", "#trade-list"].map((s) => $(s));
+    const empties = ["#pulse-empty", "#ink-empty", "#trade-empty"].map((s) => $(s));
+    const errors = ["#pulse-error", "#ink-error", "#trade-error"].map((s) => $(s));
+    const srcLabel = $("#pulse-source");
 
-    [list, empty, err, srcLabel].forEach((el) => el && (el.hidden = true));
-    if (spinner) spinner.hidden = false;
+    [...lists, ...empties, ...errors, srcLabel].forEach((el) => el && (el.hidden = true));
+    spinners.forEach((el) => el && (el.hidden = false));
 
     try {
-      const r = await fetch("/api/transactions");
+      const r = await fetch("/api/morning-brief-feed");
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const data = await r.json();
-      if (spinner) spinner.hidden = true;
+      spinners.forEach((el) => el && (el.hidden = true));
 
-      const items = data.items || [];
-      if (data.blocked || items.length === 0) {
-        if (empty) empty.hidden = false;
+      if (data.blocked) {
+        errors.forEach((el) => el && (el.hidden = false));
         return;
       }
 
-      renderTransactions(items);
-      if (srcLabel && data.source) {
-        srcLabel.textContent = `Source: ${data.source}`;
+      renderPulse(data.league_pulse || []);
+      renderMoveList("#ink-list", "#ink-empty", data.ink_report || []);
+      renderMoveList("#trade-list", "#trade-empty", data.trade_block || []);
+
+      if (srcLabel && data.news_source) {
+        srcLabel.textContent = `Source: ${data.news_source}`;
         srcLabel.hidden = false;
       }
     } catch (e) {
-      if (spinner) spinner.hidden = true;
-      if (err) err.hidden = false;
-      console.error("transactions fetch failed:", e);
+      spinners.forEach((el) => el && (el.hidden = true));
+      errors.forEach((el) => el && (el.hidden = false));
+      console.error("morning-brief-feed fetch failed:", e);
     }
   }
 
@@ -433,15 +318,15 @@
   // ---------------------------------------------------------------------------
   async function loadAll() {
     renderDateHeader();
-    await Promise.all([loadPlayoffForm(), loadNews(), loadTransactions(), loadBracket()]);
+    await Promise.all([loadFeed(), loadBracket()]);
     setLastUpdated();
   }
 
   function init() {
     loadAll();
-    // Auto-refresh news + transactions every 10 minutes
+    // Auto-refresh the news feed every 10 minutes
     state.newsTimer = setInterval(async () => {
-      await Promise.all([loadNews(), loadTransactions()]);
+      await loadFeed();
       setLastUpdated();
     }, NEWS_REFRESH_MS);
   }

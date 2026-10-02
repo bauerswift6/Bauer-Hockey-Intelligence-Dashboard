@@ -680,11 +680,15 @@
         </div>`;
     }
 
+    // 2026-06-07: section was titled "Composite Rating" until GAR was
+    // unified with composite_war on the same display scale. We now show the
+    // six component z-scores under a "GAR Component Breakdown" header so the
+    // user sees exactly how their GAR was constructed.
     wrap.innerHTML = `
-      <h3 class="player-stat-card-title">Analytics <span class="subtitle">— composite rating model</span></h3>
+      <h3 class="player-stat-card-title">GAR Component Breakdown <span class="subtitle">— 2025-26 single-season</span></h3>
       <div class="pa-headline">
         <div class="pa-composite">
-          <span class="pa-composite-label">Composite Rating</span>
+          <span class="pa-composite-label">GAR (composite_war)</span>
           <span class="pa-composite-value ${compCls}">${row.composite_rating >= 0 ? "+" : ""}${row.composite_rating.toFixed(3)}</span>
           <span class="pa-composite-rank">#${rank} of ${qualified.length} qualified skaters</span>
         </div>
@@ -715,7 +719,7 @@
       </div>
 
       <div class="player-stat-card player-analytics-card" id="player-analytics">
-        <h3 class="player-stat-card-title">Analytics <span class="subtitle">— composite rating model</span></h3>
+        <h3 class="player-stat-card-title">GAR Component Breakdown <span class="subtitle">— 2025-26 single-season</span></h3>
         <p class="muted">Loading…</p>
       </div>
 

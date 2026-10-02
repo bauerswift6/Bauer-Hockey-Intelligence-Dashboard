@@ -57,15 +57,19 @@
 
   function fmtMoney(v) {
     if (v == null) return "—";
-    const sign = v < 0 ? "-" : "";
+    // U+2212 minus is wider and typographically aligned with U+002B '+'
+    const sign = v < 0 ? "−" : "";
     return `${sign}$${Math.abs(v).toFixed(2)}M`;
   }
 
   function fmtSurplus(v, isElc) {
     if (v == null) return '<span class="cv-na">—</span>';
     const cls = isElc ? "cv-surplus-elc" : (v >= 0 ? "cv-surplus-pos" : "cv-surplus-neg");
-    const sign = v >= 0 ? "+" : "";
-    return `<span class="${cls}">${sign}${fmtMoney(v).replace("-", "")}</span>`;
+    // Always-explicit sign: "+$1.88M" or "−$2.45M". Color reinforces, never
+    // sole signal — accessible to red/green-blind readers.
+    const sign = v >= 0 ? "+" : "−";
+    const body = `$${Math.abs(v).toFixed(2)}M`;
+    return `<span class="${cls}">${sign}${body}</span>`;
   }
 
   function fmtNum(v, dp = 2) {
@@ -79,10 +83,34 @@
     return `<span class="${cls}" title="${escHtml(type)}">${escHtml(type)}</span>`;
   }
 
-  function ageFlagIcon(flag) {
-    if (flag === "veteran") return '<span class="cv-age-icon cv-age-vet" title="30+ — age decline risk">▲</span>';
-    if (flag === "prime")   return '<span class="cv-age-icon cv-age-prime" title="Prime years (24-27)">●</span>';
+  // Age-curve badge — drives the visual cue in the Age column. Three tiers
+  // matching the player's position on the public-model aging curve. Distinct
+  // glyph set (↑ / ● / ↓) from anything used near player names so the two
+  // can't be confused.
+  function ageCurveBadge(flag) {
+    if (flag === "pre_peak")  return '<span class="cv-age-badge cv-age-pre"  title="Under 25 — pre-peak (rising)">↑</span>';
+    if (flag === "peak")      return '<span class="cv-age-badge cv-age-peak" title="25–29 — peak years">●</span>';
+    if (flag === "post_peak") return '<span class="cv-age-badge cv-age-post" title="30+ — post-peak (declining)">↓</span>';
     return "";
+  }
+
+  function ageCell(v, r) {
+    if (v == null) return "—";
+    return `${escHtml(String(v))} ${ageCurveBadge(r.age_flag)}`;
+  }
+
+  function expiryCell(v, r) {
+    if (v == null) return "—";
+    // years_remaining comes from the server (max(0, expiry - today.year)).
+    // 0 = contract is in its final year now; 1 = one full season after this;
+    // N = N seasons remaining.
+    const y = r.years_remaining;
+    let suffix = "";
+    if (y == null) suffix = "";
+    else if (y === 0) suffix = ' <span class="cv-expiry-yrs">(final yr)</span>';
+    else if (y === 1) suffix = ' <span class="cv-expiry-yrs">(1 yr)</span>';
+    else              suffix = ` <span class="cv-expiry-yrs">(${y} yrs)</span>`;
+    return `${escHtml(String(v))}${suffix}`;
   }
 
   // ---------------------------------------------------------------------------
@@ -142,7 +170,14 @@
       }
 
       state.raw = data.players || [];
-      $("#cv-source-label").textContent = `Source: ${data.source === "puckpedia" ? "PuckPedia" : "Manual contract dataset"} + MoneyPuck`;
+      const SOURCE_LABELS = { capwages: "CapWages", puckpedia: "PuckPedia", manual: "Manual contract dataset" };
+      const sourceName = SOURCE_LABELS[data.source] || "Manual contract dataset";
+      let fetched = "";
+      if (data.meta && data.meta.fetched_at) {
+        const d = new Date(data.meta.fetched_at);
+        if (!isNaN(d)) fetched = ` · updated ${d.toLocaleDateString()}`;
+      }
+      $("#cv-source-label").textContent = `Source: ${sourceName} + MoneyPuck${fetched}`;
       $("#cv-source-label").hidden = false;
 
       populateTeamFilter();
@@ -221,15 +256,34 @@
   // ---------------------------------------------------------------------------
   // Column definitions per view
   // ---------------------------------------------------------------------------
+  // Sustain tooltip — explicit about the actual scale. Today's "Sustain" is
+  // a raw GAR − xGAR differential in GAR (wins) units, NOT a z-score or
+  // percentile. We surface that here so users don't misread −1.01 as "1
+  // standard deviation below normal" when it really means "GAR is 1.01 wins
+  // below underlying xG-derived expectation".
+  const SUSTAIN_TOOLTIP =
+    "Sustainability gap = GAR − xGAR, in GAR (wins) units. " +
+    "Positive = current GAR is outpacing underlying shot quality (regression risk). " +
+    "Negative = underperforming the underlying shot quality (likely to bounce back). " +
+    "≥ +3.0 flagged as Regression Risk; ≤ −3.0 typically a buy-low signal.";
+
+  // GAR column note — goalie rows use GSAX (goals saved above expected) not
+  // skater-WAR GAR, with a separate $0.45M/save multiplier feeding Surplus.
+  const GAR_TOOLTIP =
+    "Skaters: composite GAR (wins above replacement, z-blended). " +
+    "Goalies: this column shows GSAX (goals saved above expected) on a different scale; " +
+    "the Surplus column applies a goalie-specific $0.45M/GSAX multiplier so the dollar " +
+    "comparison stays apples-to-apples even though the raw GAR/GSAX numbers are not.";
+
   const COMMON_COLS = [
     { key: "name",          label: "Player",       align: "left",  isPlayer: true },
     { key: "team",          label: "Team",         align: "left",  isTeam: true },
     { key: "position",      label: "Pos",          align: "left",  isPos: true },
-    { key: "age",           label: "Age",          align: "right" },
+    { key: "age",           label: "Age",          align: "right", fmt: (v, r) => ageCell(v, r) },
     { key: "cap_hit",       label: "Cap",          align: "right", fmt: (v) => fmtMoney(v) },
-    { key: "expiry_year",   label: "Expiry",       align: "right" },
+    { key: "expiry_year",   label: "Expiry",       align: "right", fmt: (v, r) => expiryCell(v, r) },
     { key: "contract_type", label: "Type",         align: "left",  fmt: (v) => contractBadge(v) },
-    { key: "gar",           label: "GAR",          align: "right", glossaryId: "gar", fmt: (v) => fmtNum(v) },
+    { key: "gar",           label: "GAR",          align: "right", glossaryId: "gar", titleOverride: GAR_TOOLTIP, fmt: (v) => fmtNum(v) },
   ];
 
   function bestColsExtra() {
@@ -240,7 +294,7 @@
       { key: "pk_gar",             label: "PK GAR",      align: "right", fmt: (v) => fmtNum(v) },
       { key: "gar_per_million",    label: "GAR/$1M",     align: "right", glossaryId: "gar-per-mil", fmt: (v) => fmtNum(v) },
       { key: "xgar",               label: "xGAR",        align: "right", glossaryId: "xgar", fmt: (v) => fmtNum(v) },
-      { key: "sustainability_score", label: "Sustain",   align: "right", fmt: (v, r) => sustainCell(v) },
+      { key: "sustainability_score", label: "Sustain",   align: "right", titleOverride: SUSTAIN_TOOLTIP, infoIcon: true, fmt: (v, r) => sustainCell(v) },
       { key: "surplus_value",      label: "Surplus",     align: "right", fmt: (v, r) => fmtSurplus(v, r.contract_type === "ELC"), highlight: true },
     ];
   }
@@ -266,7 +320,7 @@
   function sustainColsExtra() {
     return [
       { key: "xgar",                 label: "xGAR",       align: "right", glossaryId: "xgar", fmt: (v) => fmtNum(v) },
-      { key: "sustainability_score", label: "Sustain",    align: "right", fmt: (v, r) => sustainCell(v), highlight: true },
+      { key: "sustainability_score", label: "Sustain",    align: "right", titleOverride: SUSTAIN_TOOLTIP, infoIcon: true, fmt: (v, r) => sustainCell(v), highlight: true },
       { key: "surplus_value",        label: "Surplus",    align: "right", fmt: (v, r) => fmtSurplus(v, r.contract_type === "ELC") },
     ];
   }
@@ -372,8 +426,11 @@
       const sortable = !["_rank", "name", "team", "position", "contract_type"].includes(c.key);
       const sortableCls = sortable ? " sortable" : "";
       const arrow = c.key === sort.key ? `<span class="sort-arrow">${sort.asc ? "▲" : "▼"}</span>` : "";
-      const titleAttr = c.glossaryId ? ` title="${escHtml(tipFor(c.glossaryId))}"` : "";
-      const info = c.glossaryId ? ' <span class="lb-info-icon">i</span>' : "";
+      // titleOverride wins over glossaryId; infoIcon forces an "i" badge even
+      // when the column isn't backed by a glossary entry.
+      const tipText = c.titleOverride || (c.glossaryId ? tipFor(c.glossaryId) : "");
+      const titleAttr = tipText ? ` title="${escHtml(tipText)}"` : "";
+      const info = (c.glossaryId || c.infoIcon) ? ' <span class="lb-info-icon">i</span>' : "";
       return `<th class="${cls}${sortableCls}" data-col="${escHtml(c.key)}"${titleAttr}>${escHtml(c.label)}${info}${arrow}</th>`;
     }).join("");
 
@@ -396,7 +453,7 @@
     $(tbodyId).innerHTML = rows.map((r, i) => {
       const cells = allCols.map((c) => {
         if (c.key === "_rank") return `<td class="num-cell rank-col">${i + 1}</td>`;
-        if (c.isPlayer) return `<td class="cv-player-cell"><a href="#" class="cv-player-link" data-player-id="${escHtml(r.playerId || "")}" data-name="${escHtml(r.name)}">${escHtml(r.name)}</a> ${ageFlagIcon(r.age_flag)}</td>`;
+        if (c.isPlayer) return `<td class="cv-player-cell"><a href="#" class="cv-player-link" data-player-id="${escHtml(r.playerId || "")}" data-name="${escHtml(r.name)}">${escHtml(r.name)}</a></td>`;
         if (c.isTeam) {
           const logo = r.team_logo ? `<img src="${escHtml(r.team_logo)}" alt="" class="cv-team-logo" onerror="this.style.display='none'" />` : "";
           return `<td class="cv-team-cell">${logo}<span>${escHtml(r.team)}</span></td>`;

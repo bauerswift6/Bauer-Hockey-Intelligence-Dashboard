@@ -6,62 +6,58 @@
   <title>Hockey Intelligence Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Saira:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-  <!-- ===== HEADER ===== -->
+  <!-- ===== BAND 1: Utility bar (wordmark | region | league | date) ===== -->
   <header class="site-header">
     <div class="header-inner">
-      <div class="header-left">
-        <h1 class="site-title">Hockey Intelligence Hub</h1>
-        <span id="brief-date" class="brief-date"></span>
+      <span class="nav-wordmark">Hockey Intelligence Hub</span>
+      <span class="nav-vdivider" aria-hidden="true"></span>
+
+      <!-- Region switcher — classes/data-attrs preserved for nav.js -->
+      <div class="nav-countries-wrap" role="tablist" aria-label="Countries">
+        <button class="nav-tab country-tab active" data-country="usa" role="tab" aria-selected="true">USA</button>
+        <button class="nav-tab country-tab" data-country="canada" role="tab" aria-selected="false">Canada</button>
+        <button class="nav-tab country-tab" data-country="international" role="tab" aria-selected="false">Intl</button>
       </div>
-      <div class="header-right">
-        <span class="header-tag">Daily Hockey Intelligence</span>
+
+      <span class="nav-vdivider nav-vdivider--hair" aria-hidden="true"></span>
+
+      <!-- League tabs — one group per region, nav.js toggles hidden attr -->
+      <div class="nav-leagues-wrap" role="tablist" aria-label="Leagues">
+        <div class="league-group" data-country="usa">
+          <button class="nav-tab league-tab active" data-league="nhl" aria-selected="true">NHL</button>
+          <button class="nav-tab league-tab" data-league="ahl" aria-selected="false">AHL</button>
+          <button class="nav-tab league-tab" data-league="echl" aria-selected="false">ECHL</button>
+          <button class="nav-tab league-tab" data-league="ushl" aria-selected="false">USHL</button>
+          <button class="nav-tab league-tab" data-league="ncaa" aria-selected="false">NCAA</button>
+        </div>
+        <div class="league-group" data-country="canada" hidden>
+          <button class="nav-tab league-tab" data-league="ohl" aria-selected="false">OHL</button>
+          <button class="nav-tab league-tab" data-league="whl" aria-selected="false">WHL</button>
+          <button class="nav-tab league-tab" data-league="qmjhl" aria-selected="false">QMJHL</button>
+          <button class="nav-tab league-tab" data-league="bchl" aria-selected="false">BCHL</button>
+        </div>
+        <div class="league-group" data-country="international" hidden>
+          <button class="nav-tab league-tab" data-league="khl" aria-selected="false">KHL</button>
+          <button class="nav-tab league-tab" data-league="shl" aria-selected="false">SHL</button>
+          <button class="nav-tab league-tab" data-league="liiga" aria-selected="false">Liiga</button>
+          <button class="nav-tab league-tab" data-league="del" aria-selected="false">DEL</button>
+          <button class="nav-tab league-tab" data-league="nl" aria-selected="false">NL</button>
+        </div>
       </div>
+
+      <!-- Date pushed to far right -->
+      <span id="brief-date" class="nav-date"></span>
     </div>
   </header>
 
-  <!-- ===== STICKY NAVIGATION (Country / League / Sub-page) ===== -->
+  <!-- ===== BAND 2: Section tabs (sticky) ===== -->
   <nav class="hub-nav" aria-label="Site navigation">
-
-    <!-- Country tabs -->
-    <div class="nav-row nav-countries" role="tablist" aria-label="Countries">
-      <div class="nav-inner">
-        <button class="nav-tab country-tab active" data-country="usa" role="tab" aria-selected="true">USA</button>
-        <button class="nav-tab country-tab" data-country="canada" role="tab" aria-selected="false">Canada</button>
-        <button class="nav-tab country-tab" data-country="international" role="tab" aria-selected="false">International</button>
-      </div>
-    </div>
-
-    <!-- League tabs (one row per country, only the active country's row shows) -->
-    <div class="nav-row nav-leagues" role="tablist" aria-label="Leagues">
-      <div class="nav-inner league-group" data-country="usa">
-        <button class="nav-tab league-tab active" data-league="nhl" aria-selected="true">NHL</button>
-        <button class="nav-tab league-tab" data-league="ahl" aria-selected="false">AHL</button>
-        <button class="nav-tab league-tab" data-league="echl" aria-selected="false">ECHL</button>
-        <button class="nav-tab league-tab" data-league="ushl" aria-selected="false">USHL</button>
-        <button class="nav-tab league-tab" data-league="ncaa" aria-selected="false">NCAA</button>
-      </div>
-      <div class="nav-inner league-group" data-country="canada" hidden>
-        <button class="nav-tab league-tab" data-league="ohl" aria-selected="false">OHL</button>
-        <button class="nav-tab league-tab" data-league="whl" aria-selected="false">WHL</button>
-        <button class="nav-tab league-tab" data-league="qmjhl" aria-selected="false">QMJHL</button>
-        <button class="nav-tab league-tab" data-league="bchl" aria-selected="false">BCHL</button>
-      </div>
-      <div class="nav-inner league-group" data-country="international" hidden>
-        <button class="nav-tab league-tab" data-league="khl" aria-selected="false">KHL</button>
-        <button class="nav-tab league-tab" data-league="shl" aria-selected="false">SHL</button>
-        <button class="nav-tab league-tab" data-league="liiga" aria-selected="false">Liiga</button>
-        <button class="nav-tab league-tab" data-league="del" aria-selected="false">DEL</button>
-        <button class="nav-tab league-tab" data-league="nl" aria-selected="false">NL</button>
-      </div>
-    </div>
-
-    <!-- Sub-page tabs (NHL has the full set; other leagues show a single Coming Soon) -->
     <div class="nav-row nav-subpages" role="tablist" aria-label="Sub-pages">
       <div class="nav-inner subpage-group" data-league="nhl">
         <button class="nav-tab subpage-tab active" data-subpage="morning-brief" aria-selected="true">Morning Brief</button>
@@ -76,7 +72,6 @@
         <span class="nav-tab subpage-tab coming-soon-tab" aria-disabled="true">Coming Soon</span>
       </div>
     </div>
-
   </nav>
 
   <main class="main-content">
@@ -118,79 +113,59 @@
       </section>
 
       <!-- =========================
-           ZONE 2 — Two-column: Playoff Form (60%) + News (40%)
+           LEAGUE PULSE — full-width curated big-news feed
+           ========================= -->
+      <section class="section mb-zone" id="pulse-section">
+        <header class="zone-section-head">
+          <h2 class="section-title">League Pulse</h2>
+          <p class="section-sub">The biggest stories around the league</p>
+        </header>
+        <div class="section-body">
+          <div class="spinner" id="pulse-spinner"></div>
+          <ul id="pulse-list" class="news-list pulse-list" hidden></ul>
+          <div id="pulse-empty" class="empty-card" hidden>No major storylines right now.</div>
+          <div id="pulse-error" class="news-error" hidden>
+            League feed temporarily unavailable.
+            <a href="https://www.nhl.com/news" target="_blank" rel="noopener">Open NHL.com/news →</a>
+          </div>
+          <p id="pulse-source" class="news-source" hidden></p>
+        </div>
+      </section>
+
+      <!-- =========================
+           INK REPORT (signings) + TRADE BLOCK (trades) — two-column
            ========================= -->
       <div class="mb-zone zone-twocol">
 
-        <!-- Left 60% — Playoff Form Table -->
-        <section class="section zone-left" id="form-section">
+        <!-- Left — Ink Report: signings -->
+        <section class="section zone-left" id="ink-section">
           <header class="zone-section-head">
-            <h2 class="section-title">Playoff Form — Last 10 Games</h2>
-            <div class="form-legend">
-              <span class="legend-item"><span class="form-dot form-dot-win"></span>Win</span>
-              <span class="legend-item"><span class="form-dot form-dot-loss"></span>Loss</span>
-              <span class="legend-item"><span class="form-dot form-dot-otl"></span>OT/SO Loss</span>
-            </div>
+            <h2 class="section-title">Ink Report</h2>
+            <p class="section-sub">Signings &amp; extensions</p>
           </header>
           <div class="section-body">
-            <div class="spinner" id="form-spinner"></div>
-            <div id="form-content" hidden>
-              <div class="table-wrap">
-                <table class="data-table form-table">
-                  <thead>
-                    <tr>
-                      <th>Team</th>
-                      <th>Series</th>
-                      <th class="form-col">Last 10</th>
-                      <th>Streak</th>
-                      <th title="Goals for / goals against, last 10 games">GF / GA (L10)</th>
-                    </tr>
-                  </thead>
-                  <tbody id="form-tbody"></tbody>
-                </table>
-              </div>
-            </div>
-            <div id="form-empty" class="empty-card" hidden>Playoffs not yet started — no qualifying teams.</div>
-            <div id="form-error" class="error-msg" hidden>Failed to load playoff form.</div>
+            <div class="spinner" id="ink-spinner"></div>
+            <ul id="ink-list" class="txn-list move-list" hidden></ul>
+            <div id="ink-empty" class="empty-card" hidden>No recent signings.</div>
+            <div id="ink-error" class="news-error" hidden>Signings temporarily unavailable.</div>
           </div>
         </section>
 
-        <!-- Right 40% — League Headlines -->
-        <aside class="section zone-right" id="news-section">
+        <!-- Right — Trade Block: trades -->
+        <section class="section zone-right" id="trade-section">
           <header class="zone-section-head">
-            <h2 class="section-title">League Headlines</h2>
+            <h2 class="section-title">Trade Block</h2>
+            <p class="section-sub">Trades &amp; acquisitions</p>
           </header>
           <div class="section-body">
-            <div class="spinner" id="news-spinner"></div>
-            <ul id="news-list" class="news-list" hidden></ul>
-            <div id="news-empty" class="empty-card" hidden>No matching headlines.</div>
-            <div id="news-error" class="news-error" hidden>
-              News temporarily unavailable.
-              <a href="https://www.nhl.com/news" target="_blank" rel="noopener">Open NHL.com/news →</a>
-            </div>
-            <p id="news-source" class="news-source" hidden></p>
+            <div class="spinner" id="trade-spinner"></div>
+            <ul id="trade-list" class="txn-list move-list" hidden></ul>
+            <div id="trade-empty" class="empty-card" hidden>No recent trades.</div>
+            <div id="trade-error" class="news-error" hidden>Trades temporarily unavailable.</div>
           </div>
-        </aside>
+        </section>
 
       </div>
-
-      <!-- =========================
-           Recent Transactions
-           ========================= -->
-      <section class="section mb-zone zone-transactions" id="transactions-section">
-        <header class="zone-section-head">
-          <h2 class="section-title">Recent Transactions</h2>
-        </header>
-        <div class="section-body">
-          <div class="spinner" id="transactions-spinner"></div>
-          <ul id="transactions-list" class="txn-list" hidden></ul>
-          <div id="transactions-empty" class="empty-card" hidden>No recent transactions.</div>
-          <div id="transactions-error" class="news-error" hidden>
-            Transactions temporarily unavailable.
-          </div>
-          <p id="transactions-source" class="news-source" hidden></p>
-        </div>
-      </section>
 
       <!-- =========================
            ZONE 3 — Playoff Bracket
@@ -242,6 +217,7 @@
         <header class="cv-header">
           <h2 class="cv-title">Players Overview</h2>
           <p class="cv-subtitle">Snapshot of league leaders across every major stat. Click any card to dive deeper.</p>
+          <p class="cv-subtitle muted" style="font-size: 0.82rem; opacity: 0.7;">Stats reflect 2025-26 regular season only. The Simulator uses multi-season talent estimates.</p>
         </header>
         <div class="spinner" id="overview-spinner"></div>
         <div class="overview-grid" id="overview-grid" hidden></div>
@@ -253,6 +229,7 @@
         <header class="cv-header">
           <h2 class="cv-title">Leaderboards</h2>
           <p class="cv-subtitle">Pick any stat to rank every NHL player. Filter, sort, and search.</p>
+          <p class="cv-subtitle muted" style="font-size: 0.82rem; opacity: 0.7;">Stats reflect 2025-26 regular season only. The Simulator uses multi-season talent estimates.</p>
         </header>
 
         <!-- Pill selector groups -->

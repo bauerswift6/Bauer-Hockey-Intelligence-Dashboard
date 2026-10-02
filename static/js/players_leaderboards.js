@@ -49,15 +49,30 @@
     { key: "toi_minutes",            label: "TOI",      align: "right", fmt: toiFmt },
   ];
 
+  // Shrunk RAPM = single-season value weighted toward the 16-season career
+  // prior. Headline column; the SS and MS values ride along for transparency.
+  // The endpoint sorts on shrunk_total_rapm by default; the underlying CSV
+  // was extended by model/apply_rapm_shrinkage.py.
+  const SHRINK_TOOLTIP =
+    "Bayesian shrinkage: single-season value weighted toward 16-season " +
+    "career baseline based on TOI sample size (K = 1000 EV min). " +
+    "Pulls noisy small-sample players back toward their longer track record.";
+
+  // A formatter that prints "—" for null (used by MS columns when a player
+  // has no career sample in the multi-season file).
+  const zfmtNullable = (dp) => (v) => (v == null ? "—" : zfmt(dp)(v));
+
   const RAPM_COLS = [
-    { key: "name",            label: "Player",     align: "left", isPlayer: true },
-    { key: "team",            label: "Team",       align: "left", isTeam: true },
-    { key: "position",        label: "Pos",        align: "left", isPos: true },
-    { key: "total_rapm",      label: "Total RAPM", align: "right", highlight: true,
-      glossaryId: "rapm", fmt: zfmt(3) },
-    { key: "offensive_rapm",  label: "Off RAPM",   align: "right", fmt: zfmt(3) },
-    { key: "defensive_rapm",  label: "Def RAPM",   align: "right", fmt: zfmt(3) },
-    { key: "toi_minutes",     label: "TOI",        align: "right", fmt: toiFmt },
+    { key: "name",              label: "Player",     align: "left",  isPlayer: true },
+    { key: "team",              label: "Team",       align: "left",  isTeam: true },
+    { key: "position",          label: "Pos",        align: "left",  isPos: true },
+    { key: "shrunk_total_rapm", label: "Total (shrunk)", align: "right", highlight: true,
+      titleOverride: SHRINK_TOOLTIP, infoIcon: true, fmt: zfmtNullable(3) },
+    { key: "total_rapm",        label: "Total (25-26)",  align: "right", fmt: zfmt(3) },
+    { key: "ms_total_rapm",     label: "Total (career)", align: "right", fmt: zfmtNullable(3) },
+    { key: "shrunk_off_rapm",   label: "Off (shrunk)",   align: "right", fmt: zfmtNullable(3) },
+    { key: "shrunk_def_rapm",   label: "Def (shrunk)",   align: "right", fmt: zfmtNullable(3) },
+    { key: "toi_minutes",       label: "TOI",            align: "right", fmt: toiFmt },
   ];
 
   const PP_RATING_COLS = [
@@ -78,9 +93,12 @@
     { key: "toi_minutes",            label: "TOI",       align: "right", fmt: toiFmt },
   ];
 
-  const RAPM_NOTE = "Note: RAPM controls for teammates and opponents, but collinearity " +
-    "may underrate players with extremely high linemate overlap — co-stars who share " +
-    "most of their ice time (e.g. Draisaitl/McDavid, Makar/MacKinnon).";
+  const RAPM_NOTE = "Headline column is the Bayesian-shrunk single-season RAPM " +
+    "(K = 1000 EV min) — weighted toward each player's 16-season career baseline " +
+    "to control for small-sample noise and linemate collinearity. " +
+    "Raw single-season and career values shown alongside for transparency. " +
+    "Players with no career sample (true rookies) show the raw single-season " +
+    "value in both shrunk and single-season columns and \"—\" for career.";
 
 
   // ---------------------------------------------------------------------------
@@ -98,20 +116,26 @@
     { id: "shooting_pct", label: "Shooting %",    key: "shooting_pct", source: "skaters", group: "scoring", fmt: (v) => v.toFixed(2), suffix: "%" },
 
     // ---- Advanced Possession ----
-    { id: "cf_pct",       label: "CF% (Corsi)",      key: "cf_pct",      source: "skaters", group: "possession", fmt: (v) => v.toFixed(2), suffix: "%", glossaryId: "corsi", minToi: 200 },
-    { id: "ff_pct",       label: "FF% (Fenwick)",    key: "ff_pct",      source: "skaters", group: "possession", fmt: (v) => v.toFixed(2), suffix: "%", glossaryId: "fenwick", minToi: 200 },
-    { id: "xgf_pct",      label: "xGF%",             key: "xgf_pct",     source: "skaters", group: "possession", fmt: (v) => v.toFixed(2), suffix: "%", glossaryId: "xgf-pct", minToi: 200 },
-    { id: "xga_pct",      label: "xGA%",             key: "xga_pct",     source: "skaters", group: "possession", fmt: (v) => v.toFixed(2), suffix: "%", glossaryId: "xga-pct", asc: true, minToi: 200 },
-    { id: "hdcf_pct",     label: "HDCF%",            key: "hdcf_pct",    source: "skaters", group: "possession", fmt: (v) => v.toFixed(2), suffix: "%", glossaryId: "hdcf-pct", minToi: 200 },
+    // Raw on-ice rate stats (CF%, FF%, xGF%, xGA%, HDCF%) intentionally
+    // omitted from this filter: they cluster heavily by team rather than
+    // measuring individual contribution, producing leaderboards where the
+    // top-N is dominated by one strong-possession roster. The Relative
+    // versions subtract each player's off-ice team performance, isolating
+    // individual impact — the correct framing for a player leaderboard.
+    // The raw stats are still computed server-side (used by Relative
+    // derivation and Player Detail) and still appear in the glossary.
     { id: "rel_cf_pct",   label: "Relative CF%",     key: "rel_cf_pct",  source: "skaters", group: "possession", fmt: (v) => (v >= 0 ? "+" : "") + v.toFixed(2), suffix: "%", glossaryId: "rel-cf", minToi: 200 },
     { id: "rel_xgf_pct",  label: "Relative xGF%",    key: "rel_xgf_pct", source: "skaters", group: "possession", fmt: (v) => (v >= 0 ? "+" : "") + v.toFixed(2), suffix: "%", glossaryId: "rel-xgf", minToi: 200 },
 
     // ---- Individual Impact ----
-    { id: "composite",    label: "Composite Rating", key: "composite_rating", source: "composite", group: "impact",
-      glossaryId: "composite-rating", customCols: COMPOSITE_COLS },
-    { id: "rapm",         label: "RAPM",            key: "total_rapm", source: "rapm", group: "impact",
+    // Composite Rating tile was removed 2026-06-07 — GAR is the same value
+    // (composite_war), so the dedicated tile was redundant. The six component
+    // z-scores are still visible on the Player Detail page as "GAR Component
+    // Breakdown" so users can see how the GAR was constructed.
+    { id: "rapm",         label: "RAPM",            key: "shrunk_total_rapm", source: "rapm", group: "impact",
       glossaryId: "rapm", customCols: RAPM_COLS, tableNote: RAPM_NOTE },
     { id: "gar",          label: "GAR",             key: "gar",        source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "gar" },
+    // TEMP STOPGAP: xGAR back on — now goals above a positional replacement baseline (offense only), on the same scale as GAR, until the composite rebuild
     { id: "xgar",         label: "xGAR",            key: "xgar",       source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "xgar" },
     { id: "game_score",   label: "Game Score",      key: "game_score", source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "game-score" },
     { id: "ixg_60",       label: "ixG per 60",      key: "ixg_60",     source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "ixg", minToi: 200 },
@@ -124,27 +148,32 @@
     // ---- Usage & Context ----
     { id: "zone_start_pct", label: "Zone Start %",  key: "zone_start_pct", source: "skaters", group: "usage", fmt: (v) => v.toFixed(2), suffix: "%", glossaryId: "zone-start-pct", minToi: 200 },
     { id: "es_toi",         label: "TOI at ES",     key: "toi_per_game_min", source: "skaters", group: "usage", fmt: (v) => v.toFixed(2), suffix: " min" },
-    { id: "pp_toi",         label: "TOI on PP",     blocked: true, source: "skaters", group: "usage", glossaryId: "pp-toi-game" },
-    { id: "pk_toi",         label: "TOI on PK",     blocked: true, source: "skaters", group: "usage", glossaryId: "pk-toi-game" },
-    { id: "qoc",            label: "QoC (proxy)",   blocked: true, source: "skaters", group: "usage", glossaryId: "qoc" },
-    { id: "qot",            label: "QoT (proxy)",   blocked: true, source: "skaters", group: "usage", glossaryId: "qot" },
+    { id: "pp_toi",         label: "TOI on PP",     key: "pp_toi_per_game_min", source: "skaters", group: "usage", fmt: (v) => v.toFixed(2), suffix: " min", glossaryId: "pp-toi-game" },
+    { id: "pk_toi",         label: "TOI on PK",     key: "pk_toi_per_game_min", source: "skaters", group: "usage", fmt: (v) => v.toFixed(2), suffix: " min", glossaryId: "pk-toi-game" },
+    // QoC / QoT — weighted average GAR (composite_war) of opponents /
+    // teammates over 2025-26 shared ice time. Built from the per-game
+    // shift-overlap pipeline in model/build_qoc_qot.py.
+    { id: "qoc",            label: "QoC",  key: "qoc", source: "skaters", group: "usage", fmt: (v) => (v >= 0 ? "+" : "") + v.toFixed(3), suffix: "", glossaryId: "qoc" },
+    { id: "qot",            label: "QoT",  key: "qot", source: "skaters", group: "usage", fmt: (v) => (v >= 0 ? "+" : "") + v.toFixed(3), suffix: "", glossaryId: "qot" },
 
     // ---- Special Teams ----
     { id: "pp_rating",  label: "PP Rating",  key: "power_play_component",   source: "composite", group: "special",
       glossaryId: "composite-rating", customCols: PP_RATING_COLS },
     { id: "pk_rating",  label: "PK Rating",  key: "penalty_kill_component", source: "composite", group: "special",
       glossaryId: "composite-rating", customCols: PK_RATING_COLS },
-    { id: "pp_points",  label: "PP Points",  blocked: true, source: "skaters", group: "special" },
-    { id: "pp_goals",   label: "PP Goals",   blocked: true, source: "skaters", group: "special" },
-    { id: "pp_assists", label: "PP Assists", blocked: true, source: "skaters", group: "special" },
-    { id: "pk_toi_st",  label: "PK TOI",     blocked: true, source: "skaters", group: "special" },
-    { id: "pk_pm",      label: "PK +/-",     blocked: true, source: "skaters", group: "special" },
+    { id: "pp_points",  label: "PP Points",  key: "pp_points",  source: "skaters", group: "special", fmt: (v) => v, suffix: "" },
+    { id: "pp_goals",   label: "PP Goals",   key: "pp_goals",   source: "skaters", group: "special", fmt: (v) => v, suffix: "" },
+    { id: "pp_assists", label: "PP Assists", key: "pp_assists", source: "skaters", group: "special", fmt: (v) => v, suffix: "" },
+    { id: "pk_toi_st",  label: "PK TOI",     key: "pk_toi_per_game_min", source: "skaters", group: "special", fmt: (v) => v.toFixed(2), suffix: " min" },
+    { id: "pk_pm",      label: "PK +/-",     key: "pk_pm",      source: "skaters", group: "special", fmt: (v) => (v >= 0 ? "+" : "") + v, suffix: "" },
 
-    // ---- Contract Value ----
-    { id: "cap_hit",       label: "Cap Hit",       key: "cap_hit",       source: "contract", group: "contract", fmt: (v) => "$" + v.toFixed(2) + "M", suffix: "" },
-    { id: "gar_per_mil",   label: "GAR per $1M",   key: "gar_per_million",source: "contract", group: "contract", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "gar-per-mil" },
-    { id: "xgar_per_mil",  label: "xGAR per $1M",  key: "xgar_per_million",source: "contract", group: "contract", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "xgar-per-mil" },
-    { id: "pts_per_mil",   label: "Points per $1M",key: "points_per_million",source: "contract", group: "contract", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "pts-per-mil" },
+    // ---- Contract Value (removed 2026-06-15) ----
+    // The Contract Value tab is the canonical surface for contract analysis
+    // (Surplus, Off/Def GAR per $1M, Sustainability, age-curve, scatter views).
+    // The four chips that used to live here (Cap Hit, GAR/$1M, xGAR/$1M,
+    // Points/$1M) were redundant with that tab and have been removed. The
+    // underlying fields (cap_hit, gar_per_million) are still computed
+    // server-side and consumed by the Contract Value tab + Player Compare.
 
     // ---- Goalies ----
     { id: "gsax",   label: "GSAX (Goalies)",  key: "gsax",     source: "goalies", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "gsax" },
@@ -156,11 +185,10 @@
     { id: "impact",     label: "Individual Impact" },
     { id: "usage",      label: "Usage & Context" },
     { id: "special",    label: "Special Teams" },
-    { id: "contract",   label: "Contract / Value" },
   ];
 
   // Cached datasets
-  const data = { skaters: null, goalies: null, contract: null, composite: null, rapm: null };
+  const data = { skaters: null, goalies: null, composite: null, rapm: null };
 
   function teamLogo(team) {
     return team ? `https://assets.nhle.com/logos/nhl/svg/${team}_light.svg` : "";
@@ -182,38 +210,11 @@
     return data.goalies;
   }
 
-  async function fetchContracts() {
-    if (data.contract) return data.contract;
-    const r = await fetch("/api/contract-values");
-    const d = await r.json();
-    if (d.blocked) {
-      data.contract = { blocked: true, message: d.message };
-    } else {
-      const skaters = await fetchSkaters();
-      const skaterByName = {};
-      skaters.forEach((s) => { skaterByName[s.name.toLowerCase()] = s; });
-      const players = (d.players || []).map((c) => {
-        const sk = skaterByName[c.name.toLowerCase()] || null;
-        const points = sk?.points ?? 0;
-        const xgar_per_million = c.xgar != null && c.cap_hit > 0 ? +(c.xgar / c.cap_hit).toFixed(2) : null;
-        const points_per_million = c.cap_hit > 0 ? +(points / c.cap_hit).toFixed(2) : null;
-        return {
-          ...c,
-          playerId: sk?.playerId,
-          headshot: sk?.headshot,
-          team_logo: sk?.team_logo || teamLogo(c.team),
-          gp: sk?.gp ?? c.games ?? 0,
-          toi_min: sk?.toi_min ?? c.toi_min ?? 0,
-          xgar_per_million,
-          points_per_million,
-        };
-      });
-      data.contract = { players, source: d.source };
-    }
-    return data.contract;
-  }
+  // fetchContracts() removed 2026-06-15 along with the four Contract / Value
+  // leaderboard chips. /api/contract-values is still hit by the Contract
+  // Value tab via static/js/contract_value.js.
 
-  // Composite — qualified players only; normalize schema for the generic renderer.
+// Composite — qualified players only; normalize schema for the generic renderer.
   async function fetchComposite() {
     if (data.composite) return data.composite;
     const r = await fetch("/api/composite-ratings");
@@ -272,19 +273,14 @@
   }
 
   function extraColsFor(stat) {
+    // TEMP STOPGAP: xGAR back on (goals-scale, replacement baseline) — side columns restored until the composite rebuild
     if (stat.id === "gar") return [{ key: "xgar", label: "xGAR", align: "right", fmt: (v) => v != null ? v.toFixed(2) : "—" }];
     if (stat.id === "xgar") return [{ key: "gar", label: "GAR", align: "right", fmt: (v) => v != null ? v.toFixed(2) : "—" }];
     if (stat.id === "ixg_60") return [{ key: "icf_60", label: "iCF/60", align: "right", fmt: (v) => v.toFixed(2) }];
     if (stat.id === "rel_cf_pct") return [{ key: "cf_pct", label: "CF%", align: "right", fmt: (v) => v.toFixed(2) + "%" }];
     if (stat.id === "shooting_pct") return [{ key: "shots", label: "Shots", align: "right" }];
-    if (stat.id === "gar_per_mil") return [
-      { key: "cap_hit", label: "Cap Hit", align: "right", fmt: (v) => v != null ? "$" + v.toFixed(2) + "M" : "—" },
-      { key: "gar", label: "GAR", align: "right", fmt: (v) => v != null ? v.toFixed(2) : "—" },
-    ];
-    if (stat.id === "xgar_per_mil") return [
-      { key: "cap_hit", label: "Cap Hit", align: "right", fmt: (v) => v != null ? "$" + v.toFixed(2) + "M" : "—" },
-      { key: "xgar", label: "xGAR", align: "right", fmt: (v) => v != null ? v.toFixed(2) : "—" },
-    ];
+    // gar_per_mil / xgar_per_mil side columns removed with the Contract /
+    // Value chips (see catalog comment above).
     return [];
   }
 
@@ -373,7 +369,9 @@
 
     if (stat.blocked) {
       spinner.hidden = true;
-      blocked.innerHTML = `<strong>${esc(stat.label)} unavailable</strong><br>This metric is not currently sourced from a self-generated table.`;
+      const note = stat.blockedNote
+        || "This metric is not currently sourced from a self-generated table.";
+      blocked.innerHTML = `<strong>${esc(stat.label)} unavailable</strong><br>${esc(note)}`;
       blocked.hidden = false;
       sourceLabel.textContent = "Source: not currently generated";
       return;
@@ -413,17 +411,6 @@
       } else if (stat.source === "goalies") {
         rows = await fetchGoalies();
         sourceText = "Source: Hockey Intelligence Hub models · counts from MoneyPuck";
-      } else if (stat.source === "contract") {
-        const c = await fetchContracts();
-        if (c.blocked) {
-          spinner.hidden = true;
-          blocked.innerHTML = `<strong>Contract data unavailable</strong><br>${esc(c.message || "")}`;
-          blocked.hidden = false;
-          sourceLabel.textContent = "Source: PuckPedia (blocked) → manual";
-          return;
-        }
-        rows = c.players;
-        sourceText = `Source: ${c.source === "puckpedia" ? "PuckPedia" : "Manual contract dataset"} + MoneyPuck`;
       } else if (stat.source === "composite") {
         const c = await fetchComposite();
         if (c.blocked) {
@@ -443,7 +430,7 @@
           return;
         }
         rows = c.players;
-        sourceText = "Source: RAPM ridge-regression model (Phase 2, 6 seasons)";
+        sourceText = "Source: single-season RAPM (2025-26) shrunk toward 16-season career prior (K = 1000 EV min)";
       }
     } catch (e) {
       spinner.hidden = true;
@@ -524,8 +511,11 @@
       const sortable = !["_rank", "team", "position", "name"].includes(c.key) && !c.isPlayer && !c.isTeam && !c.isPos;
       const sortableCls = sortable ? " sortable" : "";
       const arrow = c.key === curSortKey ? `<span class="sort-arrow">${curSortAsc ? "▲" : "▼"}</span>` : "";
-      const titleAttr = c.glossaryId ? ` title="${esc(tipFor(c.glossaryId))}"` : "";
-      const infoIcon = c.glossaryId ? ' <span class="lb-info-icon">i</span>' : "";
+      // titleOverride wins over glossaryId; infoIcon forces an "i" badge
+      // even when the column isn't backed by a glossary entry.
+      const tipText = c.titleOverride || (c.glossaryId ? tipFor(c.glossaryId) : "");
+      const titleAttr = tipText ? ` title="${esc(tipText)}"` : "";
+      const infoIcon = (c.glossaryId || c.infoIcon) ? ' <span class="lb-info-icon">i</span>' : "";
       return `<th class="${cls}${sortableCls}" data-col="${esc(c.key)}"${titleAttr}>${esc(c.label)}${infoIcon}${arrow}</th>`;
     }).join("");
 

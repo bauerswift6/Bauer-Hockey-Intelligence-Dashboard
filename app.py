@@ -2,6 +2,9 @@ import json
 import logging
 import os
 import re
+import subprocess
+import sys
+import threading
 import time
 import unicodedata
 from datetime import date, datetime, timedelta, timezone
@@ -11,6 +14,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify, render_template, request
+
+from news_classifier import is_real_move, rank_big_news
 
 app = Flask(__name__)
 # Live-reload during development: re-read templates on every request,
@@ -355,9 +360,13 @@ def api_season_info():
 def _format_score_game(g: dict, day: str) -> dict:
     """Convert a /v1/score game payload into the shape the dashboard expects."""
     state = g.get("gameState", "")
+    # Preseason finals report gameState "FINAL" and never advance to "OFF"
+    # (only regular-season/playoff games reach "OFF"). Treat both as completed
+    # so preseason scores show. Matches the pattern at api_next_playoff_games.
+    completed = state in ("OFF", "FINAL")
     away = g.get("awayTeam", {})
     home = g.get("homeTeam", {})
-    outcome = g.get("gameOutcome", {}).get("lastPeriodType", "REG") if state == "OFF" else None
+    outcome = g.get("gameOutcome", {}).get("lastPeriodType", "REG") if completed else None
     return {
         "id": g.get("id"),
         "date": g.get("gameDate", day),
@@ -367,15 +376,15 @@ def _format_score_game(g: dict, day: str) -> dict:
         "away": {
             "abbrev": away.get("abbrev", ""),
             "name": away.get("name", {}).get("default", ""),
-            "score": away.get("score", 0) if state == "OFF" else None,
-            "sog": away.get("sog", 0) if state == "OFF" else None,
+            "score": away.get("score", 0) if completed else None,
+            "sog": away.get("sog", 0) if completed else None,
             "logo": away.get("logo", ""),
         },
         "home": {
             "abbrev": home.get("abbrev", ""),
             "name": home.get("name", {}).get("default", ""),
-            "score": home.get("score", 0) if state == "OFF" else None,
-            "sog": home.get("sog", 0) if state == "OFF" else None,
+            "score": home.get("score", 0) if completed else None,
+            "sog": home.get("sog", 0) if completed else None,
             "logo": home.get("logo", ""),
         },
         "series": g.get("seriesStatus"),
@@ -693,7 +702,8 @@ def api_gar_leaders():
                 "name": m["name"],
                 "team": m["team"],
                 "position": m["position"],
-                "value": round(float(c["composite_war"]), 2),
+                # TEMP STOPGAP: GAR x12 (undo WAR_UNIT 0.5, times 6 goals per win), to be replaced by the composite rebuild
+                "value": round(float(c["composite_war"]) * 12, 2),
                 "games": int(m.get("games_played", 0)),
             })
         rows.sort(key=lambda r: r["value"], reverse=True)
@@ -733,7 +743,8 @@ def api_xgar_leaders():
                 "team": m["team"],
                 "position": m["position"],
                 "xgar_value": round(float(x["xgar"]), 2),
-                "gar_value": round(float(gar_val), 2),
+                # TEMP STOPGAP: GAR x12 (undo WAR_UNIT 0.5, times 6 goals per win), to be replaced by the composite rebuild
+                "gar_value": round(float(gar_val) * 12, 2),
                 "games": int(m.get("games_played", 0)),
             })
         rows.sort(key=lambda r: r["xgar_value"], reverse=True)
@@ -1136,22 +1147,30 @@ def _filter_fresh_news(items: list) -> list:
     return fresh
 
 
+def _news_pool(limit=25):
+    """Return (source_name, [items]) from the first news source that yields
+    fresh items. Shared by /api/news and the Morning Brief combined feed."""
+    for src in NEWS_SOURCES:
+        try:
+            r = requests.get(src["url"], headers=HEADERS, timeout=8)
+            if r.status_code != 200:
+                log.info("news source %s returned %s", src["name"], r.status_code)
+                continue
+            items = _filter_fresh_news(_parse_rss(r.text, src["name"]))
+            if items:
+                return src["name"], items[:limit]
+        except Exception as e:
+            log.info("news source %s error: %s", src["name"], e)
+            continue
+    return None, []
+
+
 @app.route("/api/news")
 def api_news():
     def _fetch():
-        for src in NEWS_SOURCES:
-            try:
-                r = requests.get(src["url"], headers=HEADERS, timeout=8)
-                if r.status_code != 200:
-                    log.info("news source %s returned %s", src["name"], r.status_code)
-                    continue
-                items = _parse_rss(r.text, src["name"])
-                items = _filter_fresh_news(items)
-                if items:
-                    return {"source": src["name"], "items": items[:10]}
-            except Exception as e:
-                log.info("news source %s error: %s", src["name"], e)
-                continue
+        source, items = _news_pool(limit=10)
+        if items:
+            return {"source": source, "items": items}
         return {"blocked": True, "items": [], "message": "News temporarily unavailable"}
 
     # Shorter cache for news (10 min, matches frontend refresh)
@@ -1199,10 +1218,15 @@ def _infer_transaction_type(title: str) -> str:
         return "WAIVER"
     if re.search(r"\brecall", t):
         return "RECALL"
-    if re.search(r"\b(trade[ds]?|trading|acquir|deal(?:s|ed)?)\b", t):
+    # sign-and-trade is a trade despite containing "sign"
+    if re.search(r"sign-?and-?trade", t):
         return "TRADE"
-    if re.search(r"\b(sign|re-?sign|extension|extends?)\b", t):
+    # Signing verbs before trade: "deal" is an ambiguous noun (a contract is
+    # also a "deal"), so check explicit sign/extension language first.
+    if re.search(r"\b(re-?sign|signs?|signed|signing|inks?|extension|extends?)\b", t):
         return "SIGNING"
+    if re.search(r"\b(trade[ds]?|trading|acquir)\b", t):
+        return "TRADE"
     return "OTHER"
 
 
@@ -1237,6 +1261,19 @@ def _fetch_transactions_from(src: dict, *, require_filter: bool) -> list:
     return out
 
 
+def _transactions_pool(limit=40):
+    """Return (source_name, [items]) of structured transaction items (each
+    carrying an inferred `type`). Shared by /api/transactions and the
+    Morning Brief combined feed."""
+    items = _fetch_transactions_from(TRANSACTION_PRIMARY, require_filter=False)
+    if items:
+        return TRANSACTION_PRIMARY["name"], items[:limit]
+    items = _fetch_transactions_from(TRANSACTION_FALLBACK, require_filter=True)
+    if items:
+        return TRANSACTION_FALLBACK["name"], items[:limit]
+    return None, []
+
+
 @app.route("/api/transactions")
 def api_transactions():
     """Latest NHL transactions as a structured list.
@@ -1246,12 +1283,9 @@ def api_transactions():
     Returns up to 15 entries. Cached for 10 minutes.
     """
     def _fetch():
-        items = _fetch_transactions_from(TRANSACTION_PRIMARY, require_filter=False)
+        source, items = _transactions_pool(limit=15)
         if items:
-            return {"source": TRANSACTION_PRIMARY["name"], "items": items[:15]}
-        items = _fetch_transactions_from(TRANSACTION_FALLBACK, require_filter=True)
-        if items:
-            return {"source": TRANSACTION_FALLBACK["name"], "items": items[:15]}
+            return {"source": source, "items": items}
         return {"blocked": True, "items": [], "message": "Transactions temporarily unavailable"}
 
     now = time.time()
@@ -1260,6 +1294,63 @@ def api_transactions():
         return jsonify(entry["data"])
     data = _fetch()
     _cache["transactions"] = {"data": data, "ts": now}
+    return jsonify(data)
+
+
+# ---------------------------------------------------------------------------
+# Morning Brief combined feed — League Pulse / Ink Report / Trade Block
+# ---------------------------------------------------------------------------
+# Section caps. Pulse tuned to the typical big-news volume of the feed; Ink and
+# Trade kept comprehensive within an editorial cap.
+PULSE_CAP = 10
+INK_CAP = 10
+TRADE_CAP = 10
+
+
+@app.route("/api/morning-brief-feed")
+def api_morning_brief_feed():
+    """Three editorial sections in one call so all classification lives in the
+    data layer (see news_classifier.py):
+
+      league_pulse — biggest league-wide stories, curated by big_news_score.
+                     Draws from the news pool AND the transaction pool, so a
+                     blockbuster trade / star signing can appear here *and* in
+                     its transaction section (duplication is intentional). Also
+                     the home for non-TRADE/SIGNING moves (suspensions, etc.).
+      ink_report   — executed SIGNING moves only (opinion/video filtered out).
+      trade_block  — executed TRADE moves only (opinion/video filtered out).
+    """
+    def _fetch():
+        news_source, news_items = _news_pool(limit=25)
+        txn_source, txn_items = _transactions_pool(limit=40)
+
+        if not news_items and not txn_items:
+            return {"blocked": True, "league_pulse": [], "ink_report": [],
+                    "trade_block": [], "message": "League feed temporarily unavailable"}
+
+        ink = [t for t in txn_items
+               if t.get("type") == "SIGNING" and is_real_move(t)][:INK_CAP]
+        trade = [t for t in txn_items
+                 if t.get("type") == "TRADE" and is_real_move(t)][:TRADE_CAP]
+
+        # Pulse candidates = news pool + every transaction item. rank_big_news
+        # de-dupes within Pulse by link; cross-section duplication is allowed.
+        pulse = rank_big_news(news_items + txn_items, limit=PULSE_CAP)
+
+        return {
+            "league_pulse": pulse,
+            "ink_report": ink,
+            "trade_block": trade,
+            "news_source": news_source,
+            "txn_source": txn_source,
+        }
+
+    now = time.time()
+    entry = _cache.get("mb_feed")
+    if entry and now - entry["ts"] < 600:
+        return jsonify(entry["data"])
+    data = _fetch()
+    _cache["mb_feed"] = {"data": data, "ts": now}
     return jsonify(data)
 
 
@@ -1831,11 +1922,15 @@ def api_playoff_team_analytics():
 
 
 # ---------------------------------------------------------------------------
-# Contract Value — PuckPedia → manual JSON → MoneyPuck merge
+# Contract Value — capwages snapshot → PuckPedia → manual JSON → MoneyPuck merge
 # ---------------------------------------------------------------------------
 PUCKPEDIA_URL = "https://puckpedia.com/contracts"
 MANUAL_CONTRACTS_PATH = os.path.join(
     os.path.dirname(__file__), "data", "contracts_manual.json"
+)
+# League-wide snapshot written by data/fetch_contracts.py on a schedule.
+CURRENT_CONTRACTS_PATH = os.path.join(
+    os.path.dirname(__file__), "data", "contracts_current.json"
 )
 
 
@@ -1857,19 +1952,25 @@ _MP_NAME_ALIASES = {
 }
 
 
-# --- Self-generated dashboard analytics (2026-06-06 refactor) ---------------
-# The skater "GAR" column on the dashboard is now my composite_war (from
-# model/composite_ratings_sim.csv) — a multi-component WAR-scale rating built
-# from my own RAPM pipeline. The skater "xGAR" column is my self-generated
-# expected-goals-above-replacement (from model/skater_xgar_self_generated.csv),
-# derived from individual shot predictions by my xG model. Goalie "GSAX" is
-# self-generated from intersecting my xG-scored shots with goalie shifts
-# (model/goalie_gsax_self_generated.csv). Team/skater on-ice xGF% likewise
-# come from model/team_xgf_self_generated.csv and
-# model/skater_onice_xgf_self_generated.csv. Game Score is computed from raw
-# counts via the Galamini formula (model/skater_game_score_self_generated.csv).
+# --- Self-generated dashboard analytics (2026-06-07 single-season refactor) -
+# Players-section analytical metrics reflect the 2025-26 regular season only.
+# The simulator still uses multi-season talent estimates (composite_ratings_sim.csv).
 #
-# Build these with: python3 model/build_self_generated_stats.py
+#   Players-section paths (single-season 25-26):
+#     GAR        → composite_ratings_single_season.csv (composite_war column)
+#     RAPM       → rapm_single_season.csv
+#     xGAR       → skater_xgar_self_generated.csv
+#     Game Score → skater_game_score_self_generated.csv
+#
+#   Common paths (single-season facts about 25-26):
+#     Goalie GSAX     → goalie_gsax_self_generated.csv
+#     Team xGF%       → team_xgf_self_generated.csv
+#     Skater on-ice   → skater_onice_xgf_self_generated.csv
+#
+# Build these with:
+#     python3 model/build_self_generated_stats.py
+#     python3 model/train_rapm_single_season.py
+#     python3 model/build_composite_single_season.py --save
 SKATER_XGAR_PATH = os.path.join(os.path.dirname(__file__), "model",
                                   "skater_xgar_self_generated.csv")
 GOALIE_GSAX_PATH = os.path.join(os.path.dirname(__file__), "model",
@@ -1880,8 +1981,11 @@ ONICE_XGF_PATH = os.path.join(os.path.dirname(__file__), "model",
                                "skater_onice_xgf_self_generated.csv")
 GAME_SCORE_PATH = os.path.join(os.path.dirname(__file__), "model",
                                 "skater_game_score_self_generated.csv")
-COMPOSITE_SIM_PATH = os.path.join(os.path.dirname(__file__), "model",
-                                    "composite_ratings_sim.csv")
+# composite_war used by the Players section now points at the single-season
+# build. The simulator still reads composite_ratings_sim.csv directly via
+# model/build_team_strength.py and model/simulate_season.py — both unchanged.
+COMPOSITE_PLAYERS_PATH = os.path.join(os.path.dirname(__file__), "model",
+                                       "composite_ratings_single_season.csv")
 
 
 def _load_skater_xgar() -> dict[int, dict]:
@@ -1903,12 +2007,14 @@ def _load_skater_xgar() -> dict[int, dict]:
 
 def _load_composite_war() -> dict[int, dict]:
     """player_id → {composite_war, composite_rating, ...components} from
-    model/composite_ratings_sim.csv. This is the new source of the user-facing
-    skater "GAR" column (was previously MP gameScore / 10)."""
+    model/composite_ratings_single_season.csv (the 25-26-only build used by
+    the Players section). The simulator does NOT call this helper — it reads
+    composite_ratings_sim.csv (multi-season) directly via
+    build_team_strength.load_composite_lookup()."""
     def _fn():
-        if not os.path.exists(COMPOSITE_SIM_PATH):
+        if not os.path.exists(COMPOSITE_PLAYERS_PATH):
             return {}
-        df = pd.read_csv(COMPOSITE_SIM_PATH)
+        df = pd.read_csv(COMPOSITE_PLAYERS_PATH)
         return {int(r.player_id): {
             "composite_war": float(r.composite_war),
             "composite_rating": float(r.composite_rating),
@@ -1986,6 +2092,26 @@ def _load_game_score() -> dict[int, dict]:
     return cached("game_score_lookup", _fn)
 
 
+QOC_QOT_PATH = os.path.join(os.path.dirname(__file__), "model",
+                              "skater_qoc_qot_single_season.csv")
+
+
+def _load_qoc_qot() -> dict[int, dict]:
+    """player_id → {qoc, qot, qoc_toi_secs, qot_toi_secs} from my own
+    shift-overlap-weighted GAR aggregation. See model/build_qoc_qot.py."""
+    def _fn():
+        if not os.path.exists(QOC_QOT_PATH):
+            return {}
+        df = pd.read_csv(QOC_QOT_PATH)
+        return {int(r.player_id): {
+            "qoc": float(r.qoc) if pd.notna(r.qoc) else None,
+            "qot": float(r.qot) if pd.notna(r.qot) else None,
+            "qoc_toi_secs": int(r.qoc_toi_secs),
+            "qot_toi_secs": int(r.qot_toi_secs),
+        } for r in df.itertuples(index=False)}
+    return cached("qoc_qot_lookup", _fn)
+
+
 def _puckpedia_contracts() -> list | None:
     """Attempt to scrape PuckPedia top contracts. Cloudflare-protected — typically fails."""
     try:
@@ -2018,6 +2144,96 @@ def _manual_contracts() -> dict | None:
     except Exception as e:
         log.warning("Manual contracts load failed: %s", e)
         return None
+
+
+def _current_contracts() -> dict | None:
+    """Load the league-wide contract snapshot from data/contracts_current.json.
+
+    Written on a schedule by data/fetch_contracts.py (capwages source). Each row
+    already carries `age` and `playerId` resolved at scrape time, so the request
+    path does not hit the NHL API to enrich ~1,400 players."""
+    try:
+        with open(CURRENT_CONTRACTS_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        contracts = data.get("contracts", [])
+        if not contracts:
+            return None
+        return {"source": "capwages", "meta": data.get("_meta", {}), "contracts": contracts}
+    except FileNotFoundError:
+        return None
+    except Exception as e:
+        log.warning("Current contracts load failed: %s", e)
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Scheduled contract refresh — keeps contracts_current.json current league-wide
+# ---------------------------------------------------------------------------
+# A daemon thread runs data/fetch_contracts.py (the standalone scraper) once a
+# day. It works the same whether the app is started with `python app.py` or
+# under gunicorn with multiple workers: a single-flight lock file ensures only
+# one process actually fetches, and the snapshot write is atomic, so requests
+# always read a complete file. Set DISABLE_CONTRACT_REFRESH=1 to turn it off
+# (e.g. if you drive the refresh from external cron instead).
+_FETCH_SCRIPT = os.path.join(os.path.dirname(__file__), "data", "fetch_contracts.py")
+_CONTRACT_LOCK = os.path.join(os.path.dirname(__file__), "data", ".contracts_refresh.lock")
+CONTRACT_MAX_AGE = 24 * 3600      # refresh when snapshot is older than a day
+_CONTRACT_LOCK_STALE = 30 * 60    # a lock older than this is treated as abandoned
+
+
+def _contract_snapshot_age() -> float | None:
+    try:
+        return time.time() - os.path.getmtime(CURRENT_CONTRACTS_PATH)
+    except OSError:
+        return None  # missing snapshot
+
+
+def _run_contract_refresh() -> None:
+    """Run the scraper once, guarded by a single-flight lock. Never raises."""
+    try:
+        if os.path.exists(_CONTRACT_LOCK):
+            if time.time() - os.path.getmtime(_CONTRACT_LOCK) < _CONTRACT_LOCK_STALE:
+                return  # another process is already refreshing
+            os.remove(_CONTRACT_LOCK)  # stale lock from a crashed run
+        fd = os.open(_CONTRACT_LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.close(fd)
+    except FileExistsError:
+        return  # lost the race to another worker
+    except OSError as e:
+        log.warning("contract refresh lock error: %s", e)
+        return
+
+    try:
+        log.info("Refreshing contract snapshot via %s", _FETCH_SCRIPT)
+        subprocess.run([sys.executable, _FETCH_SCRIPT], timeout=600, check=False)
+        _cache.pop("contract_values", None)  # force reload on next request
+    except Exception as e:
+        log.warning("contract refresh failed: %s", e)
+    finally:
+        try:
+            os.remove(_CONTRACT_LOCK)
+        except OSError:
+            pass
+
+
+def _contract_refresher_loop() -> None:
+    while True:
+        try:
+            age = _contract_snapshot_age()
+            if age is None or age >= CONTRACT_MAX_AGE:
+                _run_contract_refresh()
+        except Exception as e:
+            log.warning("contract refresher loop error: %s", e)
+        time.sleep(3600)  # re-check hourly
+
+
+def _start_contract_refresher() -> None:
+    if os.environ.get("DISABLE_CONTRACT_REFRESH"):
+        log.info("Contract refresher disabled via DISABLE_CONTRACT_REFRESH")
+        return
+    threading.Thread(
+        target=_contract_refresher_loop, daemon=True, name="contract-refresher"
+    ).start()
 
 
 # ---------------------------------------------------------------------------
@@ -2100,10 +2316,15 @@ def _bulk_fetch_ages(contracts: list[dict]) -> dict:
     name_to_pid = {}
 
     def _resolve_and_age(c):
-        pid = _resolve_player_id(c["name"], c["team"])
+        # Snapshot rows (capwages) already carry playerId + age — use them and
+        # skip the NHL API entirely. Only fall back to live resolution for
+        # rows that lack them (e.g. the small manual/PuckPedia fallback set).
+        pid = c.get("playerId") or _resolve_player_id(c["name"], c["team"])
         if not pid:
-            return c["name"], None, None
-        age = _player_age_from_landing(pid)
+            return c["name"], None, c.get("age")
+        age = c.get("age")
+        if age is None:
+            age = _player_age_from_landing(pid)
         return c["name"], pid, age
 
     with ThreadPoolExecutor(max_workers=8) as ex:
@@ -2284,7 +2505,8 @@ def _merge_contracts_with_moneypuck(contracts: list[dict]) -> list[dict]:
                 ixg_60 = (my_ixg / (icetime_5 / 3600)) if icetime_5 > 0 else 0
 
             if my_comp is not None:
-                row["gar"] = round(float(my_comp["composite_war"]), 2)
+                # TEMP STOPGAP: GAR x12 (undo WAR_UNIT 0.5, times 6 goals per win), to be replaced by the composite rebuild
+                row["gar"] = round(float(my_comp["composite_war"]) * 12, 2)
                 row["games"] = mp_gp
                 row["toi_min"] = mp_toi_min
                 row["matched"] = True
@@ -2341,14 +2563,17 @@ def _merge_contracts_with_moneypuck(contracts: list[dict]) -> list[dict]:
             row["expected_market_value"] = None
             row["surplus_value"] = None
 
-        # Age curve flag
+        # Age-curve flag (three tiers driving the Age column badge):
+        #   pre_peak  → under 25 (rising on the public aging curve)
+        #   peak      → 25-29   (career-peak window)
+        #   post_peak → 30+     (declining)
         if age is not None:
-            if age >= 30:
-                row["age_flag"] = "veteran"  # warning icon
-            elif 24 <= age <= 27:
-                row["age_flag"] = "prime"     # green icon
+            if age < 25:
+                row["age_flag"] = "pre_peak"
+            elif age <= 29:
+                row["age_flag"] = "peak"
             else:
-                row["age_flag"] = None
+                row["age_flag"] = "post_peak"
         else:
             row["age_flag"] = None
 
@@ -2371,21 +2596,29 @@ def _merge_contracts_with_moneypuck(contracts: list[dict]) -> list[dict]:
 @app.route("/api/contract-values")
 def api_contract_values():
     def _fetch():
-        # Tier 1: PuckPedia
-        pp = _puckpedia_contracts()
-        if pp:
-            log.info("Using PuckPedia contracts")
-            contracts = pp
-            source = "puckpedia"
-            meta = {}
+        # Tier 1: league-wide capwages snapshot (refreshed on a schedule)
+        current = _current_contracts()
+        if current:
+            log.info("Using capwages snapshot (%d contracts)", len(current["contracts"]))
+            contracts = current["contracts"]
+            source = "capwages"
+            meta = current["meta"]
         else:
-            # Tier 2: manual JSON
-            manual = _manual_contracts()
-            if not manual:
-                return {"blocked": True, "message": "No contract data sources available."}
-            contracts = manual["contracts"]
-            source = "manual"
-            meta = manual["meta"]
+            # Tier 2: PuckPedia (typically Cloudflare-blocked)
+            pp = _puckpedia_contracts()
+            if pp:
+                log.info("Using PuckPedia contracts")
+                contracts = pp
+                source = "puckpedia"
+                meta = {}
+            else:
+                # Tier 3: manually-curated fallback JSON
+                manual = _manual_contracts()
+                if not manual:
+                    return {"blocked": True, "message": "No contract data sources available."}
+                contracts = manual["contracts"]
+                source = "manual"
+                meta = manual["meta"]
 
         try:
             merged = _merge_contracts_with_moneypuck(contracts)
@@ -2418,8 +2651,10 @@ def api_team_cap_efficiency():
         if cv is None:
             # Trigger a fetch via the route's logic — easiest path: call its inner function
             # by replicating the loader chain
-            pp = _puckpedia_contracts()
-            if pp:
+            current = _current_contracts()
+            if current:
+                contracts = current["contracts"]; source = "capwages"
+            elif (pp := _puckpedia_contracts()):
                 contracts = pp; source = "puckpedia"
             else:
                 manual = _manual_contracts()
@@ -2586,7 +2821,8 @@ def _moneypuck_skater_row(name: str) -> dict | None:
     out: dict = {}
     if not row_all.empty:
         r = row_all.iloc[0]
-        out["gar"] = round(float(my_comp["composite_war"]), 2) if my_comp else None
+        # TEMP STOPGAP: GAR x12 (undo WAR_UNIT 0.5, times 6 goals per win), to be replaced by the composite rebuild
+        out["gar"] = round(float(my_comp["composite_war"]) * 12, 2) if my_comp else None
         out["games"] = int(r.get("games_played", 0))
         out["icf"] = int(r.get("I_F_shotAttempts", 0)) if "I_F_shotAttempts" in r else None
         out["iff"] = int(r.get("I_F_unblockedShotAttempts", 0)) if "I_F_unblockedShotAttempts" in r else None
@@ -2973,7 +3209,9 @@ def api_player_similar(player_id: int):
         rows = []
         for _, r in df_all.iterrows():
             pid_other = int(r.get("playerId", 0))
-            gar_other = float(comp_lookup.get(pid_other, {}).get("composite_war", 0.0))
+            # TEMP STOPGAP: GAR x12 (undo WAR_UNIT 0.5, times 6 goals per win), to be replaced by the composite rebuild
+            # (uniform scaling of both sides of the similarity score leaves the ranking unchanged)
+            gar_other = float(comp_lookup.get(pid_other, {}).get("composite_war", 0.0)) * 12
             score = 0.0
             if gar_self is not None:
                 score += abs(gar_other - gar_self)
@@ -3018,8 +3256,46 @@ def _safe_div(a, b):
     return a / b if b else 0.0
 
 
-def _build_skater_full_row(r_all, r_5):
+def _nhl_plus_minus_by_pid(team_abbrevs) -> dict[int, int]:
+    """Bulk-fetch NHL plus/minus for every skater across the supplied team set.
+
+    Hits /v1/club-stats/{TEAM}/{season}/2 per team in parallel (32 small JSON
+    payloads) and merges into {playerId → plusMinus}. The traditional MoneyPuck
+    skaters CSV has no plus/minus column; this is how we get the canonical NHL
+    figure that matches each player's profile page.
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    season = current_season()
+    out: dict[int, int] = {}
+
+    def _pull(team):
+        try:
+            j = get_json(f"{NHL_API}/club-stats/{team}/{season}/2")
+        except Exception:
+            return {}
+        d = {}
+        for s in (j.get("skaters") or []):
+            pid = s.get("playerId")
+            pm = s.get("plusMinus")
+            if pid is not None and pm is not None:
+                d[int(pid)] = int(pm)
+        return d
+
+    teams = sorted({t for t in team_abbrevs if t})
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        futs = [ex.submit(_pull, t) for t in teams]
+        for f in as_completed(futs):
+            try:
+                out.update(f.result())
+            except Exception:
+                continue
+    return out
+
+
+def _build_skater_full_row(r_all, r_5, r_pp=None, r_pk=None, plus_minus_by_pid=None):
     """Build a unified skater row merging 'all' situation + '5on5' situation.
+    Optional `r_pp` (5on4) and `r_pk` (4on5) rows are used for the
+    power-play and penalty-kill columns (2026-06-07 Change 2).
 
     GAR / xGAR / Game Score / on-ice xGF% are all sourced from my own model
     files via the loader helpers above; MoneyPuck provides only the raw
@@ -3034,6 +3310,7 @@ def _build_skater_full_row(r_all, r_5):
     my_xgar   = _load_skater_xgar().get(pid)
     my_gs     = _load_game_score().get(pid)
     my_onice  = _load_onice_xgf().get(pid)
+    my_qq     = _load_qoc_qot().get(pid)
 
     # 5on5 on-ice metrics
     if r_5 is not None:
@@ -3095,14 +3372,50 @@ def _build_skater_full_row(r_all, r_5):
     points = goals + assists
     shots = int(r_all.get("I_F_shotsOnGoal", 0)) if "I_F_shotsOnGoal" in r_all else 0
     sh_pct = _safe_div(goals, shots) * 100
-    plus_minus = int(r_all.get("I_F_plusMinus", 0)) if "I_F_plusMinus" in r_all else 0
+    # Plus/Minus: MoneyPuck doesn't publish I_F_plusMinus. Pull canonical NHL
+    # plus/minus from /v1/club-stats (bulk-loaded above into plus_minus_by_pid).
+    # Falls back to 0 only if the caller didn't supply the dict (e.g. an
+    # ad-hoc test path) — production routes always pass it in.
+    _pid = int(r_all.get("playerId", 0)) if r_all.get("playerId") is not None else 0
+    plus_minus = int((plus_minus_by_pid or {}).get(_pid, 0))
     pim = int(r_all.get("penalityMinutes", 0)) if "penalityMinutes" in r_all else 0
 
     # Self-generated GAR + xGAR + Game Score (replaces the MoneyPuck proxies)
-    gar = round(float(composite["composite_war"]), 2) if composite else None
+    # TEMP STOPGAP: GAR x12 (undo WAR_UNIT 0.5, times 6 goals per win), to be replaced by the composite rebuild
+    gar = round(float(composite["composite_war"]) * 12, 2) if composite else None
     xgar = round(float(my_xgar["xgar"]), 2) if my_xgar else None
     game_score = round(float(my_gs["game_score"]), 2) if my_gs else 0.0
     toi_per_game_sec = _safe_div(icetime_all, games)
+
+    # PP (5on4) counts. Per-game ice time uses the player's all-situation GP
+    # so a forward with 0 PP shifts in a given game contributes that game to
+    # the denominator (consistent with the way "TOI on PP per game" is
+    # reported industry-wide).
+    if r_pp is not None:
+        pp_goals = int(r_pp.get("I_F_goals", 0))
+        pp_a1    = int(r_pp.get("I_F_primaryAssists", 0))
+        pp_a2    = int(r_pp.get("I_F_secondaryAssists", 0))
+        pp_icetime_sec = float(r_pp.get("icetime", 0))
+    else:
+        pp_goals = pp_a1 = pp_a2 = 0
+        pp_icetime_sec = 0.0
+    pp_assists = pp_a1 + pp_a2
+    pp_points  = pp_goals + pp_assists
+    pp_toi_min       = round(pp_icetime_sec / 60, 1)
+    pp_toi_per_game_min = round(_safe_div(pp_icetime_sec, games) / 60, 2) if games > 0 else 0.0
+
+    # PK (4on5) counts. PK +/- = shorthanded goals scored − power-play goals
+    # allowed, both at on-ice level in 4on5. MoneyPuck doesn't ship a direct
+    # I_F_plusMinus while shorthanded so we derive it from OnIce counts.
+    if r_pk is not None:
+        pk_icetime_sec  = float(r_pk.get("icetime", 0))
+        pk_onice_goals_f = float(r_pk.get("OnIce_F_goals", 0))
+        pk_onice_goals_a = float(r_pk.get("OnIce_A_goals", 0))
+    else:
+        pk_icetime_sec = pk_onice_goals_f = pk_onice_goals_a = 0.0
+    pk_toi_min       = round(pk_icetime_sec / 60, 1)
+    pk_toi_per_game_min = round(_safe_div(pk_icetime_sec, games) / 60, 2) if games > 0 else 0.0
+    pk_pm = int(pk_onice_goals_f - pk_onice_goals_a)
 
     return {
         "playerId": int(r_all.get("playerId", 0)),
@@ -3142,6 +3455,20 @@ def _build_skater_full_row(r_all, r_5):
         "rebound_pct": round(rebound_pct, 2),
         # Usage
         "zone_start_pct": round(zone_start_pct, 2),
+        # QoC / QoT — weighted avg GAR of opponents / teammates from
+        # 25-26 shift overlaps. See model/build_qoc_qot.py.
+        "qoc": round(float(my_qq["qoc"]), 3) if my_qq and my_qq.get("qoc") is not None else None,
+        "qot": round(float(my_qq["qot"]), 3) if my_qq and my_qq.get("qot") is not None else None,
+        # Power play (5on4 situation counts from MoneyPuck)
+        "pp_goals":   pp_goals,
+        "pp_assists": pp_assists,
+        "pp_points":  pp_points,
+        "pp_toi_min": pp_toi_min,
+        "pp_toi_per_game_min": pp_toi_per_game_min,
+        # Penalty kill (4on5 situation counts from MoneyPuck)
+        "pk_toi_min": pk_toi_min,
+        "pk_toi_per_game_min": pk_toi_per_game_min,
+        "pk_pm":      pk_pm,
         # Headshot
         "headshot": f"https://assets.nhle.com/mugs/nhl/{current_season()}/{r_all['team']}/{int(r_all.get('playerId', 0))}.png",
         "team_logo": f"https://assets.nhle.com/logos/nhl/svg/{r_all['team']}_light.svg",
@@ -3177,16 +3504,34 @@ def api_players_full():
     def _fetch():
         df = _mp_skaters()
         df_all = df[df["situation"] == "all"].copy()
-        df_5 = df[df["situation"] == "5on5"].copy()
-        df_5_idx = df_5.set_index(df_5["playerId"].astype(int))
+        df_5  = df[df["situation"] == "5on5"].copy()
+        df_pp = df[df["situation"] == "5on4"].copy()  # PP = team has man advantage
+        df_pk = df[df["situation"] == "4on5"].copy()  # PK = team is shorthanded
+        df_5_idx  = df_5.set_index(df_5["playerId"].astype(int))
+        df_pp_idx = df_pp.set_index(df_pp["playerId"].astype(int))
+        df_pk_idx = df_pk.set_index(df_pk["playerId"].astype(int))
+
+        # One bulk NHL-API fetch for plus/minus across all teams in this dataset.
+        pm_by_pid = cached(
+            "nhl_plus_minus_by_pid",
+            lambda: _nhl_plus_minus_by_pid(df_all["team"].dropna().unique().tolist()),
+        )
 
         rows = []
         for _, r_all in df_all.iterrows():
             pid = int(r_all.get("playerId", 0))
-            r_5 = df_5_idx.loc[pid] if pid in df_5_idx.index else None
-            if isinstance(r_5, pd.DataFrame):
-                r_5 = r_5.iloc[0]
-            rows.append(_build_skater_full_row(r_all, r_5))
+            def _row_for(idx):
+                if pid not in idx.index:
+                    return None
+                rr = idx.loc[pid]
+                if isinstance(rr, pd.DataFrame):
+                    rr = rr.iloc[0]
+                return rr
+            r_5  = _row_for(df_5_idx)
+            r_pp = _row_for(df_pp_idx)
+            r_pk = _row_for(df_pk_idx)
+            rows.append(_build_skater_full_row(r_all, r_5, r_pp, r_pk,
+                                                plus_minus_by_pid=pm_by_pid))
 
         rows = _compute_relative_metrics(rows)
         return {"source": "self_generated_analytics+moneypuck_counts",
@@ -3310,13 +3655,19 @@ def api_player_rankings(player_id: int):
         df_5 = df[df["situation"] == "5on5"].copy()
         df_5_idx = df_5.set_index(df_5["playerId"].astype(int))
 
+        pm_by_pid = cached(
+            "nhl_plus_minus_by_pid",
+            lambda: _nhl_plus_minus_by_pid(df_all["team"].dropna().unique().tolist()),
+        )
+
         rows = []
         for _, r_all in df_all.iterrows():
             pid = int(r_all.get("playerId", 0))
             r_5 = df_5_idx.loc[pid] if pid in df_5_idx.index else None
             if isinstance(r_5, pd.DataFrame):
                 r_5 = r_5.iloc[0]
-            rows.append(_build_skater_full_row(r_all, r_5))
+            rows.append(_build_skater_full_row(r_all, r_5,
+                                                plus_minus_by_pid=pm_by_pid))
 
         # Filter out tiny-sample players for ranking purposes
         qualified = [r for r in rows if r["toi_min"] >= 200]
@@ -3363,8 +3714,11 @@ XG_MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "xg_model.pkl")
 XG_META_PATH = os.path.join(os.path.dirname(__file__), "model", "xg_model_meta.json")
 
 
-RAPM_CSV_PATH = os.path.join(os.path.dirname(__file__), "model", "rapm_results.csv")
-RAPM_META_PATH = os.path.join(os.path.dirname(__file__), "model", "rapm_meta.json")
+# RAPM endpoint serves the SINGLE-SEASON 25-26 build for the Players section.
+# The multi-season `rapm_results.csv` is unchanged and is still consumed by
+# the simulation composite (build_composite_sim.py).
+RAPM_CSV_PATH = os.path.join(os.path.dirname(__file__), "model", "rapm_single_season.csv")
+RAPM_META_PATH = os.path.join(os.path.dirname(__file__), "model", "rapm_single_season_meta.json")
 
 
 @app.route("/api/rapm-leaders")
@@ -3389,9 +3743,20 @@ def api_rapm_leaders():
             except Exception:
                 meta = {}
 
+        # The single-season CSV was extended by model/apply_rapm_shrinkage.py
+        # with Bayesian-shrunk values (K=1000, shrunk_*_rapm columns) plus the
+        # raw multi-season prior (ms_*_rapm). Headline sort is the shrunk
+        # total; the SS and MS columns ride along so the frontend can render
+        # a dual-view comparison.
+        has_shrunk = "shrunk_total_rapm" in df.columns
+
+        def _f(v):
+            return float(v) if pd.notna(v) else None
+
         def _to_records(sub):
-            return [
-                {
+            out = []
+            for r in sub.itertuples(index=False):
+                rec = {
                     "player_id": int(r.player_id) if not pd.isna(r.player_id) else None,
                     "player_name": str(r.player_name),
                     "team": str(r.team) if not pd.isna(r.team) else "",
@@ -3402,23 +3767,38 @@ def api_rapm_leaders():
                     "toi_minutes": float(r.toi_minutes),
                     "shift_count": int(r.shift_count),
                 }
-                for r in sub.itertuples(index=False)
-            ]
+                if has_shrunk:
+                    rec.update({
+                        "shrunk_total_rapm": _f(getattr(r, "shrunk_total_rapm", None)),
+                        "shrunk_off_rapm":   _f(getattr(r, "shrunk_off_rapm", None)),
+                        "shrunk_def_rapm":   _f(getattr(r, "shrunk_def_rapm", None)),
+                        "ms_total_rapm":     _f(getattr(r, "ms_total_rapm", None)),
+                        "ms_off_rapm":       _f(getattr(r, "ms_off_rapm", None)),
+                        "ms_def_rapm":       _f(getattr(r, "ms_def_rapm", None)),
+                        "ms_toi_minutes":    _f(getattr(r, "ms_toi_minutes", None)),
+                        "shrink_weight_ss":  _f(getattr(r, "shrink_weight_ss", None)),
+                    })
+                out.append(rec)
+            return out
+
+        # Default sort is the shrunk value when available; falls back to raw
+        # single-season if the shrinkage step hasn't been run yet.
+        total_sort = "shrunk_total_rapm" if has_shrunk else "total_rapm"
+        off_sort   = "shrunk_off_rapm"   if has_shrunk else "offensive_rapm"
+        def_sort   = "shrunk_def_rapm"   if has_shrunk else "defensive_rapm"
 
         return {
             "trained": True,
             "n_players": int(len(df)),
+            "shrinkage_applied": bool(has_shrunk),
+            "shrinkage_K": int(df["shrink_K"].iloc[0]) if has_shrunk and "shrink_K" in df.columns else None,
             "meta": meta,
-            # Total RAPM: highest first
-            "top_total": _to_records(df.sort_values("total_rapm", ascending=False).head(25)),
-            # Offensive RAPM: highest first
-            "top_offensive": _to_records(df.sort_values("offensive_rapm", ascending=False).head(25)),
+            "top_total": _to_records(df.sort_values(total_sort, ascending=False).head(25)),
+            "top_offensive": _to_records(df.sort_values(off_sort, ascending=False).head(25)),
             # Defensive RAPM in our doubled-column encoding: POSITIVE = better defender
             # (we negate the raw coef inside training so positive = suppresses xGA).
-            "top_defensive": _to_records(df.sort_values("defensive_rapm", ascending=False).head(25)),
-            # Full dataset (all players) so the frontend can build a filterable,
-            # sortable leaderboard without re-fetching or reprocessing model data.
-            "full_dataset": _to_records(df.sort_values("total_rapm", ascending=False)),
+            "top_defensive": _to_records(df.sort_values(def_sort, ascending=False).head(25)),
+            "full_dataset": _to_records(df.sort_values(total_sort, ascending=False)),
         }
 
     return jsonify(cached_ttl("rapm_leaders", 86400, _fetch))
@@ -3490,8 +3870,13 @@ def api_rapm_bayesian_leaders():
     return jsonify(cached_ttl("rapm_bayesian_leaders", 86400, _fetch))
 
 
-COMPOSITE_CSV_PATH = os.path.join(os.path.dirname(__file__), "model", "composite_ratings.csv")
-COMPOSITE_META_PATH = os.path.join(os.path.dirname(__file__), "model", "composite_meta.json")
+# Composite endpoint serves the SINGLE-SEASON 25-26 build for the Players section.
+# The 16-season `composite_ratings.csv` and the simulator-targeted
+# `composite_ratings_sim.csv` are unchanged.
+COMPOSITE_CSV_PATH = os.path.join(os.path.dirname(__file__), "model",
+                                    "composite_ratings_single_season.csv")
+COMPOSITE_META_PATH = os.path.join(os.path.dirname(__file__), "model",
+                                     "composite_meta_single_season.json")
 
 
 # ===========================================================================
@@ -4137,6 +4522,11 @@ def api_xg_model_stats():
     except Exception as e:
         log.error("xg-model-stats failed: %s", e)
         return jsonify({"trained": False, "error": str(e)}), 500
+
+
+# Kick off the daily league-wide contract refresh. Runs under both `python
+# app.py` and gunicorn (module import), single-flight-guarded across workers.
+_start_contract_refresher()
 
 
 # ---------------------------------------------------------------------------

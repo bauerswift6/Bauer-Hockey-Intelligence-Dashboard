@@ -7,10 +7,10 @@
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const esc = window.dashUtil ? window.dashUtil.escHtml : (s) => String(s ?? "");
 
-  // Stat preview definitions
+  // Stat preview definitions. Composite Rating was removed 2026-06-07 — GAR
+  // (composite_war on the same scale) is the user-facing display of that
+  // value; surfacing both was redundant.
   const STAT_CARDS = [
-    { id: "composite", label: "Composite Rating", source: "composite", key: "composite_rating",
-      fmt: (v) => (v >= 0 ? "+" : "") + v.toFixed(2), suffix: "" },
     { id: "points", label: "Points",          source: "skaters", key: "points",     fmt: (v) => v, suffix: "" },
     { id: "goals",  label: "Goals",           source: "skaters", key: "goals",      fmt: (v) => v, suffix: "" },
     { id: "assists",label: "Assists",         source: "skaters", key: "assists",    fmt: (v) => v, suffix: "" },
@@ -26,7 +26,7 @@
     { id: "gsax",   label: "GSAX (Goalies)",  source: "goalies", key: "gsax",       fmt: (v) => v.toFixed(2), suffix: "" },
   ];
 
-  let dataCache = { skaters: null, goalies: null, composite: null };
+  let dataCache = { skaters: null, goalies: null };
 
   async function fetchData() {
     if (!dataCache.skaters) {
@@ -47,24 +47,9 @@
         dataCache.goalies = [];
       }
     }
-    if (!dataCache.composite) {
-      try {
-        const r = await fetch("/api/composite-ratings");
-        const d = await r.json();
-        // qualified players only; normalize schema for renderCard()
-        dataCache.composite = (d.full_dataset || [])
-          .filter((p) => p.sample_size_flag === "ok")
-          .map((p) => ({
-            ...p,
-            name: p.player_name,
-            playerId: p.player_id,
-            toi_min: p.toi_minutes,
-            team_logo: `https://assets.nhle.com/logos/nhl/svg/${p.team}_light.svg`,
-          }));
-      } catch (e) {
-        dataCache.composite = [];
-      }
-    }
+    // The composite-source fetch was removed 2026-06-07 along with the
+    // Composite Rating tile — GAR (which is the same composite_war value) is
+    // already in dataCache.skaters via /api/players-full.
   }
 
   function applyPositionFilter(rows, position) {
@@ -125,13 +110,9 @@
     const posBtn = document.querySelector("#player-pos-filter .pos-btn.active");
     const position = posBtn?.dataset.pos || "all";
     const filtered = applyPositionFilter(dataCache.skaters || [], position);
-    const filteredComposite = applyPositionFilter(dataCache.composite || [], position);
 
     const html = STAT_CARDS.map((card) => {
-      let rows;
-      if (card.source === "goalies") rows = dataCache.goalies || [];
-      else if (card.source === "composite") rows = filteredComposite;
-      else rows = filtered;
+      const rows = card.source === "goalies" ? (dataCache.goalies || []) : filtered;
       return renderCard(card, rows);
     }).join("");
 
