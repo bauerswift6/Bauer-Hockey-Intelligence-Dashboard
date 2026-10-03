@@ -1981,6 +1981,19 @@ ONICE_XGF_PATH = os.path.join(os.path.dirname(__file__), "model",
                                "skater_onice_xgf_self_generated.csv")
 GAME_SCORE_PATH = os.path.join(os.path.dirname(__file__), "model",
                                 "skater_game_score_self_generated.csv")
+# --- 2025-26 rebuild (v2 xG / 5v5+ST RAPM / QoC-QoT / SOG GSAX) display files ---
+# Display loaders below are repointed to these; the old self-generated files stay
+# on disk untouched (some feed the composite/simulator pipelines, which are NOT
+# switched). See integration_switch_report.md.
+SKATER_XG_V2_PATH = os.path.join(os.path.dirname(__file__), "model", "skater_xg_2025_26.csv")
+TEAM_XG_V2_PATH = os.path.join(os.path.dirname(__file__), "model", "team_xg_2025_26.csv")
+GSAX_DISPLAY_PATH = os.path.join(os.path.dirname(__file__), "model", "gsax_2025_26_display.csv")
+QOC_QOT_DISPLAY_PATH = os.path.join(os.path.dirname(__file__), "model", "qoc_qot_5v5_2025_26_display.csv")
+RAPM_DISPLAY_PATH = os.path.join(os.path.dirname(__file__), "model", "rapm_display_2025_26.csv")
+# xGAR display, recomputed with the identical stopgap formula on v2 ixG. Only the
+# DISPLAYED xGAR reads this; the GAR off/def split still uses the old xGAR ixG
+# (_load_skater_xgar), which is unchanged. See xgar_v2_report.md.
+XGAR_V2_PATH = os.path.join(os.path.dirname(__file__), "model", "xgar_v2_2025_26.csv")
 # composite_war used by the Players section now points at the single-season
 # build. The simulator still reads composite_ratings_sim.csv directly via
 # model/build_team_strength.py and model/simulate_season.py — both unchanged.
@@ -2029,27 +2042,44 @@ def _load_composite_war() -> dict[int, dict]:
 
 
 def _load_goalie_gsax() -> dict[int, dict]:
-    """player_id → {gsax, gsax_war, xg_against, goals_against, shots_faced}."""
+    """player_id → GSAX — REBUILD: shots-on-goal xG, all-situations RECENTERED to
+    league total 0 (model/gsax_2025_26_display.csv). `gsax` is the recentered
+    all-situations headline; 5v5/PK splits and expected-save% are included for the
+    goalie detail view. Old goalie_gsax_self_generated.csv stays on disk (it still
+    feeds the composite pipeline). gsax_war is not surfaced in the UI."""
     def _fn():
-        if not os.path.exists(GOALIE_GSAX_PATH):
+        if not os.path.exists(GSAX_DISPLAY_PATH):
             return {}
-        df = pd.read_csv(GOALIE_GSAX_PATH)
-        return {int(r.player_id): {
-            "gsax": float(r.gsax),
-            "gsax_war": float(r.gsax_war),
-            "xg_against": float(r.xg_against),
-            "goals_against": int(r.goals_against),
-            "shots_faced": int(r.shots_faced),
-        } for r in df.itertuples(index=False)}
+        df = pd.read_csv(GSAX_DISPLAY_PATH)
+        def _f(v):
+            return float(v) if pd.notna(v) else None
+        return {int(r["player_id"]): {
+            "gsax": float(r["all_gsax"]),
+            "gsax_60": _f(r["all_gsax_60"]),
+            "gsax_100": _f(r["all_gsax_100"]),
+            "xg_against": float(r["all_xga"]),
+            "goals_against": int(r["all_ga"]),
+            "shots_faced": int(r["all_shots"]),
+            "xsv": _f(r["all_xsv"]),
+            "sv": _f(r["all_sv"]),
+            "gsax_5v5": _f(r["5v5_gsax"]),
+            "xsv_5v5": _f(r["5v5_xsv"]),
+            "shots_5v5": int(r["5v5_shots"]),
+            "gsax_pk": _f(r["pk_gsax"]),
+            "xsv_pk": _f(r["pk_xsv"]),
+            "shots_pk": int(r["pk_shots"]),
+            "gsax_war": None,   # DERIVED, not surfaced after the rebuild
+        } for r in df.to_dict("records")}
     return cached("goalie_gsax_lookup", _fn)
 
 
 def _load_team_xgf() -> dict[str, dict]:
-    """team_abbrev → {xgf, xga, xgf_pct} from my self-generated team table."""
+    """team_abbrev → {xgf, xga, xgf_pct} — REBUILD: v2 xG, all situations
+    (model/team_xg_2025_26.csv). Old team_xgf_self_generated.csv stays on disk."""
     def _fn():
-        if not os.path.exists(TEAM_XGF_PATH):
+        if not os.path.exists(TEAM_XG_V2_PATH):
             return {}
-        df = pd.read_csv(TEAM_XGF_PATH)
+        df = pd.read_csv(TEAM_XG_V2_PATH)
         df = df[df["team"] != "?"]   # drop the unmapped-game-id orphan
         return {str(r.team): {
             "xgf": float(r.xgf),
@@ -2060,23 +2090,52 @@ def _load_team_xgf() -> dict[str, dict]:
 
 
 def _load_onice_xgf() -> dict[int, dict]:
-    """player_id → {xgf, xga, xgf_pct, rel_x, shifts, team}."""
+    """player_id → {xgf, xga, xgf_pct, rel_x, shifts, team} — REBUILD: 5v5 on-ice
+    v2 xG (model/skater_xg_2025_26.csv, *_5v5 columns). One row per player already;
+    rel_x is not recomputed here (0.0). Old onice file stays on disk."""
     def _fn():
-        if not os.path.exists(ONICE_XGF_PATH):
+        if not os.path.exists(SKATER_XG_V2_PATH):
             return {}
-        df = pd.read_csv(ONICE_XGF_PATH)
-        # If a player has multiple stints (traded), use highest-shifts row.
-        df = df.sort_values("shifts", ascending=False)
-        df = df.drop_duplicates("player_id", keep="first")
+        df = pd.read_csv(SKATER_XG_V2_PATH)
         return {int(r.player_id): {
-            "xgf": float(r.xgf),
-            "xga": float(r.xga),
-            "xgf_pct": float(r.xgf_pct),
-            "rel_x": float(r.rel_x),
-            "shifts": int(r.shifts),
+            "xgf": float(r.xgf_5v5),
+            "xga": float(r.xga_5v5),
+            "xgf_pct": float(r.xgf_pct_5v5) if pd.notna(r.xgf_pct_5v5) else 0.0,
+            "rel_x": 0.0,
+            "shifts": int(round(float(r.toi_5v5_min))),
             "team": str(r.team),
         } for r in df.itertuples(index=False)}
     return cached("onice_xgf_lookup", _fn)
+
+
+def _load_skater_xg_v2() -> dict[int, dict]:
+    """player_id → v2 individual xG (model/skater_xg_2025_26.csv). REBUILD: used
+    for the DISPLAYED ixG / ixG-60; xGAR keeps its own legacy source."""
+    def _fn():
+        if not os.path.exists(SKATER_XG_V2_PATH):
+            return {}
+        df = pd.read_csv(SKATER_XG_V2_PATH)
+        return {int(r.player_id): {
+            "ixg": float(r.ixg),
+            "ixg_60": float(r.ixg_60),
+            "ixg_5v5": float(r.ixg_5v5),
+            "ixg_60_5v5": float(r.ixg_60_5v5),
+            "goals": int(r.goals),
+            "n_shots": int(r.n_shots),
+        } for r in df.itertuples(index=False)}
+    return cached("skater_xg_v2_lookup", _fn)
+
+
+def _load_xgar_v2() -> dict[int, float]:
+    """player_id -> xGAR recomputed on v2 ixG (model/xgar_v2_2025_26.csv). Display
+    only; the GAR off/def split keeps the old xGAR source (_load_skater_xgar)."""
+    def _fn():
+        if not os.path.exists(XGAR_V2_PATH):
+            return {}
+        df = pd.read_csv(XGAR_V2_PATH)
+        return {int(r.player_id): float(r.xgar) for r in df.itertuples(index=False)
+                if pd.notna(r.xgar)}
+    return cached("xgar_v2_lookup", _fn)
 
 
 def _load_game_score() -> dict[int, dict]:
@@ -2097,18 +2156,24 @@ QOC_QOT_PATH = os.path.join(os.path.dirname(__file__), "model",
 
 
 def _load_qoc_qot() -> dict[int, dict]:
-    """player_id → {qoc, qot, qoc_toi_secs, qot_toi_secs} from my own
-    shift-overlap-weighted GAR aggregation. See model/build_qoc_qot.py."""
+    """player_id → QoC/QoT — REBUILD: 5v5, teammates'/opponents' 5v5 RAPM xG/60
+    (model/qoc_qot_5v5_2025_26_display.csv). `qoc`/`qot` are the raw xG/60 values;
+    `qoc_pctile`/`qot_pctile` are the within-position percentiles (the headline),
+    with `small_sample` for <200 5v5 min. qot_toi is not loaded; qoc_toi is kept in
+    the file but not surfaced. Old skater_qoc_qot_single_season.csv stays on disk."""
     def _fn():
-        if not os.path.exists(QOC_QOT_PATH):
+        if not os.path.exists(QOC_QOT_DISPLAY_PATH):
             return {}
-        df = pd.read_csv(QOC_QOT_PATH)
-        return {int(r.player_id): {
-            "qoc": float(r.qoc) if pd.notna(r.qoc) else None,
-            "qot": float(r.qot) if pd.notna(r.qot) else None,
-            "qoc_toi_secs": int(r.qoc_toi_secs),
-            "qot_toi_secs": int(r.qot_toi_secs),
-        } for r in df.itertuples(index=False)}
+        df = pd.read_csv(QOC_QOT_DISPLAY_PATH)
+        def _f(v):
+            return float(v) if pd.notna(v) else None
+        return {int(r["player_id"]): {
+            "qot": _f(r["qot_total"]), "qoc": _f(r["qoc_total"]),
+            "qot_offense": _f(r["qot_offense"]), "qot_defense": _f(r["qot_defense"]),
+            "qoc_offense": _f(r["qoc_offense"]), "qoc_defense": _f(r["qoc_defense"]),
+            "qot_pctile": _f(r["qot_total_pctile"]), "qoc_pctile": _f(r["qoc_total_pctile"]),
+            "small_sample": bool(r["small_sample"]),
+        } for r in df.to_dict("records")}
     return cached("qoc_qot_lookup", _fn)
 
 
@@ -2515,7 +2580,9 @@ def _merge_contracts_with_moneypuck(contracts: list[dict]) -> list[dict]:
                 row["games"] = mp_gp
                 row["toi_min"] = mp_toi_min
                 row["matched"] = False
-            row["xgar"] = round(float(my_xgar["xgar"]), 2) if my_xgar else None
+            # REBUILD: displayed xGAR uses the v2-ixG recompute (same formula).
+            _xgar_v2 = _load_xgar_v2().get(pid) if pid else None
+            row["xgar"] = round(float(_xgar_v2), 2) if _xgar_v2 is not None else None
 
             if row["gar"] is not None:
                 off_g, def_g = _split_off_def_gar(row["gar"], c["position"],
@@ -2526,9 +2593,13 @@ def _merge_contracts_with_moneypuck(contracts: list[dict]) -> list[dict]:
                 row["off_gar"] = None
                 row["def_gar"] = None
 
+            # REBUILD HIDDEN: pp_gar / pk_gar are composite-derived (DERIVED, not
+            # rebuilt). Emit None so they do not display; the special-teams RAPM
+            # rebuild (rapm_st_2025_26.csv) is the intended replacement. Index
+            # builder (_build_pp_pk_gar_index) retained for restore.
             ppk = pp_pk_index_by_pid.get(pid) or {} if pid else {}
-            row["pp_gar"] = ppk.get("pp_gar", 0.0)
-            row["pk_gar"] = ppk.get("pk_gar", 0.0)
+            row["pp_gar"] = None
+            row["pk_gar"] = None
 
         # Per-$1M metrics
         if row["gar"] is not None and cap_hit > 0:
@@ -2816,7 +2887,8 @@ def _moneypuck_skater_row(name: str) -> dict | None:
         pid = int(row_5.iloc[0].get("playerId", 0)) or None
 
     my_comp = _load_composite_war().get(pid) if pid else None
-    my_xgar = _load_skater_xgar().get(pid) if pid else None
+    my_xgar = _load_skater_xgar().get(pid) if pid else None   # legacy: xGAR
+    my_xg_v2 = _load_skater_xg_v2().get(pid) if pid else None  # REBUILD: ixG
 
     out: dict = {}
     if not row_all.empty:
@@ -2826,14 +2898,16 @@ def _moneypuck_skater_row(name: str) -> dict | None:
         out["games"] = int(r.get("games_played", 0))
         out["icf"] = int(r.get("I_F_shotAttempts", 0)) if "I_F_shotAttempts" in r else None
         out["iff"] = int(r.get("I_F_unblockedShotAttempts", 0)) if "I_F_unblockedShotAttempts" in r else None
-        out["ixg"] = round(float(my_xgar["ixg"]), 2) if my_xgar else None
+        out["ixg"] = round(float(my_xg_v2["ixg"]), 2) if my_xg_v2 else None   # REBUILD: v2 ixG
         out["ihdcf"] = int(r.get("I_F_highDangerShots", 0)) if "I_F_highDangerShots" in r else None
         out["icf_60"] = round(out["icf"] / (float(r.get("icetime", 1)) / 3600), 2) if out.get("icf") and r.get("icetime", 0) > 0 else None
         out["ixg_60"] = round(out["ixg"] / (float(r.get("icetime", 1)) / 3600), 2) if out.get("ixg") and r.get("icetime", 0) > 0 else None
         out["icetime_min"] = round(float(r.get("icetime", 0)) / 60, 0)
     if not row_5.empty:
         r5 = row_5.iloc[0]
-        out["xgar"] = round(float(my_xgar["xgar"]), 2) if my_xgar else None
+        # REBUILD: displayed xGAR uses the v2-ixG recompute (same formula).
+        _xgar_v2 = _load_xgar_v2().get(pid) if pid else None
+        out["xgar"] = round(float(_xgar_v2), 2) if _xgar_v2 is not None else None
         # On-ice xGF% from my self-generated table (intersects my-xG-scored
         # shots with the player's shifts). Falls back to MoneyPuck if missing.
         my_onice = _load_onice_xgf().get(pid) if pid else None
@@ -2872,14 +2946,23 @@ def _moneypuck_goalie_row(name: str) -> dict | None:
     shots = float(r.get("ongoal", 0))
     goals = float(r.get("goals", 0))
     icetime = float(r.get("icetime", 0))
-    gsax = float(r.get("xGoals", 0)) - goals
+    # REBUILD: goalie-detail GSAX from the recentered SOG model (by player_id);
+    # MoneyPuck xGoals-goals only as a fallback when the goalie isn't in my file.
+    pid = int(r.get("playerId", 0)) or None
+    my_g = _load_goalie_gsax().get(pid) if pid else None
+    gsax = float(my_g["gsax"]) if my_g else (float(r.get("xGoals", 0)) - goals)
     out = {
         "team": r.get("team", ""),
         "games": int(r.get("games_played", 0)),
         "gsax": round(gsax, 2),
-        "gsax_60": round(gsax / (icetime / 3600), 3) if icetime > 0 else None,
+        "gsax_60": round(float(my_g["gsax_60"]), 3) if my_g and my_g.get("gsax_60") is not None
+                   else (round(gsax / (icetime / 3600), 3) if icetime > 0 else None),
         "sv_pct": round((shots - goals) / shots * 100, 2) if shots > 0 else None,
     }
+    if my_g:   # REBUILD: 5v5 / PK splits + expected save % for the detail view
+        out["gsax_5v5"] = round(float(my_g["gsax_5v5"]), 2) if my_g.get("gsax_5v5") is not None else None
+        out["gsax_pk"] = round(float(my_g["gsax_pk"]), 2) if my_g.get("gsax_pk") is not None else None
+        out["xsv_pct"] = round(float(my_g["xsv"]) * 100, 2) if my_g.get("xsv") is not None else None
     hd_s = float(r.get("highDangerShots", 0))
     hd_g = float(r.get("highDangerGoals", 0))
     md_s = float(r.get("mediumDangerShots", 0))
@@ -3307,7 +3390,8 @@ def _build_skater_full_row(r_all, r_5, r_pp=None, r_pk=None, plus_minus_by_pid=N
 
     # Self-generated analytical lookups (cached per request batch)
     composite = _load_composite_war().get(pid)
-    my_xgar   = _load_skater_xgar().get(pid)
+    my_xgar   = _load_skater_xgar().get(pid)      # legacy: feeds xGAR only
+    my_xg     = _load_skater_xg_v2().get(pid)     # REBUILD: displayed ixG (v2)
     my_gs     = _load_game_score().get(pid)
     my_onice  = _load_onice_xgf().get(pid)
     my_qq     = _load_qoc_qot().get(pid)
@@ -3328,7 +3412,8 @@ def _build_skater_full_row(r_all, r_5, r_pp=None, r_pk=None, plus_minus_by_pid=N
         # Individual rates. ixG comes from my self-generated xGAR table
         # (sum of per-shot predictions from my xG model on this player's
         # individual shots). Corsi/Fenwick/HD are raw shot counts.
-        i_xg_5 = float(my_xgar["ixg"]) if my_xgar else 0.0
+        # REBUILD: displayed 5v5 ixG from the v2 model (xGAR unaffected)
+        i_xg_5 = float(my_xg["ixg_5v5"]) if my_xg else 0.0
         i_corsi_5 = float(r_5.get("I_F_shotAttempts", 0)) if "I_F_shotAttempts" in r_5 else 0
         i_fenwick_5 = float(r_5.get("I_F_unblockedShotAttempts", 0)) if "I_F_unblockedShotAttempts" in r_5 else 0
         i_hd_5 = float(r_5.get("I_F_highDangerShots", 0)) if "I_F_highDangerShots" in r_5 else 0
@@ -3383,7 +3468,9 @@ def _build_skater_full_row(r_all, r_5, r_pp=None, r_pk=None, plus_minus_by_pid=N
     # Self-generated GAR + xGAR + Game Score (replaces the MoneyPuck proxies)
     # TEMP STOPGAP: GAR x12 (undo WAR_UNIT 0.5, times 6 goals per win), to be replaced by the composite rebuild
     gar = round(float(composite["composite_war"]) * 12, 2) if composite else None
-    xgar = round(float(my_xgar["xgar"]), 2) if my_xgar else None
+    # REBUILD: displayed xGAR uses the v2-ixG recompute (same formula).
+    _xgar_v2 = _load_xgar_v2().get(pid) if pid else None
+    xgar = round(float(_xgar_v2), 2) if _xgar_v2 is not None else None
     game_score = round(float(my_gs["game_score"]), 2) if my_gs else 0.0
     toi_per_game_sec = _safe_div(icetime_all, games)
 
@@ -3455,10 +3542,13 @@ def _build_skater_full_row(r_all, r_5, r_pp=None, r_pk=None, plus_minus_by_pid=N
         "rebound_pct": round(rebound_pct, 2),
         # Usage
         "zone_start_pct": round(zone_start_pct, 2),
-        # QoC / QoT — weighted avg GAR of opponents / teammates from
-        # 25-26 shift overlaps. See model/build_qoc_qot.py.
+        # QoC / QoT — REBUILD: 5v5, opponents'/teammates' 5v5 RAPM xG/60; headline
+        # is the within-position percentile. See model/build_qoc_qot_2025_26.py.
         "qoc": round(float(my_qq["qoc"]), 3) if my_qq and my_qq.get("qoc") is not None else None,
         "qot": round(float(my_qq["qot"]), 3) if my_qq and my_qq.get("qot") is not None else None,
+        "qoc_pctile": round(float(my_qq["qoc_pctile"]), 1) if my_qq and my_qq.get("qoc_pctile") is not None else None,
+        "qot_pctile": round(float(my_qq["qot_pctile"]), 1) if my_qq and my_qq.get("qot_pctile") is not None else None,
+        "qoc_qot_small_sample": bool(my_qq["small_sample"]) if my_qq else None,
         # Power play (5on4 situation counts from MoneyPuck)
         "pp_goals":   pp_goals,
         "pp_assists": pp_assists,
@@ -3723,82 +3813,58 @@ RAPM_META_PATH = os.path.join(os.path.dirname(__file__), "model", "rapm_single_s
 
 @app.route("/api/rapm-leaders")
 def api_rapm_leaders():
-    """Return top 25 by total / offensive / defensive RAPM. 24h cache."""
+    """REBUILD: 5v5 RAPM (ridge shrinking toward the 2024-25 estimate, kappa chosen
+    by an out-of-sample test) joined with special-teams RAPM, from
+    model/rapm_display_2025_26.csv. Units are xG/60; defense positive = suppresses
+    xGA. Old rapm_single_season.csv (and its shrunk_*/ms_* columns) is no longer
+    served. 24h cache."""
     def _fetch():
-        if not os.path.exists(RAPM_CSV_PATH):
-            return {
-                "trained": False,
-                "message": "RAPM model has not been trained yet. Run: python3 model/train_rapm.py",
-            }
+        if not os.path.exists(RAPM_DISPLAY_PATH):
+            return {"trained": False,
+                    "message": "5v5 RAPM display table missing. Run: "
+                               "python3 model/build_display_tables_2025_26.py"}
         try:
-            df = pd.read_csv(RAPM_CSV_PATH)
+            df = pd.read_csv(RAPM_DISPLAY_PATH)
         except Exception as e:
             return {"trained": False, "error": str(e)}
-
-        meta = {}
-        if os.path.exists(RAPM_META_PATH):
-            try:
-                with open(RAPM_META_PATH) as f:
-                    meta = json.load(f)
-            except Exception:
-                meta = {}
-
-        # The single-season CSV was extended by model/apply_rapm_shrinkage.py
-        # with Bayesian-shrunk values (K=1000, shrunk_*_rapm columns) plus the
-        # raw multi-season prior (ms_*_rapm). Headline sort is the shrunk
-        # total; the SS and MS columns ride along so the frontend can render
-        # a dual-view comparison.
-        has_shrunk = "shrunk_total_rapm" in df.columns
 
         def _f(v):
             return float(v) if pd.notna(v) else None
 
         def _to_records(sub):
             out = []
-            for r in sub.itertuples(index=False):
-                rec = {
-                    "player_id": int(r.player_id) if not pd.isna(r.player_id) else None,
-                    "player_name": str(r.player_name),
-                    "team": str(r.team) if not pd.isna(r.team) else "",
-                    "season": str(r.season) if not pd.isna(r.season) else "",
-                    "total_rapm": float(r.total_rapm),
-                    "offensive_rapm": float(r.offensive_rapm),
-                    "defensive_rapm": float(r.defensive_rapm),
-                    "toi_minutes": float(r.toi_minutes),
-                    "shift_count": int(r.shift_count),
-                }
-                if has_shrunk:
-                    rec.update({
-                        "shrunk_total_rapm": _f(getattr(r, "shrunk_total_rapm", None)),
-                        "shrunk_off_rapm":   _f(getattr(r, "shrunk_off_rapm", None)),
-                        "shrunk_def_rapm":   _f(getattr(r, "shrunk_def_rapm", None)),
-                        "ms_total_rapm":     _f(getattr(r, "ms_total_rapm", None)),
-                        "ms_off_rapm":       _f(getattr(r, "ms_off_rapm", None)),
-                        "ms_def_rapm":       _f(getattr(r, "ms_def_rapm", None)),
-                        "ms_toi_minutes":    _f(getattr(r, "ms_toi_minutes", None)),
-                        "shrink_weight_ss":  _f(getattr(r, "shrink_weight_ss", None)),
-                    })
-                out.append(rec)
+            for r in sub.to_dict("records"):
+                out.append({
+                    "player_id": int(r["player_id"]),
+                    "player_name": str(r["name"]),
+                    "team": str(r["teams"]) if pd.notna(r["teams"]) else "",
+                    "position": str(r["position"]) if pd.notna(r["position"]) else "",
+                    # xG/60; field names kept for frontend compatibility
+                    "total_rapm": _f(r["total"]),
+                    "offensive_rapm": _f(r["offense"]),
+                    "defensive_rapm": _f(r["defense"]),
+                    "total_impact": _f(r["total_impact"]),
+                    "toi_minutes": _f(r["toi_min_5v5"]),
+                    "rank": int(r["rank_total"]) if pd.notna(r["rank_total"]) else None,
+                    # special teams (PK is low-confidence; see report)
+                    "pp_offense": _f(r["pp_offense"]),
+                    "pp_toi_minutes": _f(r["pp_toi_min"]),
+                    "pk_defense": _f(r["pk_defense"]),
+                    "pk_toi_minutes": _f(r["pk_toi_min"]),
+                    "pk_low_confidence": True,
+                })
             return out
 
-        # Default sort is the shrunk value when available; falls back to raw
-        # single-season if the shrinkage step hasn't been run yet.
-        total_sort = "shrunk_total_rapm" if has_shrunk else "total_rapm"
-        off_sort   = "shrunk_off_rapm"   if has_shrunk else "offensive_rapm"
-        def_sort   = "shrunk_def_rapm"   if has_shrunk else "defensive_rapm"
-
+        dft = df.sort_values("total", ascending=False)
         return {
             "trained": True,
             "n_players": int(len(df)),
-            "shrinkage_applied": bool(has_shrunk),
-            "shrinkage_K": int(df["shrink_K"].iloc[0]) if has_shrunk and "shrink_K" in df.columns else None,
-            "meta": meta,
-            "top_total": _to_records(df.sort_values(total_sort, ascending=False).head(25)),
-            "top_offensive": _to_records(df.sort_values(off_sort, ascending=False).head(25)),
-            # Defensive RAPM in our doubled-column encoding: POSITIVE = better defender
-            # (we negate the raw coef inside training so positive = suppresses xGA).
-            "top_defensive": _to_records(df.sort_values(def_sort, ascending=False).head(25)),
-            "full_dataset": _to_records(df.sort_values(total_sort, ascending=False)),
+            "method": "5v5 RAPM on xG v2, ridge shrunk toward 2024-25 (kappa=0.75); "
+                      "special-teams RAPM joined; xG/60 units",
+            "top_total": _to_records(dft.head(25)),
+            "top_offensive": _to_records(df.sort_values("offense", ascending=False).head(25)),
+            "top_defensive": _to_records(df.sort_values("defense", ascending=False).head(25)),
+            "full_dataset": _to_records(dft),
         }
 
     return jsonify(cached_ttl("rapm_leaders", 86400, _fetch))
@@ -3808,6 +3874,9 @@ RAPM_BAYES_CSV_PATH = os.path.join(os.path.dirname(__file__), "model", "rapm_bay
 RAPM_BAYES_META_PATH = os.path.join(os.path.dirname(__file__), "model", "rapm_bayesian_meta.json")
 
 
+# REBUILD HIDDEN: the Bayesian RAPM view is superseded by the 5v5 RAPM rebuild
+# (/api/rapm-leaders serves rapm_display_2025_26.csv, kappa-shrunk). The frontend
+# no longer calls this endpoint; the route is retained (not deleted) for restore.
 @app.route("/api/rapm-bayesian-leaders")
 def api_rapm_bayesian_leaders():
     """Return top 25 by total Bayesian (prior-informed) RAPM. Experimental

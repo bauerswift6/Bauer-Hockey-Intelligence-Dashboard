@@ -262,10 +262,12 @@
   // standard deviation below normal" when it really means "GAR is 1.01 wins
   // below underlying xG-derived expectation".
   const SUSTAIN_TOOLTIP =
-    "Sustainability gap = GAR − xGAR, in GAR (wins) units. " +
+    "Legacy, being rebuilt: this mixes legacy GAR with v2 xGAR. " +
+    "It uses the legacy composite GAR and will be updated when GAR is rebuilt. " +
+    "Sustainability gap = GAR (legacy) minus xGAR (v2), in GAR (wins) units. " +
     "Positive = current GAR is outpacing underlying shot quality (regression risk). " +
     "Negative = underperforming the underlying shot quality (likely to bounce back). " +
-    "≥ +3.0 flagged as Regression Risk; ≤ −3.0 typically a buy-low signal.";
+    "Flagged at or above +3.0 as Regression Risk; at or below -3.0 typically a buy-low signal.";
 
   // GAR column note — goalie rows use GSAX (goals saved above expected) not
   // skater-WAR GAR, with a separate $0.45M/save multiplier feeding Surplus.
@@ -294,7 +296,7 @@
       { key: "pk_gar",             label: "PK GAR",      align: "right", fmt: (v) => fmtNum(v) },
       { key: "gar_per_million",    label: "GAR/$1M",     align: "right", glossaryId: "gar-per-mil", fmt: (v) => fmtNum(v) },
       { key: "xgar",               label: "xGAR",        align: "right", glossaryId: "xgar", fmt: (v) => fmtNum(v) },
-      { key: "sustainability_score", label: "Sustain",   align: "right", titleOverride: SUSTAIN_TOOLTIP, infoIcon: true, fmt: (v, r) => sustainCell(v) },
+      { key: "sustainability_score", label: "Sustain (legacy)", align: "right", titleOverride: SUSTAIN_TOOLTIP, infoIcon: true, fmt: (v, r) => sustainCell(v) },
       { key: "surplus_value",      label: "Surplus",     align: "right", fmt: (v, r) => fmtSurplus(v, r.contract_type === "ELC"), highlight: true },
     ];
   }
@@ -320,7 +322,7 @@
   function sustainColsExtra() {
     return [
       { key: "xgar",                 label: "xGAR",       align: "right", glossaryId: "xgar", fmt: (v) => fmtNum(v) },
-      { key: "sustainability_score", label: "Sustain",    align: "right", titleOverride: SUSTAIN_TOOLTIP, infoIcon: true, fmt: (v, r) => sustainCell(v), highlight: true },
+      { key: "sustainability_score", label: "Sustain (legacy)", align: "right", titleOverride: SUSTAIN_TOOLTIP, infoIcon: true, fmt: (v, r) => sustainCell(v), highlight: true },
       { key: "surplus_value",        label: "Surplus",    align: "right", fmt: (v, r) => fmtSurplus(v, r.contract_type === "ELC") },
     ];
   }

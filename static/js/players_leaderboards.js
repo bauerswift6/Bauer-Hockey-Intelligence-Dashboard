@@ -49,30 +49,30 @@
     { key: "toi_minutes",            label: "TOI",      align: "right", fmt: toiFmt },
   ];
 
-  // Shrunk RAPM = single-season value weighted toward the 16-season career
-  // prior. Headline column; the SS and MS values ride along for transparency.
-  // The endpoint sorts on shrunk_total_rapm by default; the underlying CSV
-  // was extended by model/apply_rapm_shrinkage.py.
-  const SHRINK_TOOLTIP =
-    "Bayesian shrinkage: single-season value weighted toward 16-season " +
-    "career baseline based on TOI sample size (K = 1000 EV min). " +
-    "Pulls noisy small-sample players back toward their longer track record.";
+  // REBUILD: /api/rapm-leaders now serves the 2025-26 5v5 RAPM (xG/60, ridge
+  // shrunk toward the 2024-25 estimate, kappa=0.75) joined with special-teams
+  // RAPM. The old shrunk_*/ms_* (multi-season Bayesian) columns are gone.
+  const RAPM_TOOLTIP =
+    "5v5 RAPM on xG v2 (xG/60). Ridge regression shrinking each player toward " +
+    "his 2024-25 estimate; the shrinkage strength was chosen by an out-of-sample " +
+    "test. Defense is signed so positive prevents xGA. PK is low confidence.";
 
-  // A formatter that prints "—" for null (used by MS columns when a player
-  // has no career sample in the multi-season file).
+  // A formatter that prints "—" for null.
   const zfmtNullable = (dp) => (v) => (v == null ? "—" : zfmt(dp)(v));
 
   const RAPM_COLS = [
-    { key: "name",              label: "Player",     align: "left",  isPlayer: true },
-    { key: "team",              label: "Team",       align: "left",  isTeam: true },
-    { key: "position",          label: "Pos",        align: "left",  isPos: true },
-    { key: "shrunk_total_rapm", label: "Total (shrunk)", align: "right", highlight: true,
-      titleOverride: SHRINK_TOOLTIP, infoIcon: true, fmt: zfmtNullable(3) },
-    { key: "total_rapm",        label: "Total (25-26)",  align: "right", fmt: zfmt(3) },
-    { key: "ms_total_rapm",     label: "Total (career)", align: "right", fmt: zfmtNullable(3) },
-    { key: "shrunk_off_rapm",   label: "Off (shrunk)",   align: "right", fmt: zfmtNullable(3) },
-    { key: "shrunk_def_rapm",   label: "Def (shrunk)",   align: "right", fmt: zfmtNullable(3) },
-    { key: "toi_minutes",       label: "TOI",            align: "right", fmt: toiFmt },
+    { key: "name",            label: "Player",    align: "left",  isPlayer: true },
+    { key: "team",            label: "Team",      align: "left",  isTeam: true },
+    { key: "position",        label: "Pos",       align: "left",  isPos: true },
+    { key: "total_rapm",      label: "Total",     align: "right", highlight: true,
+      titleOverride: RAPM_TOOLTIP, infoIcon: true, fmt: zfmtNullable(3) },
+    { key: "offensive_rapm",  label: "Off",       align: "right", fmt: zfmtNullable(3) },
+    { key: "defensive_rapm",  label: "Def",       align: "right", fmt: zfmtNullable(3) },
+    { key: "total_impact",    label: "Impact (xG)", align: "right", fmt: zfmtNullable(2) },
+    { key: "pp_offense",      label: "PP Off",    align: "right", fmt: zfmtNullable(2) },
+    { key: "pk_defense",      label: "PK Def*",   align: "right", fmt: zfmtNullable(2),
+      titleOverride: "PK defense is low confidence (small single-season PK samples)." },
+    { key: "toi_minutes",     label: "TOI",       align: "right", fmt: toiFmt },
   ];
 
   const PP_RATING_COLS = [
@@ -132,12 +132,14 @@
     // (composite_war), so the dedicated tile was redundant. The six component
     // z-scores are still visible on the Player Detail page as "GAR Component
     // Breakdown" so users can see how the GAR was constructed.
-    { id: "rapm",         label: "RAPM",            key: "shrunk_total_rapm", source: "rapm", group: "impact",
+    // REBUILD: RAPM headline now total_rapm (5v5 xG/60) from the rebuilt endpoint.
+    { id: "rapm",         label: "RAPM",            key: "total_rapm", source: "rapm", group: "impact",
       glossaryId: "rapm", customCols: RAPM_COLS, tableNote: RAPM_NOTE },
-    { id: "gar",          label: "GAR",             key: "gar",        source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "gar" },
+    // Legacy, being rebuilt: GAR / Game Score are composite values. xGAR now uses v2 ixG.
+    { id: "gar",          label: "GAR (legacy)",        key: "gar",        source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "gar", legacyRebuild: true },
     // TEMP STOPGAP: xGAR back on — now goals above a positional replacement baseline (offense only), on the same scale as GAR, until the composite rebuild
-    { id: "xgar",         label: "xGAR",            key: "xgar",       source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "xgar" },
-    { id: "game_score",   label: "Game Score",      key: "game_score", source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "game-score" },
+    { id: "xgar",         label: "xGAR",                key: "xgar",       source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "xgar" },
+    { id: "game_score",   label: "Game Score (legacy)", key: "game_score", source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "game-score", legacyRebuild: true },
     { id: "ixg_60",       label: "ixG per 60",      key: "ixg_60",     source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "ixg", minToi: 200 },
     { id: "icf_60",       label: "iCF per 60",      key: "icf_60",     source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "icf", minToi: 200 },
     { id: "iff_60",       label: "iFF per 60",      key: "iff_60",     source: "skaters", group: "impact", fmt: (v) => v.toFixed(2), suffix: "", glossaryId: "iff", minToi: 200 },
@@ -153,8 +155,12 @@
     // QoC / QoT — weighted average GAR (composite_war) of opponents /
     // teammates over 2025-26 shared ice time. Built from the per-game
     // shift-overlap pipeline in model/build_qoc_qot.py.
-    { id: "qoc",            label: "QoC",  key: "qoc", source: "skaters", group: "usage", fmt: (v) => (v >= 0 ? "+" : "") + v.toFixed(3), suffix: "", glossaryId: "qoc" },
-    { id: "qot",            label: "QoT",  key: "qot", source: "skaters", group: "usage", fmt: (v) => (v >= 0 ? "+" : "") + v.toFixed(3), suffix: "", glossaryId: "qot" },
+    // REBUILD: QoC/QoT are 5v5 (opponents'/teammates' 5v5 RAPM xG/60). Headline is
+    // the within-position percentile; raw xG/60 rides along as a secondary column.
+    { id: "qoc",  label: "QoC (5v5 %ile)",  key: "qoc_pctile", source: "skaters", group: "usage", fmt: (v) => v != null ? Math.round(v) : "—", suffix: "", glossaryId: "qoc",
+      secondaryCols: [{ key: "qoc", label: "QoC xG/60", align: "right", fmt: (v) => v != null ? (v >= 0 ? "+" : "") + v.toFixed(3) : "—" }] },
+    { id: "qot",  label: "QoT (5v5 %ile)",  key: "qot_pctile", source: "skaters", group: "usage", fmt: (v) => v != null ? Math.round(v) : "—", suffix: "", glossaryId: "qot",
+      secondaryCols: [{ key: "qot", label: "QoT xG/60", align: "right", fmt: (v) => v != null ? (v >= 0 ? "+" : "") + v.toFixed(3) : "—" }] },
 
     // ---- Special Teams ----
     { id: "pp_rating",  label: "PP Rating",  key: "power_play_component",   source: "composite", group: "special",

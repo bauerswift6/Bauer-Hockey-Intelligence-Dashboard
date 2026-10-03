@@ -14,7 +14,8 @@
     { id: "points", label: "Points",          source: "skaters", key: "points",     fmt: (v) => v, suffix: "" },
     { id: "goals",  label: "Goals",           source: "skaters", key: "goals",      fmt: (v) => v, suffix: "" },
     { id: "assists",label: "Assists",         source: "skaters", key: "assists",    fmt: (v) => v, suffix: "" },
-    { id: "gar",    label: "GAR",             source: "skaters", key: "gar",        fmt: (v) => v.toFixed(2), suffix: "" },
+    // Legacy, being rebuilt: GAR is a composite value. xGAR now uses v2 ixG.
+    { id: "gar",    label: "GAR (legacy)",    source: "skaters", key: "gar",        fmt: (v) => v.toFixed(2), suffix: "" },
     { id: "xgar",   label: "xGAR",            source: "skaters", key: "xgar",       fmt: (v) => v.toFixed(2), suffix: "" },
     { id: "xgf_pct",label: "xGF%",            source: "skaters", key: "xgf_pct",    fmt: (v) => v.toFixed(2), suffix: "%", minToi: 300 },
     { id: "cf_pct", label: "CF% (Corsi)",     source: "skaters", key: "cf_pct",     fmt: (v) => v.toFixed(2), suffix: "%", minToi: 300 },

@@ -65,7 +65,10 @@
         <button class="nav-tab subpage-tab" data-subpage="teams" aria-selected="false">Teams</button>
         <button class="nav-tab subpage-tab" data-subpage="goalies" aria-selected="false">Goalies</button>
         <button class="nav-tab subpage-tab" data-subpage="playoffs" aria-selected="false">Playoffs</button>
-        <button class="nav-tab subpage-tab" data-subpage="simulator" aria-selected="false">Simulator</button>
+        <!-- REBUILD HIDDEN: Simulator is a DERIVED, not-rebuilt surface (multi-season
+             composite/sim pipeline). Hidden in the nav until it is rebuilt; the
+             page/route and data are untouched for restore. -->
+        <button class="nav-tab subpage-tab" data-subpage="simulator" aria-selected="false" hidden style="display:none">Simulator</button>
         <button class="nav-tab subpage-tab" data-subpage="glossary" aria-selected="false">Glossary</button>
       </div>
       <div class="nav-inner subpage-group subpage-placeholder" hidden>
@@ -209,7 +212,9 @@
         <button class="players-tab" data-ptab="leaderboards" role="tab" aria-selected="false">Leaderboards</button>
         <button class="players-tab" data-ptab="player-search" role="tab" aria-selected="false">Player Search</button>
         <button class="players-tab" data-ptab="compare" role="tab" aria-selected="false">Compare</button>
-        <button class="players-tab" data-ptab="contract-value" role="tab" aria-selected="false">Contract Value</button>
+        <!-- REBUILD HIDDEN: Contract Value is a DERIVED, not-rebuilt surface (built on
+             GAR). Hidden in the nav until rebuilt; panel/route/data untouched for restore. -->
+        <button class="players-tab" data-ptab="contract-value" role="tab" aria-selected="false" hidden style="display:none">Contract Value</button>
       </div>
 
       <!-- ===== Overview tab — preview cards grid ===== -->
