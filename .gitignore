@@ -1,0 +1,9 @@
+# Transient artifacts from the scheduled contract refresh (data/fetch_contracts.py).
+# The snapshot itself (data/contracts_current.json) IS committed as a seed so the
+# dashboard works immediately on a fresh deploy before the first refresh runs.
+data/.contracts_refresh.lock
+data/contracts_current.json.tmp
+
+# Python bytecode
+__pycache__/
+*.pyc
