@@ -3,25 +3,55 @@
    ========================================================= */
 
 :root {
-  --bg:           #060E1E;
-  --bg-2:         #07111F;
-  --card-bg:      #080F1F;
-  --card-border:  #0E1E35;
-  --card-hover:   #0A1525;
-  --gold:         #E8A020;
-  --gold-dim:     #A06E12;
-  --blue:         #2B6BF0;
-  --blue-dim:     #1A4AAA;
-  --text:         #F0F4FF;
-  --text-dim:     #C0CCDD;
-  --subtext:      #8899BB;
-  --green:        #1DB954;
-  --red:          #E8302A;
-  --orange:       #F08A1C;
-  --cutline:      rgba(232, 160, 32, 0.35);
-  --font-display: 'Bebas Neue', Impact, sans-serif;
-  --font-mono:    'DM Mono', 'Courier New', monospace;
-  --font-body:    'Sora', 'Helvetica Neue', Arial, sans-serif;
+  /* surfaces */
+  --bg:           #05101A;
+  --bg-2:         #0A1A28;
+  --card-bg:      #08161F;
+  --card-border:  #143A52;
+  --card-hover:   #0D1E2E;
+  --border:       #143A52;
+  --hair:         #0E2A3C;
+
+  /* text */
+  --text:         #D8E9F1;
+  --text-dim:     #9FBCCB;
+  --subtext:      #5E7C8C;
+  --text-sub:     #5E7C8C;
+
+  /* PRIMARY accent — cyan: active nav, links, interactive states, key data */
+  --accent:        #4FD1C5;
+  --accent-dim:    #1E5468;
+  --accent-tint:   rgba(79, 209, 197, .12);
+
+  /* SECONDARY accent — amber: rare (live timestamp, series-status, one sig stat) */
+  --gold:          #E8A020;
+  --gold-dim:      #8A5E10;
+  --accent-2:      #E8A020;
+  --accent-2-dim:  #8A5E10;
+  --accent-2-tint: rgba(232, 160, 32, .14);
+
+  /* --blue remapped to cyan so all var(--blue) references resolve to primary accent */
+  --blue:          #4FD1C5;
+  --blue-dim:      #1E5468;
+
+  /* status */
+  --green:         #3FD17A;
+  --red:           #FF5A5A;
+  --orange:        #F08A1C;
+  --good:          #3FD17A;
+  --bad:           #FF5A5A;
+
+  /* leaderboard meter bars */
+  --meter-lead:    #4FD1C5;
+  --meter-rest:    #2E7E8C;
+
+  /* hairline cutline dividers */
+  --cutline:       rgba(79, 209, 197, 0.35);
+
+  /* fonts */
+  --font-display: 'Chakra Petch', sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+  --font-body:    'Saira', sans-serif;
 }
 
 *, *::before, *::after {
@@ -1890,15 +1920,24 @@ a:hover {
 
 /* Zone 1 — games already styled via .games-grid */
 
-/* Zone 2 — two-column */
+/* Zone 2 — two-column (Ink Report | Trade Block) */
 .zone-twocol {
   display: grid;
-  grid-template-columns: 6fr 4fr;
+  grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
   margin-bottom: 0;
   background: none;
   border: none;
   border-radius: 0;
+}
+
+/* Muted subtitle in section headers (League Pulse / Ink / Trade) */
+.section-sub {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--subtext);
+  letter-spacing: 0.04em;
+  margin: 0;
 }
 
 .zone-left,
@@ -2133,6 +2172,53 @@ a:hover {
   padding: 0.6rem 0;
   border-bottom: 1px solid rgba(14, 30, 53, 0.6);
   list-style: none;
+}
+
+/* Move lists (Ink Report / Trade Block) are type-pure — no badge column */
+.txn-list.move-list .txn-item {
+  grid-template-columns: 1fr auto;
+}
+
+/* Scrollable news sections — each holds up to 8–10 items and scrolls within
+   its own box, keeping the overall page compact. */
+.pulse-list,
+.txn-list.move-list {
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(136, 153, 187, 0.35) transparent;
+}
+
+/* League Pulse is the full-width hero feed — taller window. */
+.pulse-list {
+  max-height: 300px;
+}
+
+/* Ink Report / Trade Block sit side-by-side — shorter, equal-height windows
+   that scroll once they hold more than ~4 items. */
+.txn-list.move-list {
+  max-height: 150px;
+}
+
+.pulse-list::-webkit-scrollbar,
+.txn-list.move-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pulse-list::-webkit-scrollbar-track,
+.txn-list.move-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pulse-list::-webkit-scrollbar-thumb,
+.txn-list.move-list::-webkit-scrollbar-thumb {
+  background: rgba(136, 153, 187, 0.35);
+  border-radius: 4px;
+}
+
+.pulse-list::-webkit-scrollbar-thumb:hover,
+.txn-list.move-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(136, 153, 187, 0.55);
 }
 
 .txn-item:last-child {
@@ -4008,7 +4094,7 @@ a:hover {
   border-radius: 999px;
 }
 
-/* Age flag icons */
+/* Age flag icons (legacy — kept for backward compat with any other consumers) */
 .cv-age-icon {
   display: inline-block;
   margin-left: 0.3rem;
@@ -4017,6 +4103,28 @@ a:hover {
 }
 .cv-age-vet   { color: var(--orange); }
 .cv-age-prime { color: var(--green); }
+
+/* Age-curve badges in the Age column (pre-peak / peak / post-peak) */
+.cv-age-badge {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.85rem;
+  line-height: 1;
+  font-weight: 700;
+  cursor: help;
+  /* Distinct from any player-name decorations; mono so width is predictable */
+  font-family: var(--font-mono);
+}
+.cv-age-pre   { color: var(--blue); }
+.cv-age-peak  { color: var(--subtext); }
+.cv-age-post  { color: var(--orange); }
+
+/* Expiry "(N yrs)" suffix — secondary text so the year stays the primary read */
+.cv-expiry-yrs {
+  color: var(--subtext);
+  font-size: 0.78rem;
+  margin-left: 0.15rem;
+}
 
 /* Upgraded table */
 .cv-upgraded-table th {
@@ -5209,3 +5317,539 @@ a:hover {
   text-align: right;
   font-size: 0.85rem;
 }
+
+/* =========================================================
+   TACTICAL BLUEPRINT — Component overrides
+   Variable swap in :root handles ~70% of the restyle.
+   This block covers the remainder: items that used hardcoded
+   rgba(43,107,240,…) blue, active-nav states that pointed
+   to --gold but now need cyan, and new meter-bar styles.
+   ========================================================= */
+
+/* ----- Header ----- */
+.site-header {
+  background: var(--bg);
+  border-top: 3px solid var(--accent);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ----- Nav active — country + league tabs switch to cyan ----- */
+.country-tab.active,
+.league-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: var(--accent-tint);
+}
+.nav-tab:hover {
+  background: rgba(79, 209, 197, 0.04);
+}
+/* Coming-soon tab stays amber (it's a status note, not a nav state) */
+.coming-soon-tab {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+  background: rgba(232, 160, 32, 0.06);
+}
+.coming-soon-tab:hover {
+  color: var(--gold);
+  background: rgba(232, 160, 32, 0.06);
+}
+
+/* ----- Date carousel ----- */
+.date-pill.active {
+  background: rgba(79, 209, 197, 0.12);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.date-pill.active .pill-dow,
+.date-pill.active .pill-date { color: var(--accent); }
+.date-pill:hover { border-color: var(--accent-dim); color: var(--text); }
+.games-carousel-arrow:hover { color: var(--accent); border-color: var(--accent-dim); }
+
+/* ----- Games ----- */
+.game-card:hover { border-color: var(--accent-dim); }
+.games-date-header { color: var(--text-dim); }
+.link-btn:hover { color: var(--text); border-color: var(--accent-dim); background: rgba(79, 209, 197, 0.08); }
+.link-btn.link-video { color: var(--accent); border-color: var(--accent-dim); }
+.link-btn.link-video:hover { background: rgba(79, 209, 197, 0.18); }
+.details-toggle:hover { border-color: var(--accent-dim); color: var(--text); background: rgba(79, 209, 197, 0.05); }
+.details-toggle[aria-expanded="true"] { color: var(--accent); border-color: var(--accent-dim); }
+.details-heading { color: var(--accent); }
+
+/* ----- Spinners ----- */
+.spinner { border-top-color: var(--accent); }
+.spinner-sm { border-top-color: var(--accent); }
+
+/* ----- Buttons and interactive controls ----- */
+/* Primary interactive: always cyan */
+.view-toggle-btn.active { background: var(--accent); color: var(--bg); }
+.seg-btn.active { background: var(--accent); color: var(--bg); }
+.lb-pill.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.lb-pill:hover { border-color: var(--accent-dim); }
+.news-filter-btn.active { background: var(--accent); color: var(--bg); }
+.glossary-filter-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.glossary-filter-btn:hover { border-color: var(--accent-dim); color: var(--text); }
+.btn-eh-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.btn-eh-primary:hover { background: #66d9ce; }
+
+/* ----- Sliders ----- */
+.lb-slider::-webkit-slider-thumb { background: var(--accent); }
+.lb-slider::-moz-range-thumb { background: var(--accent); }
+.lb-min-toi-readout { color: var(--accent); }
+.sim-game-controls input[type="range"] { accent-color: var(--accent); }
+.sim-season-control-row input[type="range"] { accent-color: var(--accent); }
+.sim-season-toggle input[type="checkbox"] { accent-color: var(--accent); }
+
+/* ----- Focus rings on inputs ----- */
+.leaderboard-search:focus,
+.player-search-input:focus,
+.glossary-search:focus { border-color: var(--accent); background: rgba(79, 209, 197, 0.04); }
+.cv-select:focus,
+.team-select:focus,
+.team-select-big:focus { border-color: var(--accent); }
+
+/* ----- Links ----- */
+a { color: var(--accent); }
+a:hover { color: var(--accent); opacity: 0.85; text-decoration: underline; }
+.news-link:hover { color: var(--accent); opacity: 1; text-decoration: none; }
+.txn-title:hover { color: var(--accent); }
+.lb-player-link:hover { color: var(--accent); }
+.cv-player-link:hover { color: var(--accent); }
+.toc-link:hover { color: var(--accent); }
+
+/* ----- Sortable table columns ----- */
+.sortable.active-sort { color: var(--accent) !important; }
+.sortable.active-sort::after { content: " ↓"; color: var(--accent); }
+.sortable.asc::after { content: " ↑"; color: var(--accent); }
+.lb-table th.sortable:hover { color: var(--accent); }
+.lb-table th.active-stat-th { color: var(--accent); background: rgba(79, 209, 197, 0.05); }
+.lb-table .active-stat-cell { color: var(--accent); font-weight: 600; background: rgba(79, 209, 197, 0.04); }
+.cv-upgraded-table th.sortable:hover { color: var(--accent); }
+.cv-upgraded-table th.active-stat-th { color: var(--accent); background: rgba(79, 209, 197, 0.05); }
+.cv-upgraded-table td.active-stat-cell { color: var(--accent); }
+.cv-upgraded-table .cv-row:hover { background: rgba(79, 209, 197, 0.06); }
+.data-table tr:hover td { background: rgba(79, 209, 197, 0.05); }
+.standings-table tr:hover td { background: rgba(79, 209, 197, 0.04); }
+.standings-conf-title { background: rgba(79, 209, 197, 0.08); }
+
+/* ----- Source + info labels ----- */
+.source-label { background: rgba(79, 209, 197, 0.08); border-left-color: var(--accent-dim); }
+.eh-banner { border-left-color: var(--accent); background: rgba(79, 209, 197, 0.05); }
+.eh-banner a { color: var(--accent); }
+.empty-card { background: rgba(79, 209, 197, 0.04); }
+
+/* ----- Story + news items ----- */
+.stories-list li { background: rgba(79, 209, 197, 0.06); border-left-color: var(--accent); }
+.stories-list li::before { color: var(--accent); }
+
+/* ----- Cards — left-accent borders become cyan ----- */
+.section { border-color: var(--border); }
+.stat-card { border-left-color: var(--accent); }
+.stat-card:hover { border-left-color: var(--accent); }
+.player-stat-card { border-left-color: var(--accent); }
+.overview-card { border-left-color: var(--accent); }
+.compare-stat-block { border-left-color: var(--accent); }
+.compare-stat-block-title { color: var(--accent); }
+.how-to-use { border-left-color: var(--accent); }
+.how-to-use a { color: var(--accent); }
+.cv-view-note { border-left-color: var(--accent); }
+.cv-section { border-left-color: var(--accent); }
+.cv-section-title { color: var(--accent); }
+.rapm-caveat { border-left-color: var(--gold); } /* amber — informational callout */
+.cv-caveat { border-left-color: var(--gold); }   /* amber — informational callout */
+.cv-elc-watch { border-left-color: var(--gold); }
+.cv-team-eff { border-left-color: var(--green); }
+.player-profile-head { border-left-color: var(--accent); }
+.player-rank-pills { border-left-color: var(--accent); }
+
+/* ----- Player profile ----- */
+.player-headshot { border-color: var(--accent); }
+.player-sweater { background: var(--accent); color: var(--bg); }
+.player-team-link { color: var(--accent); }
+.player-stat-card-title { color: var(--accent); }
+.player-game-log-table th { color: var(--accent); }
+.player-career-table th { color: var(--accent); }
+.player-search-item:hover,
+.player-search-item.active { background: rgba(79, 209, 197, 0.1); }
+.player-search-dropdown { border-color: var(--border); }
+
+/* ----- Rank pills ----- */
+.rank-pill strong { color: var(--accent); }
+.rank-pill-elite { border-color: var(--accent); background: rgba(79, 209, 197, 0.1); }
+.rank-pill-good { border-color: var(--accent-dim); background: rgba(79, 209, 197, 0.06); }
+
+/* ----- Leaders (existing flat-list format) ----- */
+.leaders-card-title { color: var(--accent); border-bottom-color: var(--card-border); }
+/* #1 entry cyan, rest muted teal */
+.leaders-list li:first-child .leader-value { color: var(--meter-lead); }
+.leader-value { color: var(--meter-rest); font-family: var(--font-mono); }
+
+/* ----- Overview cards ----- */
+.overview-card-title { color: var(--accent); }
+.overview-value { color: var(--accent); }
+.overview-row:hover { background: rgba(79, 209, 197, 0.06); }
+.overview-jump-btn { background: rgba(79, 209, 197, 0.1); border-color: var(--accent-dim); color: var(--accent); }
+.overview-jump-btn:hover { background: rgba(79, 209, 197, 0.25); }
+
+/* ----- Compare ----- */
+.cmp-leader { color: var(--accent); }
+.add-third-btn { border-color: var(--accent-dim); color: var(--accent); }
+.add-suggested-btn { background: rgba(79, 209, 197, 0.12); color: var(--accent); border-color: rgba(79, 209, 197, 0.4); }
+.add-suggested-btn:hover { background: rgba(79, 209, 197, 0.25); }
+.similar-card:hover { border-color: var(--accent-dim); }
+.similar-stat strong { color: var(--accent); }
+.h2h-table th { background: rgba(79, 209, 197, 0.08); }
+.h2h-team-head { color: var(--accent) !important; }
+
+/* ----- Glossary ----- */
+.glossary-section-title { border-bottom-color: var(--accent); }
+.glossary-toc-col-title { color: var(--accent); border-bottom-color: var(--accent-dim); }
+.stat-name { color: var(--accent); }
+.stat-def { background: rgba(79, 209, 197, 0.06); border-left-color: var(--accent); }
+.copy-btn:hover { border-color: var(--accent-dim); color: var(--accent); background: rgba(79, 209, 197, 0.06); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); }
+.related-tag { background: rgba(79, 209, 197, 0.12); border-color: rgba(79, 209, 197, 0.4); color: var(--accent); }
+.related-tag:hover { background: rgba(79, 209, 197, 0.25); color: var(--accent); }
+.benchmarks-table td:last-child { color: var(--accent); }
+/* stat-card anchor pulse: cyan glow instead of amber */
+@keyframes cardPulse {
+  0%   { box-shadow: 0 0 0 0   rgba(79, 209, 197, 0.55); border-left-color: var(--accent); }
+  100% { box-shadow: 0 0 0 14px rgba(79, 209, 197, 0);   }
+}
+
+/* ----- Pos pills — forward was blue, now cyan ----- */
+.pos-pill.pos-f { background: rgba(79, 209, 197, 0.15); color: var(--accent); }
+.cv-badge-bridge { color: var(--accent); background: rgba(79, 209, 197, 0.12); }
+.cv-sustain-buy { color: var(--accent); }
+
+/* ----- Metric pills — "mid" tier was amber, keep for data tiering ----- */
+.metric-pill.metric-mid { background: rgba(232, 160, 32, 0.15); color: var(--gold); }
+
+/* ----- Contract Value side panel ----- */
+.cv-side-backdrop { background: rgba(5, 16, 26, 0.65); }
+.cv-side-panel { border-left-color: var(--accent); }
+.cv-side-headshot { border-color: var(--accent); }
+.cv-side-section h4 { color: var(--accent); }
+.cv-side-surplus-section { background: rgba(79, 209, 197, 0.05); border-color: var(--accent-dim); }
+.cv-side-surplus-big { color: var(--accent); }
+.contract-row strong { color: var(--accent); }
+.contract-verdict { border-left-color: var(--accent); background: rgba(79, 209, 197, 0.06); }
+.cv-offdef-off { background: linear-gradient(90deg, var(--accent-dim), var(--accent)); }
+.blocked-card { background: rgba(79, 209, 197, 0.04); border-color: var(--accent-dim); }
+
+/* ----- Playoff bracket ----- */
+.series-card.status-active { border-color: var(--accent-dim); box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.18); }
+.series-card.status-active .series-status { color: var(--accent); }
+.series-team-won { color: var(--accent); }
+.series-team-won .series-team-wins { color: var(--accent); }
+.series-history-record { color: var(--accent); }
+
+/* ----- Simulator ----- */
+.sim-strength-cell { border-left-color: var(--accent-dim); }
+.sim-strength-value.gold { color: var(--accent); }
+.sim-game-vs { color: var(--accent); }
+.sim-winprob-bar.home { background: var(--accent); }
+.sim-bracket-box.stanley-cup { border-color: var(--accent); background: rgba(79, 209, 197, 0.06); }
+.sim-bracket-pct.gold { color: var(--accent); }
+.sim-bracket-header.gold-text { color: var(--accent); }
+.gold-text { color: var(--accent); }
+.gold { color: var(--accent); }
+.sim-game-team-card:hover { border-color: var(--accent-dim); }
+.sim-player-slot:hover { border-color: var(--accent-dim); }
+.sim-slot-tag { color: var(--accent); border-color: var(--accent-dim); }
+.sim-line-row-label { border-left-color: var(--accent-dim); }
+.sim-swap-panel { border-color: var(--accent-dim); }
+.sim-swap-header { color: var(--accent); }
+.sim-swap-result:hover { border-color: var(--accent-dim); }
+.sim-season-sub-title { color: var(--accent); border-bottom-color: rgba(79, 209, 197, 0.35); }
+.sim-season-stat-cell { border-left-color: var(--accent-dim); }
+.sim-season-loading { border-color: var(--accent-dim); border-left-color: var(--accent); }
+.sim-season-spinner { border-color: var(--accent-dim); border-top-color: var(--accent); }
+.sim-season-loading-text strong { color: var(--accent); }
+.sim-season-po-bar.po-gold { background: var(--accent); }
+.sim-lineup-block-title { color: var(--accent); }
+.sim-season-div-bar { background: var(--accent); }
+.sim-season-po-bar { background: var(--accent); }
+
+/* ----- Player analytics ----- */
+.pa-section-label { color: var(--accent); }
+.pa-rapm-stat strong { color: var(--accent); }
+.pa-interpretation { border-left-color: var(--accent); background: rgba(79, 209, 197, 0.06); }
+.pa-bar-fill.pa-bar-pos { background: linear-gradient(90deg, var(--accent-dim), var(--good)); }
+.player-analytics-card { border-left-color: var(--accent); }
+
+/* ----- Leaderboard meter bars (Tactical Blueprint signature element) ----- */
+.leader-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--hair);
+}
+.leader-row:last-child { border-bottom: none; }
+.leader-meter {
+  flex: 1;
+  min-width: 0;
+}
+.leader-meter__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 3px;
+}
+.leader-val {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  color: var(--meter-rest);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.meter-track {
+  height: 4px;
+  background: var(--hair);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.meter-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--meter-rest);
+  transition: width 0.4s ease-out;
+}
+/* #1 row: cyan bar + cyan value */
+.leader-row:first-child .meter-fill,
+.meter-fill.is-lead { background: var(--meter-lead); }
+.leader-row:first-child .leader-val,
+.leader-val.is-lead { color: var(--meter-lead); }
+
+/* ----- Nav row backgrounds — replace old hardcoded gradient shades ----- */
+.nav-row.nav-countries { background: var(--bg-2); }
+.nav-row.nav-leagues   { background: var(--bg-2); }
+.nav-row.nav-subpages  { background: var(--bg); }
+
+/* ----- Header — override the old gradient ----- */
+.site-header {
+  background: var(--bg);
+  border-top: 3px solid var(--accent);
+  border-bottom: 1px solid var(--border);
+}
+/* (also remove any lingering background-image the cascade might have kept) */
+
+/* ----- Amber stays amber: rare highlights explicitly preserved ----- */
+/* .mb-last-updated (live timestamp), .scoring-period/.scoring-score (game data),
+   .star-rank (three stars), .series-history-record, .str-pp (PP badge),
+   .rapm-caveat/.cv-caveat/.cv-elc-note (informational callouts) — all left as-is
+   above or already resolve to --gold which remains amber. */
+
+/* =========================================================
+   TEAM LOGO HALO — dark-crest visibility fix
+   A CSS drop-shadow halo that hugs each crest's silhouette
+   and lifts dark teams (SJS black, LAK silver, BOS gold/black,
+   COL navy, etc.) without adding any disc or plate.
+   Bright crests (DET, TOR, NYR) are visually unchanged.
+
+   Blur radius scales to ~18 % of rendered size per the spec:
+     4 px  → 16–24 px logos  (small/tables/leaderboards)
+     7 px  → 36 px logos     (bracket)
+    10 px  → 52–56 px logos  (game card, lineup editor)
+    14 px  → 80 px logos     (player profile)
+    20 px  → 110 px logos    (game sim centre card)
+   ========================================================= */
+
+/* Small logos — 16–24 px */
+.player-search-logo,
+.lb-team-logo,
+.cv-team-logo,
+.std-logo,
+.team-logo-sm,
+.sim-team-logo-sm,
+.compare-bio-logo,
+.cv-side-team-logo,
+.form-team-logo,
+.next-game-logo,
+.overview-team-logo,
+.series-team-logo {
+  filter: drop-shadow(0 0 1px rgba(255,255,255,.55))
+          drop-shadow(0 0 4px rgba(170,210,235,.42))
+          brightness(1.07);
+}
+
+/* Medium — 36 px bracket logos */
+.sim-bracket-logo {
+  filter: drop-shadow(0 0 1px rgba(255,255,255,.55))
+          drop-shadow(0 0 7px rgba(170,210,235,.42))
+          brightness(1.07);
+}
+
+/* Large — 52–56 px game-card + lineup-editor logos */
+.team-logo,
+.sim-lineup-team-logo {
+  filter: drop-shadow(0 0 1px rgba(255,255,255,.55))
+          drop-shadow(0 0 10px rgba(170,210,235,.42))
+          brightness(1.07);
+}
+
+/* XL — 80 px player-profile team logo */
+.player-team-logo {
+  filter: drop-shadow(0 0 2px rgba(255,255,255,.55))
+          drop-shadow(0 0 14px rgba(170,210,235,.42))
+          brightness(1.07);
+}
+
+/* XXL — 110 px game-simulator centre card */
+.sim-game-team-logo {
+  filter: drop-shadow(0 0 2px rgba(255,255,255,.55))
+          drop-shadow(0 0 20px rgba(170,210,235,.42))
+          brightness(1.07);
+}
+
+/* =========================================================
+   TWO-BAND HEADER — Band 1 utility bar + Band 2 section tabs
+   ========================================================= */
+
+/* Band 1: slim utility bar */
+.site-header {
+  background: var(--bg) !important;
+  border-top: 3px solid var(--accent) !important;
+  border-bottom: 1px solid var(--hair) !important;
+  padding: 0 2rem !important;
+  height: 44px !important;
+  position: relative;
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem;
+}
+
+.nav-wordmark {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nav-vdivider {
+  display: inline-block;
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  flex-shrink: 0;
+  border-radius: 1px;
+}
+.nav-vdivider--hair { background: var(--hair); }
+
+/* Region (country) tabs in utility bar */
+.nav-countries-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+/* League tabs wrapper in utility bar */
+.nav-leagues-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+.nav-leagues-wrap .league-group {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+.nav-leagues-wrap .league-group[hidden] { display: none !important; }
+
+/* Country-tab: pill with cyan fill on active */
+.country-tab {
+  font-family: var(--font-mono) !important;
+  font-size: 0.68rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  color: var(--text-sub) !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: none !important;
+  padding: 0.28rem 0.55rem !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  line-height: 1;
+}
+.country-tab:hover {
+  color: var(--text) !important;
+  background: rgba(79,209,197,.07) !important;
+}
+.country-tab.active {
+  color: var(--accent) !important;
+  background: var(--accent-tint) !important;
+  border-bottom: none !important;
+}
+
+/* League-tab: text-only, bold + cyan on active, no fill */
+.league-tab {
+  font-family: var(--font-mono) !important;
+  font-size: 0.68rem !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  color: var(--text-sub) !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: none !important;
+  padding: 0.28rem 0.5rem !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+  transition: color 0.15s;
+  line-height: 1;
+}
+.league-tab:hover {
+  color: var(--text) !important;
+  background: rgba(79,209,197,.05) !important;
+}
+.league-tab.active {
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  border-bottom: none !important;
+}
+
+/* Date pushed to far right of utility bar */
+.nav-date {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-sub);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Band 2: sticky section-tab row */
+.hub-nav {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 90 !important;
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.45) !important;
+}
+
+/* Remove the per-row bottom border since hub-nav has its own */
+.hub-nav .nav-row {
+  border-bottom: none !important;
+}
+
+/* Legacy header elements hidden / reset (not in DOM but keep for safety) */
+.site-title, .brief-date, .header-tag,
+.header-left, .header-right { display: none !important; }
