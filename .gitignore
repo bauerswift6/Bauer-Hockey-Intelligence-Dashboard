@@ -10,3 +10,4 @@ __pycache__/
 
 # Archetypes module raw per-game PBP cache (resumable, not for VCS)
 archetypes/data/raw/
+archetypes/data/*.parquet
