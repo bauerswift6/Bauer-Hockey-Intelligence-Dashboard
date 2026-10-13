@@ -1,0 +1,353 @@
+{
+  "season_counts": {
+    "2023_24": {
+      "on_net": 79014,
+      "goals": 7636,
+      "goal_rate": 0.09664110157693573,
+      "by_shot_type": {
+        "wrist": 44617,
+        "snap": 11533,
+        "slap": 8687,
+        "backhand": 5909,
+        "tip-in": 5591,
+        "deflected": 1369,
+        "wrap-around": 639,
+        "poke": 372,
+        "bat": 237,
+        "cradle": 6,
+        "between-legs": 54
+      }
+    },
+    "2024_25": {
+      "on_net": 73681,
+      "goals": 7375,
+      "goal_rate": 0.1000936469374737,
+      "by_shot_type": {
+        "wrist": 37050,
+        "snap": 15712,
+        "slap": 7931,
+        "backhand": 5401,
+        "tip-in": 5165,
+        "deflected": 1265,
+        "wrap-around": 508,
+        "poke": 386,
+        "bat": 204,
+        "cradle": 6,
+        "between-legs": 53
+      }
+    },
+    "2025_26": {
+      "on_net": 72542,
+      "goals": 7577,
+      "goal_rate": 0.10444983595710071,
+      "by_shot_type": {
+        "wrist": 32843,
+        "snap": 18726,
+        "slap": 7689,
+        "backhand": 5481,
+        "tip-in": 5425,
+        "deflected": 1327,
+        "wrap-around": 442,
+        "poke": 299,
+        "bat": 260,
+        "cradle": 3,
+        "between-legs": 47
+      }
+    }
+  },
+  "holdout_games": 263,
+  "holdout_rows": 14264,
+  "holdout_goals": 1537,
+  "tuning": {
+    "grid": [
+      {
+        "params": {
+          "max_depth": 5,
+          "learning_rate": 0.03,
+          "min_child_weight": 5,
+          "subsample": 0.8,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.2783087456645322,
+        "n_est": 423
+      },
+      {
+        "params": {
+          "max_depth": 5,
+          "learning_rate": 0.03,
+          "min_child_weight": 20,
+          "subsample": 0.8,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.27837239151931403,
+        "n_est": 469
+      },
+      {
+        "params": {
+          "max_depth": 6,
+          "learning_rate": 0.03,
+          "min_child_weight": 10,
+          "subsample": 0.8,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.2784006099199115,
+        "n_est": 349
+      },
+      {
+        "params": {
+          "max_depth": 4,
+          "learning_rate": 0.03,
+          "min_child_weight": 20,
+          "subsample": 0.8,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.2784115393484221,
+        "n_est": 681
+      },
+      {
+        "params": {
+          "max_depth": 4,
+          "learning_rate": 0.03,
+          "min_child_weight": 5,
+          "subsample": 0.8,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.27841427896429194,
+        "n_est": 635
+      },
+      {
+        "params": {
+          "max_depth": 4,
+          "learning_rate": 0.05,
+          "min_child_weight": 10,
+          "subsample": 0.8,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.2784190819987719,
+        "n_est": 419
+      },
+      {
+        "params": {
+          "max_depth": 6,
+          "learning_rate": 0.05,
+          "min_child_weight": 5,
+          "subsample": 0.8,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.2784236332703206,
+        "n_est": 198
+      },
+      {
+        "params": {
+          "max_depth": 5,
+          "learning_rate": 0.03,
+          "min_child_weight": 20,
+          "subsample": 1.0,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.2784264929438807,
+        "n_est": 532
+      },
+      {
+        "params": {
+          "max_depth": 5,
+          "learning_rate": 0.05,
+          "min_child_weight": 10,
+          "subsample": 1.0,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.27845871958279445,
+        "n_est": 292
+      },
+      {
+        "params": {
+          "max_depth": 5,
+          "learning_rate": 0.03,
+          "min_child_weight": 5,
+          "subsample": 1.0,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.2784818605862277,
+        "n_est": 458
+      },
+      {
+        "params": {
+          "max_depth": 6,
+          "learning_rate": 0.05,
+          "min_child_weight": 20,
+          "subsample": 0.8,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.27850288647069094,
+        "n_est": 196
+      },
+      {
+        "params": {
+          "max_depth": 6,
+          "learning_rate": 0.05,
+          "min_child_weight": 5,
+          "subsample": 1.0,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.27852287095246825,
+        "n_est": 215
+      },
+      {
+        "params": {
+          "max_depth": 6,
+          "learning_rate": 0.05,
+          "min_child_weight": 20,
+          "subsample": 1.0,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.2785532497443689,
+        "n_est": 209
+      },
+      {
+        "params": {
+          "max_depth": 4,
+          "learning_rate": 0.05,
+          "min_child_weight": 10,
+          "subsample": 1.0,
+          "colsample_bytree": 1.0
+        },
+        "cv_logloss": 0.2786113548543967,
+        "n_est": 414
+      }
+    ],
+    "chosen": {
+      "max_depth": 5,
+      "learning_rate": 0.03,
+      "min_child_weight": 5,
+      "subsample": 0.8,
+      "colsample_bytree": 1.0
+    },
+    "n_est": 423
+  },
+  "holdout_metrics": {
+    "log_loss": 0.2953766798823665,
+    "auc": 0.7657332688730495,
+    "brier": 0.08654201775789261,
+    "pred_goals": 1506.196533203125,
+    "actual_goals": 1537,
+    "baseline_logloss": 0.34213899798557607,
+    "base_rate": 0.09978054063790154,
+    "pred_pct": -2.004129264598243
+  },
+  "danger_bands": [
+    {
+      "band": "[0.00,0.05)",
+      "n": 5358,
+      "actual_rate": 0.023889511011571482,
+      "pred_rate": 0.023671792820096016
+    },
+    {
+      "band": "[0.05,0.15)",
+      "n": 4785,
+      "actual_rate": 0.09592476489028214,
+      "pred_rate": 0.09368140250444412
+    },
+    {
+      "band": "[0.15,0.30)",
+      "n": 3703,
+      "actual_rate": 0.20982986767485823,
+      "pred_rate": 0.20508715510368347
+    },
+    {
+      "band": "[0.30,1.01)",
+      "n": 418,
+      "actual_rate": 0.4138755980861244,
+      "pred_rate": 0.4106697142124176
+    }
+  ],
+  "oof": {
+    "total": 7607.011302005951,
+    "actual": 7577,
+    "pct": 0.3960842286650483,
+    "log_loss": 0.29035351504243345,
+    "auc": 0.7634760409105883
+  },
+  "gates": {
+    "gate1_oof_2pct": {
+      "passed": true,
+      "pct": 0.3960842286650483
+    },
+    "gate2_shottype": {
+      "passed": true,
+      "failures": [],
+      "ratios": {
+        "wrist": {
+          "n": 32843,
+          "goals": 2984,
+          "pred": 2931.4066985410755,
+          "ratio": 1.0179413185775619
+        },
+        "snap": {
+          "n": 18726,
+          "goals": 2227,
+          "pred": 2269.9418110139086,
+          "ratio": 0.9810824177053561
+        },
+        "slap": {
+          "n": 7689,
+          "goals": 640,
+          "pred": 629.8046597069188,
+          "ratio": 1.016188099176379
+        },
+        "backhand": {
+          "n": 5481,
+          "goals": 662,
+          "pred": 658.7637635987048,
+          "ratio": 1.0049125901880458
+        },
+        "tip-in": {
+          "n": 5425,
+          "goals": 720,
+          "pred": 780.470911026292,
+          "ratio": 0.9225199681730932
+        },
+        "deflected": {
+          "n": 1327,
+          "goals": 211,
+          "pred": 210.24954654672183,
+          "ratio": 1.0035693463581925
+        },
+        "wrap-around": {
+          "n": 442,
+          "goals": 31,
+          "pred": 33.25336477160454,
+          "ratio": 0.9322364883348974
+        },
+        "poke": {
+          "n": 299,
+          "goals": 41,
+          "pred": 35.90503012685804,
+          "ratio": 1.1419012838908822
+        },
+        "bat": {
+          "n": 260,
+          "goals": 52,
+          "pred": 50.648829292389564,
+          "ratio": 1.0266772347256101
+        },
+        "cradle": {
+          "n": 3,
+          "goals": 1,
+          "pred": 0.5720335319638252,
+          "ratio": 1.7481492676957946
+        },
+        "between-legs": {
+          "n": 47,
+          "goals": 8,
+          "pred": 5.99465384951327,
+          "ratio": 1.3345224262864739
+        }
+      }
+    },
+    "gate3_holdout_3pct": {
+      "passed": true,
+      "pct": -2.004129264598243
+    }
+  },
+  "all_gates_pass": true
+}

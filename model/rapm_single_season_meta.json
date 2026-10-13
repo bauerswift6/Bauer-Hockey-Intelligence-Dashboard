@@ -1,0 +1,38 @@
+{
+  "trained_at": "2026-06-11T21:55:30",
+  "seasons": [
+    "20252026"
+  ],
+  "n_segments": 122867,
+  "n_design_rows": 245734,
+  "n_players": 719,
+  "min_segment_secs": 10,
+  "min_ev_minutes": 150,
+  "alphas_tested": [
+    0.001,
+    0.01,
+    0.1,
+    0.5,
+    1,
+    5,
+    10,
+    25,
+    50,
+    100,
+    250,
+    500,
+    1000,
+    2500,
+    5000,
+    10000
+  ],
+  "off_alpha_selected": 2500.0,
+  "def_alpha_selected": 2500.0,
+  "encoding": "duplicated-row (one row per perspective per segment)",
+  "score_state_weighting": "0.5 weight when |score_diff| > 3",
+  "season_weights": {
+    "20252026": 1.0
+  },
+  "year_weighting": "season recency applied as RidgeCV sample_weight (x score-state)",
+  "goalie_adjustment": "on-ice xGA reduced by goalie career GSAX/60, capped +/-0.5/60"
+}
