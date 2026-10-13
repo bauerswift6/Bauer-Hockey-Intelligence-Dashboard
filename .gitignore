@@ -11,3 +11,11 @@ __pycache__/
 # Archetypes module raw per-game PBP cache (resumable, not for VCS)
 archetypes/data/raw/
 archetypes/data/*.parquet
+
+# Large rebuildable pipeline intermediates (not read at runtime)
+model/shots_enriched_*.parquet
+model/xg_features_*.parquet
+model/rapm_stints_*.parquet
+model/shots_xg_*.parquet
+model/shifts_supplement_*.parquet
+model/shifts_dataset.parquet
