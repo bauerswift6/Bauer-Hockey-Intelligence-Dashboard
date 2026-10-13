@@ -7,3 +7,6 @@ data/contracts_current.json.tmp
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Archetypes module raw per-game PBP cache (resumable, not for VCS)
+archetypes/data/raw/
