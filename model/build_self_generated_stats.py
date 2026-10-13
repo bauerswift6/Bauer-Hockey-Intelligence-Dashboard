@@ -77,10 +77,11 @@ def _get_csv(url: str) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 def load_shared_inputs():
     print("Loading inputs …", flush=True)
-    # Shots — keep only 2025-26 season (game_id // 1_000_000 == 2025)
+    # Shots — keep only 2025-26 REGULAR SEASON (year == 2025 AND game_type == 02)
     shots = pd.read_parquet(SHOTS_PARQUET)
     shots["season"] = (shots["game_id"].astype(int) // 1_000_000).astype(int)
-    shots = shots[shots["season"] == 2025].copy()
+    shots = shots[(shots["season"] == 2025)
+                  & (((shots["game_id"].astype(int) // 10_000) % 100) == 2)].copy()
     # Coerce numerics
     for c in ("xg", "is_goal", "on_goal", "is_home", "shooter_id", "abs_secs", "game_id"):
         shots[c] = pd.to_numeric(shots[c], errors="coerce")
@@ -91,12 +92,13 @@ def load_shared_inputs():
     shots["abs_secs"] = shots["abs_secs"].astype(int)
     print(f"  shots (25-26): {len(shots):,}")
 
-    # Shifts — already only 25-26
+    # Shifts — already only 25-26 by file; filter to REGULAR SEASON (game_type == 02)
     shifts = pd.read_parquet(SHIFTS_PARQUET)
     shifts = shifts.dropna(subset=["player_id"]).copy()
     shifts["player_id"] = shifts["player_id"].astype(int)
     shifts["game_id"] = shifts["game_id"].astype(int)
-    print(f"  shifts (25-26): {len(shifts):,}")
+    shifts = shifts[((shifts["game_id"] // 10_000) % 100) == 2].copy()
+    print(f"  shifts (25-26 RS): {len(shifts):,}")
 
     # Game → home team mapping
     with open(HOME_ID_JSON) as f:
@@ -149,12 +151,11 @@ def build_skater_xgar(shots, mp_sk_all) -> pd.DataFrame:
     """Per-player aggregate: total xG (= sum of my model's per-shot
     predictions), actual goals, goals above expected, and xGAR in wins units.
 
-    xGAR is defined here as `ixG / GOALS_PER_WAR` — wins-equivalent expected
-    contribution from a player's personal shots. This is conceptually the
-    "if this player shot at league-average conversion on every shot they
-    took, how many wins of value did they generate" number, and is what the
-    user-facing "xGAR" column will display in place of the prior MoneyPuck
-    `I_F_flurryScoreVenueAdjustedxGoals / 3` proxy.
+    TEMP STOPGAP: xGAR is now individual expected goals in GOALS ABOVE a
+    positional replacement level (see the inline comment on the calculation
+    below), so it shares the goals scale of the leaderboard GAR. It replaces
+    the earlier `ixG / GOALS_PER_WAR` wins proxy and is offense-only. To be
+    replaced by the composite rebuild.
     """
     print("[1/5] Building skater xGAR …", flush=True)
     grp = shots.groupby("shooter_id").agg(
@@ -166,17 +167,51 @@ def build_skater_xgar(shots, mp_sk_all) -> pd.DataFrame:
 
     # Goals above expected (positive = lucky / true talent shooter)
     grp["goals_above_expected"] = (grp["goals"] - grp["ixg"]).round(3)
-    grp["xgar"] = (grp["ixg"] / GOALS_PER_WAR).round(3)
 
     # Attach name/team/position from MoneyPuck "all" rows. Use most-iced stint
-    # so traded players are tagged with their primary team.
-    meta = (mp_sk_all.assign(icetime_n=pd.to_numeric(mp_sk_all.get("icetime", 0),
-                                                       errors="coerce").fillna(0))
-              .sort_values(["playerId", "icetime_n"], ascending=[True, False])
-              .groupby("playerId").first().reset_index())
-    meta = meta[["playerId", "name", "team", "position"]].rename(
-        columns={"playerId": "player_id"})
+    # so traded players are tagged with their primary team. Also carry each
+    # player's total all-situations TOI (summed across stints) — needed for the
+    # replacement baseline below.
+    mp = mp_sk_all.assign(icetime_n=pd.to_numeric(mp_sk_all.get("icetime", 0),
+                                                   errors="coerce").fillna(0))
+    prim = (mp.sort_values(["playerId", "icetime_n"], ascending=[True, False])
+              .groupby("playerId").first().reset_index()
+              [["playerId", "name", "team", "position"]])
+    toi = mp.groupby("playerId")["icetime_n"].sum().rename("toi_sec").reset_index()
+    meta = prim.merge(toi, on="playerId").rename(columns={"playerId": "player_id"})
     grp = grp.merge(meta, on="player_id", how="left")
+
+    # TEMP STOPGAP: xGAR in goals with own-data replacement baseline, offense only, to be replaced by the composite rebuild
+    # xGAR is now individual expected goals in GOALS ABOVE a positional
+    # replacement level (the old ixG/6 wins proxy is removed so it sits on the
+    # same goals scale as the leaderboard GAR = composite_war x 12).
+    # Replacement level is computed from OUR OWN data as the ixG/60 of the
+    # replacement pool: forwards ranked outside their team's top 13 by TOI and
+    # defensemen outside their team's top 7 (i.e. the 14th+ forward / 8th+
+    # defenseman on each team), pooled league-wide and split by position.
+    # For 2025-26 this baseline is ixG/60 ~= 0.714 (F) and ~= 0.162 (D).
+    #   xGAR = ixG - replacement_ixG_per_60[pos] * (TOI_all_seconds / 3600)
+    grp["_grp"] = np.where(grp["position"].isin(["C", "L", "R"]), "F",
+                            np.where(grp["position"] == "D", "D", None))
+    grp["toi_sec"] = pd.to_numeric(grp["toi_sec"], errors="coerce").fillna(0.0)
+    ranked = grp.dropna(subset=["_grp", "team"]).copy()
+    ranked = ranked[ranked["toi_sec"] > 0]
+    ranked["team_rank"] = (ranked.groupby(["team", "_grp"])["toi_sec"]
+                            .rank(ascending=False, method="first"))
+    repl = ranked[((ranked["_grp"] == "F") & (ranked["team_rank"] > 13)) |
+                  ((ranked["_grp"] == "D") & (ranked["team_rank"] > 7))]
+    REPL_IXG_60 = {}
+    for _g in ["F", "D"]:
+        _pool = repl[repl["_grp"] == _g]
+        _hours = _pool["toi_sec"].sum() / 3600.0
+        REPL_IXG_60[_g] = (_pool["ixg"].sum() / _hours) if _hours > 0 else 0.0
+    print(f"  replacement ixG/60 (own data): "
+          f"F={REPL_IXG_60['F']:.4f} (n={int((repl['_grp']=='F').sum())}), "
+          f"D={REPL_IXG_60['D']:.4f} (n={int((repl['_grp']=='D').sum())})",
+          flush=True)
+    _baseline = grp["_grp"].map(REPL_IXG_60).fillna(REPL_IXG_60["F"])
+    grp["xgar"] = (grp["ixg"] - _baseline * (grp["toi_sec"] / 3600.0)).round(3)
+
     grp = grp[["player_id", "name", "team", "position",
                 "n_shots", "ixg", "goals", "sog_my",
                 "goals_above_expected", "xgar"]]

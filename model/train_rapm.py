@@ -50,6 +50,7 @@ RAPM_META_PATH = MODEL_DIR / "rapm_meta.json"
 
 NHL_SHIFTS = "https://api.nhle.com/stats/rest/en/shiftcharts"
 NHL_API = "https://api-web.nhle.com/v1"
+NHL_HTML_REPORTS = "https://www.nhl.com/scores/htmlreports"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -102,16 +103,10 @@ def season_str_from_game_id(game_id: int) -> str:
 
 
 def season_game_ids(season: str) -> list[int]:
-    """All regular-season + playoff game IDs for a season. Older 30/31-team
-    and lockout seasons simply 404 on the unused tail."""
+    """Regular-season game IDs for a season (game_type 02 only). Older
+    30/31-team and lockout seasons simply 404 on the unused tail."""
     year = season[:4]
-    ids = [int(f"{year}02{n:04d}") for n in range(1, 1313)]
-    for rnd in range(1, 5):
-        n_matchups = {1: 8, 2: 4, 3: 2, 4: 1}[rnd]
-        for m in range(1, n_matchups + 1):
-            for g in range(1, 8):
-                ids.append(int(f"{year}030{rnd}{m}{g}"))
-    return ids
+    return [int(f"{year}02{n:04d}") for n in range(1, 1313)]
 
 
 # ---------------------------------------------------------------------------
@@ -147,21 +142,179 @@ def score_shots() -> pd.DataFrame:
 # Stage 2: pull shift data
 # ---------------------------------------------------------------------------
 def fetch_shifts(game_id: int, max_retries: int = 2) -> list[dict] | None:
+    """Pull raw shift records for a game.
+
+    Primary source: api.nhle.com/stats/rest/en/shiftcharts (JSON).
+    Fallback (when JSON returns zero records): the legacy per-team HTML TOI
+    reports at nhl.com/scores/htmlreports/{season}/{TH|TV}{gid6}.HTM, parsed
+    into the same record shape so shift_record_to_dict accepts them unchanged.
+    Returns None only when no source produced data.
+    """
     url = NHL_SHIFTS
     params = {"cayenneExp": f"gameId={game_id}"}
+    data = None
     for attempt in range(max_retries + 1):
         try:
             r = requests.get(url, params=params, headers=HEADERS, timeout=15)
             if r.status_code == 404:
-                return None
+                data = []
+                break
             r.raise_for_status()
-            return r.json().get("data", [])
+            data = r.json().get("data", [])
+            break
         except Exception:
             if attempt < max_retries:
                 time.sleep(0.4 * (attempt + 1))
                 continue
+            data = None
+            break
+    if data:
+        return data
+    return fetch_shifts_html(game_id)
+
+
+def _http_get(url: str, *, params: dict | None = None, max_retries: int = 3,
+              timeout: int = 15) -> requests.Response | None:
+    """GET with backoff for transient failures (timeouts, 5xx). 4xx returns
+    the response (caller decides whether 404 is fatal). None on giving up."""
+    for attempt in range(max_retries):
+        try:
+            r = requests.get(url, params=params, headers=HEADERS, timeout=timeout)
+            if r.status_code >= 500:
+                raise requests.HTTPError(f"server {r.status_code}")
+            return r
+        except Exception:
+            if attempt < max_retries - 1:
+                time.sleep(0.5 * (2 ** attempt))
+                continue
             return None
     return None
+
+
+def _boxscore_rosters(game_id: int, max_retries: int = 3) -> dict | None:
+    """Return {'homeTeam': {'team_id', 'abbrev', 'jerseys': {#: playerId}}, ...}
+    or None on failure."""
+    r = _http_get(f"{NHL_API}/gamecenter/{game_id}/boxscore", max_retries=max_retries)
+    if r is None or r.status_code != 200:
+        return None
+    try:
+        j = r.json()
+    except Exception:
+        return None
+    out = {}
+    pbgs = j.get("playerByGameStats") or {}
+    for side in ("homeTeam", "awayTeam"):
+        team = j.get(side) or {}
+        tid = team.get("id")
+        if not tid:
+            return None
+        jerseys = {}
+        side_stats = pbgs.get(side) or {}
+        for cat in ("forwards", "defense", "goalies"):
+            for p in side_stats.get(cat) or []:
+                jn = p.get("sweaterNumber")
+                pid = p.get("playerId")
+                if jn is None or pid is None:
+                    continue
+                jerseys[int(jn)] = int(pid)
+        out[side] = {
+            "team_id": int(tid),
+            "abbrev": team.get("abbrev") or "",
+            "jerseys": jerseys,
+        }
+    return out
+
+
+# Recognises a player-heading cell like "8 MILLER, J.T." — jersey, last, first.
+_PLAYER_HEADING_RX = __import__("re").compile(r"^(\d+)\s+([^,]+),\s*(.+)$")
+
+
+def _parse_toi_report(html: str, game_id: int, team_info: dict) -> list[dict]:
+    """Parse one per-team HTML TOI report into raw shift records matching the
+    shape that shift_record_to_dict expects.
+
+    Period values: digits 1/2/3 map directly; "OT" -> 4; "SO" rows are skipped
+    (shootouts carry no real ice-time shifts). Players with zero shifts and the
+    column-header rows are naturally ignored — the walker only emits records
+    for 6-column rows whose first cell is numeric.
+    """
+    from bs4 import BeautifulSoup
+    import re as _re
+
+    soup = BeautifulSoup(html, "html.parser")
+    rows: list[dict] = []
+    cur_jersey = cur_first = cur_last = cur_pid = None
+
+    for tr in soup.find_all("tr"):
+        ph = tr.find("td", class_=lambda c: c and "playerHeading" in c)
+        if ph is not None:
+            text = _re.sub(r"\s+", " ", ph.get_text(strip=True))
+            m = _PLAYER_HEADING_RX.match(text)
+            if m:
+                cur_jersey = int(m.group(1))
+                cur_last = m.group(2).strip().title()
+                cur_first = m.group(3).strip().title()
+                cur_pid = team_info["jerseys"].get(cur_jersey)
+            else:
+                cur_jersey = cur_first = cur_last = cur_pid = None
+            continue
+        if cur_pid is None:
+            continue
+        tds = tr.find_all("td", recursive=False)
+        if len(tds) != 6:
+            continue
+        if "Shift #" in tr.get_text():
+            continue
+        cells = [td.get_text(strip=True) for td in tds]
+        if not cells[0].isdigit():
+            continue
+        per_txt = cells[1].strip().upper()
+        if per_txt == "OT":
+            period = 4
+        elif per_txt == "SO":
+            continue
+        elif per_txt.isdigit():
+            period = int(per_txt)
+        else:
+            continue
+        # cells[2]/[3] format: "MM:SS / MM:SS" — first half is period-elapsed.
+        start_t = cells[2].split("/")[0].strip()
+        end_t = cells[3].split("/")[0].strip()
+        rows.append({
+            "detailCode": 0,
+            "gameId": int(game_id),
+            "playerId": int(cur_pid),
+            "teamId": int(team_info["team_id"]),
+            "teamAbbrev": team_info["abbrev"],
+            "firstName": cur_first,
+            "lastName": cur_last,
+            "period": period,
+            "startTime": start_t,
+            "endTime": end_t,
+        })
+    return rows
+
+
+def fetch_shifts_html(game_id: int, max_retries: int = 3) -> list[dict] | None:
+    """Fallback path used by fetch_shifts when the JSON endpoint is empty.
+
+    Fetches the boxscore (for jersey→playerId mapping per team), then the home
+    (TH) and visitor (TV) TOI HTML reports, and parses both into raw records.
+    Returns None if the boxscore or either TOI report cannot be fetched.
+    """
+    season = season_str_from_game_id(game_id)
+    gid6 = str(int(game_id))[-6:]
+    rosters = _boxscore_rosters(game_id, max_retries=max_retries)
+    if not rosters:
+        return None
+    out: list[dict] = []
+    for code, side in (("TH", "homeTeam"), ("TV", "awayTeam")):
+        url = f"{NHL_HTML_REPORTS}/{season}/{code}{gid6}.HTM"
+        r = _http_get(url, max_retries=max_retries)
+        if r is None or r.status_code != 200 or not r.text:
+            return None
+        out.extend(_parse_toi_report(r.text, game_id, rosters[side]))
+    return out or None
 
 
 def parse_mmss(s: str) -> int:
@@ -758,6 +911,14 @@ def main():
         sys.exit(1)
     shifts_df.to_parquet(SHIFTS_PATH, index=False)
     print(f"  {len(shifts_df):,} shift records — combined cache → {SHIFTS_PATH}", flush=True)
+
+    # Regular-season only for RAPM training. Per-season caches retain
+    # raw shifts (both RS + playoff) so other consumers can opt in/out,
+    # but the segment construction pool below is strict RS.
+    pre_rs = len(shifts_df)
+    shifts_df = shifts_df[((shifts_df["game_id"] // 10_000) % 100) == 2].copy()
+    print(f"  filtered to regular season: {pre_rs:,} → {len(shifts_df):,} "
+          f"({pre_rs - len(shifts_df):,} playoff records dropped)", flush=True)
 
     pid_to_pos = build_position_lookup()
     goalie_gsax = build_goalie_gsax()

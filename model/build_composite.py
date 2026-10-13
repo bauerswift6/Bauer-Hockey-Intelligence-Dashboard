@@ -145,7 +145,8 @@ def compute_igsax_by_player() -> tuple[dict, dict]:
     shots = pd.read_parquet(SHOTS_CSV)
     if "shooter_id" not in shots.columns:
         raise RuntimeError("shots_dataset.parquet has no shooter_id — re-run train_xg.py")
-    shots = shots[(shots["game_id"] // 1_000_000).isin(COMPONENT_GAME_YEARS)].copy()
+    shots = shots[((shots["game_id"] // 1_000_000).isin(COMPONENT_GAME_YEARS))
+                  & (((shots["game_id"] // 10_000) % 100) == 2)].copy()
     model = joblib.load(XG_MODEL_PATH)
     shots["xg"] = model.predict_proba(shots[FEATURE_COLS].astype("float32"))[:, 1]
     shots["sw"] = shots["game_id"].map(game_id_season_weight)
@@ -189,12 +190,10 @@ def _fetch_pbp(game_id: int, max_retries: int = 2) -> dict | None:
 
 
 def _season_game_ids(year: int) -> list[int]:
-    ids = [int(f"{year}02{n:04d}") for n in range(1, 1313)]
-    for rnd in range(1, 5):
-        for m in range(1, {1: 8, 2: 4, 3: 2, 4: 1}[rnd] + 1):
-            for g in range(1, 8):
-                ids.append(int(f"{year}030{rnd}{m}{g}"))
-    return ids
+    # Regular season only (game_type 02); playoffs are excluded so the PP
+    # sub-metric and any other downstream consumer of this enumeration stay
+    # regular-season-only.
+    return [int(f"{year}02{n:04d}") for n in range(1, 1313)]
 
 
 def _extract_pp_shots(pbp: dict | None) -> list[tuple]:
